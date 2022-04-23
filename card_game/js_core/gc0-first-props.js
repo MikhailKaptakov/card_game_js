@@ -1,5 +1,6 @@
 const GAME_CORE = {};
 
+
 GAME_CORE.CARDS_PROP = {};
 	GAME_CORE.CARDS_PROP.rarityTable = [35000,40000,45000,47500,50000,52500,55000,80000,80000,80000];
 	GAME_CORE.CARDS_PROP.cardClasses = ['emptyCard','commonCard','uncommonCard','rareCard','epicCard','legendaryCard','mythicalCard','divineCard','ancientCard','hellCard', '.starCard'];
