@@ -1,12 +1,11 @@
 GAME_CORE.Appender = class Appender {
-	constructor (id, owner, settedParrent = document.body, elemType = 'div') {
+	constructor (id, owner, setParent = document.body, elemType = 'div') {
 		this.owner = owner;
 		const elem = document.getElementById(id);
-		this.settedParrent = settedParrent;
 		if (elem == null) {
 			this.owner.view = document.createElement(elemType);
 			this.owner.view.id = id;
-			this.owner.parrent = settedParrent;
+			this.owner.parrent = setParent;
 			this.isDelete = true;
 		} else {
 			this.owner.view = elem;
@@ -15,32 +14,14 @@ GAME_CORE.Appender = class Appender {
 		}
 	}
 	
-	setParrent(parrent) {
+	setParrent(parent) {
 		if (this.isDelete) {
-			this.owner.parrent = parrent;
-			GAME_CORE.LOGGERS.InfoAppenderLogger.logMethod(this.owner.view.id + ' change parrent to ' + parrent, 'setParrent(parrent)');
+			this.owner.parrent = parent;
+			GAME_CORE.LOGGERS.InfoAppenderLogger.logMethod(this.owner.view.id + ' change parrent to ' + parent, 'setParrent(parrent)');
 			return true;
 		} 
 		GAME_CORE.LOGGERS.InfoCardLogger.logMethod('Change failed: ' + this.owner.view.id, 'setParrent(parrent)');
 		return false;
-	}
-	
-	setSettedParrent() {
-		if (this.isDelete) {
-			this.owner.parrent = this.settedParrent;
-			GAME_CORE.LOGGERS.InfoAppenderLogger.logMethod(this.owner.view.id, 'setParrentBody');
-		} else {
-			GAME_CORE.LOGGERS.InfoAppenderLogger.logMethod(this.owner.view.id + 'not setted, it is not deleted', 'setParrentBody');
-		}
-	}
-	
-	writeSettedParrent() {
-		if (!this.isDelete) {
-			this.settedParrent = this.owner.view.parentElement;
-			GAME_CORE.LOGGERS.InfoAppenderLogger.logMethod(this.owner.view.id, 'setOwnerToParrent');
-		} else {
-			GAME_CORE.LOGGERS.InfoAppenderLogger.logMethod(this.owner.view.id + 'not setted, it is not deleted', 'setOwnerToParrent');
-		}
 	}
 	
 	remove() {
