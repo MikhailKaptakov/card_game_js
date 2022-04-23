@@ -1,0 +1,42 @@
+.main-grid {
+	display: grid;
+	grid-template-columns: 100px 100px 100px 100px 100px 100px 100px 100px 100px 100px;
+	grid-template-rows: 100px 100px 100px 100px 100px 50px 25px 100px 200px; 
+	grid-gap: 5px;
+	width : 100%;
+	margin: 5px;
+}
+
+.header-grid {
+	display: grid;
+	grid-template-columns: 257.5px 257.5px 257.5px 257.5px;
+	grid-template-rows: 70px;
+	grid-gap: 5px;
+	width : 100%;
+	margin: 5px;
+}
+
+.equipment-grid {
+	grid-column: span 5; 
+	display: grid;
+	grid-template-columns: 100px 100px 100px 100px 100px;
+	grid-template-rows: 100px; 
+	grid-gap: 5px;
+}
+
+.game-field-sp {
+	grid-column: span 5;
+}
+
+.log-field-sp {
+	grid-column: span 5;
+	grid-row: span 5;
+}
+
+.description-sp {
+	grid-column: span 5;
+}
+
+.replic-sp {
+	grid-column: span 4;
+}

@@ -1,0 +1,57 @@
+
+body {
+	background-color: black;
+	color: Bisque;
+	font-family: "Copperplate", "Papyrus";
+	padding-left: 50px;
+}
+
+
+.games-value-big {
+	font-size: 150%;
+	font-weight: bold;
+	color: orange;
+}
+
+.games-value-unit-name {
+	font-size: 110%;
+	font-weight: bold;
+	color: orange;
+}
+
+.games-value-say {
+	font-size: 110%;
+	font-weight: bold;
+	color: yellow;
+}
+
+.games-value {
+	font-size: 130%;
+	font-weight: bold;
+	color: yellow;
+}
+
+.first-player-style {
+	background-color: rgb(255,165,0,0.15);
+	color: rgb(255,165,0,1);
+}
+
+.second-player-style {
+	background-color: rgb(0,191,255,0.15);
+	color: rgb(0,191,255,1)
+}
+
+.game-field {
+	background-color: rgb(139,69,19,0.15);
+	padding-left: 10px;
+}
+
+.log-field {
+	background-color: rgb(154,205,50,0.15);
+	color: rgb(154,205,50);
+	font-weight: bold;
+	font-size: 110%;
+	padding-left: 10px;
+	padding-top: 10px;
+}
+

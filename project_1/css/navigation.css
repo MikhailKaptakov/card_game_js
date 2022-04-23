@@ -1,0 +1,32 @@
+.nav {
+	width: 1045px;
+}
+
+.nav-element {
+	display: inline-block;
+	height: 30px;
+	width: 150px;
+	
+	line-height: 30px;
+	font-size: 120%;
+	text-align: center;
+	font-weight: bold;
+	
+	text-decoration: none;
+	color: Orange;
+	padding-left: 1px;
+	
+	background-color:rgb(255,165,0,0.1);
+	border-radius: 5px;
+}
+
+.nav-element:hover {
+	background-color:rgb(255,165,0,0.25);
+	color: Yellow;
+	font-size: 130%;
+}
+
+.this-page {
+	background-color:rgb(255,165,0,0.27);
+}
+

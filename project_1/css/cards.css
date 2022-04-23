@@ -1,0 +1,96 @@
+	
+.closed-card {
+	background-color: IndianRed;
+	color: blue;
+	
+	width: 90px;
+	height: 90px;
+	border-radius: 5px;
+	margin: 5px;
+	float: left;
+}
+
+	
+.card-inactive {
+	opacity: 0.4;
+}
+
+
+.opened-card {
+	font-size: 140%;
+	font-weight: bold;
+	text-align: center;
+	
+	width: 70px;
+	height: 70px;
+	border: 10px solid;
+	border-radius: 5px;
+	margin: 5px;
+	float: left;
+}
+
+.emptyCard {
+	background-color: silver ;
+	border-color: lightgray;
+	color: black;
+}
+
+.commonCard {
+	background-color: linen;
+	border-color: chocolate;
+	color: black;
+}
+
+.uncommonCard {
+	background-color: dodgerblue;
+	border-color: deepSkyBlue;
+	color: floralwhite;
+}
+
+.rareCard {
+	background-color: gold ;
+	border-color: yellow;
+	color: black;
+}
+
+.epicCard {
+	background-color: blueviolet;
+	border-color: SlateBlue;
+	color: floralwhite;
+}
+
+.legendaryCard {
+	background-color: darkorange;
+	border-color: OrangeRed;
+	color: black;
+}
+
+.mythicalCard {
+	background-color: HotPink;
+	border-color: deeppink;
+	color: floralwhite;
+}
+
+.divineCard {
+	background-color: Aqua;
+	border-color: LightSeaGreen;
+	color: SteelBlue;
+}
+
+.ancientCard {
+	background-color: lime;
+	border-color: khaki;
+	color: rgb(255,191,0,1);
+}
+
+.hellCard {
+	background-color: rgb(139,0,0,1) ;
+	border-color: rgb(178,34,34,1);
+	color: rgb(255,0,0,1);
+}
+
+.starCard {
+	background-color: rgb(255,255,60,1) ;
+	border-color: rgb(255,174,66,1);
+	color: black;
+}
