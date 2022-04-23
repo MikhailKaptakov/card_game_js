@@ -184,7 +184,7 @@ rareBattle.listenerInit = function() {
 
 rareBattle.supportListen = function(obj, num) {
 	let answer = [];
-	if (obj.rarity != 0) {
+	if (obj.rarity !== 0) {
 		answer.push({letter : rareBattle.rarityNames[obj.rarity], color: rareBattle.rarityColor[obj.rarity]});
 		answer.push({letter : " "});
 		answer.push({letter : rareBattle.equipNames[num], color: rareBattle.rarityColor[obj.rarity]});
@@ -227,7 +227,6 @@ rareBattle.battle = async function() {
 			await rareBattle.gameLog.writeColoredMessage([{letter : rareBattle.unit1.name.value, color : rareBattle.player1.color},
 			{letter : " и "}, {letter : rareBattle.unit2.name.value, color : rareBattle.player2.color},
 			{letter : " трижды скинулись в камень ножницы бумага, но каждый раз была ничья!"}], rareBattle.timeout);
-			continue;
 		} else {
 			const defColoredName = {letter : defender.name.value, color : defender.color };
 			const atColoredName = {letter : atacker.name.value, color : atacker.color};
