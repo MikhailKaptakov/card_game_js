@@ -2,9 +2,11 @@ GAME_CORE.Unit = class Unit {
 	//this id - base to ids of entry entities
 	constructor(id, name, settedParrent = document.body) {
 		this.appender = new GAME_CORE.Appender(id, this, settedParrent);
+
 		this.dodgeReplic = GAME_CORE.UNITS_PROP.dodgeReplics;
 		this.atackReplic = GAME_CORE.UNITS_PROP.atackReplics;
 		this.dieReplic = GAME_CORE.UNITS_PROP.dieReplics;
+
 		this.punish = GAME_CORE.UNITS_PROP.punish;
 		//base_params//
 		this.baseHealth = GAME_CORE.UNITS_PROP.baseHealth;
@@ -66,14 +68,14 @@ GAME_CORE.Unit = class Unit {
 	}
 		
 	/*********PRIVATE*********/
-		dealDamage() {
+		_dealDamage() {
 			const dmg = GAME_CORE.UNITS_PROP.damageDeal(this.damage.value);
 			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' damage is ' + dmg, 'dealDamage');
 			return dmg;
 		}
 		
 		// шанс увернуться от идущей на this атаки
-		dodgeAtack() {
+		_dodgeAtack() {
 			const cond = (GAME_CORE.UNITS_PROP.randomGen() <= Math.floor(this.dodge.value*GAME_CORE.UNITS_PROP.randomRange/100));
 			if (cond) { this.say(this.dodgeReplic[UTIL_CORE.randomGen(this.dodgeReplic.length) - 1]);}
 			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id, 'dodgeAtack');
@@ -81,7 +83,7 @@ GAME_CORE.Unit = class Unit {
 		}
 		
 		//аргумент - убийца
-		die(unit) {
+		_die(unit) {
 			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id, 'die');
 			this.say(this.dieReplic[UTIL_CORE.randomGen(this.dieReplic.length) - 1]);
 			this.punish();
@@ -92,15 +94,15 @@ GAME_CORE.Unit = class Unit {
 		
 		// исходящая атака return -1 - увернулся; 0 - не смертельный урон; 1 - убил;
 	atack(unit) {
-		if (unit.dodgeAtack()) { 
+		if (unit._dodgeAtack()) {
 			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(unit.view.id + ' dodge is success', 'atack(unit)');
 			return {type : -1, dmg : 0};
 		}
-		const damage = this.dealDamage();
+		const damage = this._dealDamage();
 		unit.currentHealth.updateValue(unit.currentHealth.value - damage);
 		this.say(this.atackReplic[UTIL_CORE.randomGen(this.atackReplic.length) - 1]);
 		if (unit.currentHealth.value <= 0) {
-			unit.die(this);
+			unit._die(this);
 			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' enemy ' + unit.view.id + ' is die', 'atack(unit)');
 			return {type : 1, dmg : damage};
 		} else {

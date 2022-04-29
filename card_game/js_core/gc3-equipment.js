@@ -1,8 +1,12 @@
 GAME_CORE.Equipment = class Equipment {
-	constructor(id, settedParrent = document.body) {
+
+	constructor(id, settedParrent = document.body,
+				equipmentTable = new GAME_CORE.EquipmentBonusTable()) {
 		this.appender = new GAME_CORE.Appender(id, this, settedParrent);
+		this.equipmentTable = equipmentTable;
+		//todo поле бонус вынести в отдельный объект
+		//todo сделать отдельный объект бонусов, в котором поля типа int соджержат конкретные значнеия бонусов
 		this.bonus = GAME_CORE.UNITS_PROP.bonus;
-		//this.append();
 		this.head = new GAME_CORE.Card(id + 'head', 0, this.view);
 		this.arms = new GAME_CORE.Card(id + 'arms', 0, this.view);
 		this.body = new GAME_CORE.Card(id + 'body', 0, this.view);
@@ -13,11 +17,11 @@ GAME_CORE.Equipment = class Equipment {
 		
 	returnBonus(i) {
 		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod('run', 'returnBonus('+i+')');
-		return (GAME_CORE.EQUPMENT_PROP.head[i]*this.bonus[i][this.head.rarity] + 
-				GAME_CORE.EQUPMENT_PROP.arms[i]*this.bonus[i][this.arms.rarity] + 
-				GAME_CORE.EQUPMENT_PROP.body[i]*this.bonus[i][this.body.rarity] + 
-				GAME_CORE.EQUPMENT_PROP.legs[i]*this.bonus[i][this.legs.rarity] + 
-				GAME_CORE.EQUPMENT_PROP.feets[i]*this.bonus[i][this.feets.rarity]);		
+		return (this.equipmentTable.head[i]*this.bonus[i][this.head.rarity] +
+			this.equipmentTable.arms[i]*this.bonus[i][this.arms.rarity] +
+			this.equipmentTable.body[i]*this.bonus[i][this.body.rarity] +
+			this.equipmentTable.legs[i]*this.bonus[i][this.legs.rarity] +
+			this.equipmentTable.feets[i]*this.bonus[i][this.feets.rarity]);
 	}
 		
 	returnHealthBonus() {

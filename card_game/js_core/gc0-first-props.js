@@ -1,14 +1,19 @@
-const GAME_CORE = {};
 
 GAME_CORE.CARDS_PROP = {};
 	GAME_CORE.CARDS_PROP.rarityTable = [35000,40000,45000,47500,50000,52500,55000,80000,80000,80000];
 	GAME_CORE.CARDS_PROP.cardClasses = ['emptyCard','commonCard','uncommonCard','rareCard','epicCard','legendaryCard','mythicalCard','divineCard','ancientCard','hellCard', '.starCard'];
 	GAME_CORE.CARDS_PROP.cardText = [' ','comm.','uncom.','rare','epic','legend.','mythic.', 'divine', 'ancient','hell', 'StaR'];
+	GAME_CORE.CARDS_PROP.adjective = ['ничего', 'обычный','необычный','редкий','эпический','легендарный','мифический','божественный', 'древний', 'адский', 'звездный'];
+	GAME_CORE.CARDS_PROP.adjectiveColor = [undefined,'grey','blue','yellow','blueviolet','orange','pink', 'aqua', 'rgb(255,191,0,1)', 'rgb(255,0,0,1)', 'rgb(255,255,0,1)'];
 	GAME_CORE.CARDS_PROP.closedCardClass = 'closed-card';
 	GAME_CORE.CARDS_PROP.openedCardClass = 'opened-card';
 	GAME_CORE.CARDS_PROP.inactiveCardClass = 'card-inactive';
 	GAME_CORE.CARDS_PROP.randomRange = 100000;
 	GAME_CORE.CARDS_PROP.randomGen = function(){return UTIL_CORE.randomGen(GAME_CORE.CARDS_PROP.randomRange );};
+	GAME_CORE.CARDS_PROP.sellPrice = [0,25,50,125,250,375,500,1000,2000,3000,4000];
+	GAME_CORE.CARDS_PROP.buyPrice = [0,100,200,500,1000,1500,2000,4000,8000,12000,16000];
+	GAME_CORE.CARDS_PROP.adjective = ['ничего', 'обычный','необычный','редкий','эпический','легендарный','мифический','божественный', 'древний', 'адский', 'звездный'];
+	GAME_CORE.CARDS_PROP.adjectiveColor = [undefined,'grey','blue','yellow','blueviolet','orange','pink', 'aqua', 'rgb(255,191,0,1)', 'rgb(255,0,0,1)', 'rgb(255,255,0,1)'];
 
 GAME_CORE.LOGGERS = {};
 	GAME_CORE.LOGGERS.loggerInfo = new UTIL_CORE.Logger('info');
@@ -60,11 +65,25 @@ GAME_CORE.UNITS_PROP = {};
 		this.updateAllParam();
 		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + 'is run', 'punish');
 	}
-	
+
 GAME_CORE.EQUPMENT_PROP = {};
 	//[0] HPbonus, [1] DMGbonus, [2] LuckBonus, [3] DodgeBonus
-	GAME_CORE.EQUPMENT_PROP.head = [0, 0, 1, 0]; 
+	GAME_CORE.EQUPMENT_PROP.head = [0, 0, 1, 0];
 	GAME_CORE.EQUPMENT_PROP.arms = [0, 1, 0, 0];
 	GAME_CORE.EQUPMENT_PROP.body = [1, 0, 0, 0];
 	GAME_CORE.EQUPMENT_PROP.legs = [0.5, 0, 0, 0.5];
 	GAME_CORE.EQUPMENT_PROP.feets =[0, 0.5, 0, 0.5];
+
+GAME_CORE.EquipmentBonusTable = class EquipmentBonusTable {
+	constructor(head = GAME_CORE.EQUPMENT_PROP.head,
+				arms = GAME_CORE.EQUPMENT_PROP.arms,
+				body = GAME_CORE.EQUPMENT_PROP.body,
+				legs = GAME_CORE.EQUPMENT_PROP.legs,
+				feets = GAME_CORE.EQUPMENT_PROP.feets,) {
+		this.head = head;
+		this.arms = arms;
+		this.body = body;
+		this.legs = legs;
+		this.feets = feets;
+	}
+}

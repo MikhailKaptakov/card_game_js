@@ -49,18 +49,5 @@ GAME_CORE.Appender = class Appender {
 	}
 };
 
-GAME_CORE.ColoredText = class ColoredText {
-	constructor (letter, color=undefined){
-		this.letter = letter;
-		this.color = color;
-	}
-};
 
-GAME_CORE.Bonus =  class Bonus  {
-	constructor (healthBonus=0, damageBonus=0, luckBonus=0, dodgeBonus=0) {
-		this.healthBonus = healthBonus;
-		this.damageBonus = damageBonus;
-		this.luckBonus = luckBonus;
-		this.dodgeBonus = dodgeBonus;
-	}
-};
+
