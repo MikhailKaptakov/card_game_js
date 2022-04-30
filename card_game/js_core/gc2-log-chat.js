@@ -1,10 +1,10 @@
 GAME_CORE.LogChat = class LogChat {
-	constructor(id, maxMessage, settedParrent = document.body) {
-		this.appender = new GAME_CORE.Appender(id, this, settedParrent);
+	constructor(id, maxMessage, viewParent = document.body) {
+		this.appender = new GAME_CORE.Appender(id, this, viewParent);
 		this.maxMessage = maxMessage;
 		this.messageCount = 0;
 		
-		GAME_CORE.LOGGERS.InfoLogChatLogger.log(this.view.id + ' created in ' + this.parrent.id);
+		GAME_CORE.LOGGERS.InfoLogChatLogger.log(this.view.id + ' created in ' + this.viewParent.id);
 	}
 		
 	async writeMessage(innerText, sleepTime = 200) {
@@ -12,7 +12,7 @@ GAME_CORE.LogChat = class LogChat {
 		await UTIL_CORE.sleep(st);
 		if (this.messageCount >= this.maxMessage) {
 			this.clear();
-		};
+		}
 		GAME_CORE.LOGGERS.InfoLogChatLogger.logMethod(this.view.id, 'writeMessage');
 		const p = document.createElement('p');
 		p.textContent = innerText;
@@ -27,12 +27,12 @@ GAME_CORE.LogChat = class LogChat {
 		await UTIL_CORE.sleep(st);
 		if (this.messageCount >= this.maxMessage) {
 			this.clear();
-		};
+		}
 		GAME_CORE.LOGGERS.InfoLogChatLogger.logMethod(this.view.id, 'writeColoredMessage');
 		const p = document.createElement('p');
 		for (let i = 0; i<innerText.length; i++) {
 			const d = document.createElement('var')
-			if (innerText[i].color != undefined) {
+			if (innerText[i].color !== undefined) {
 				d.style.color = innerText[i].color;
 			}
 			d.textContent = innerText[i].letter;
@@ -50,7 +50,7 @@ GAME_CORE.LogChat = class LogChat {
 		this.messageCount = 0;
 	}
 		
-	setParrent(parrent) {return this.appender.setParrent(parrent);}
+	setParrent(parrent) {return this.appender.setViewParent(parrent);}
 	remove() {return this.appender.remove();}
 	append() {return this.appender.append();}
 };

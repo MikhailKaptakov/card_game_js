@@ -28,11 +28,11 @@ GAME_CORE.Card = class Card {
 	//todo в карет создать поля для классов стилей тип карты и её редкость, эти поля через конкатенацию присваивать визуалке, а так же добавить поле со стилем для закрытой/открытой карты
 	//todo все бонусы пересчитанные из таблиц должны становиться индивидуальными полями указанной карты
 	//todo добавить подсказку с бонусами при наведении на карту в ячейке снаряжения
-	constructor(id, rarity, settedParrent = document.body) {
+	constructor(id, rarity, viewParent = document.body) {
 		this.rarity = rarity; //integer number of rarity 
 		this.state = false; //true - open; false - close;
-		 //true - card is removed from parrent; 
-		this.appender = new GAME_CORE.Appender(id, this, settedParrent);
+		 //true - card is removed from viewParent;
+		this.appender = new GAME_CORE.Appender(id, this, viewParent);
 		this.view.className = GAME_CORE.CARDS_PROP.closedCardClass;
 		this.view.textContent = "";
 		GAME_CORE.LOGGERS.InfoCardLogger.log('Created card ' + this.view.id + ' rarity: ' + rarity + ' (' 
@@ -44,9 +44,9 @@ GAME_CORE.Card = class Card {
 		newView.id = this.view.id;
 		newView.className = this.view.className;
 		newView.textContent = this.view.textContent;
-		this.parrent.removeChild(this.view);
+		this.viewParent.removeChild(this.view);
 		this.view = newView;
-		this.parrent.appendChild(this.view);
+		this.viewParent.appendChild(this.view);
 	}
 	
 	setRarity(rarityNum) {
@@ -110,7 +110,7 @@ GAME_CORE.Card = class Card {
 		this.view.className = this.view.className.replace(" " + GAME_CORE.CARDS_PROP.inactiveCardClass ,"");
 	}
 	
-	setParrent(parrent) {return this.appender.setParrent(parrent);}
+	setParrent(parrent) {return this.appender.setViewParent(parrent);}
 	deleteCard() {return this.appender.remove();}
 	appendCard() {return this.appender.append();}
 		

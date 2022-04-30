@@ -1,5 +1,5 @@
 const b = document.getElementById('gameField');
-const c = new GAME_CORE.LogChat('log', b, '10'); //(id, parrent, maxMessage)
+const c = new GAME_CORE.LogChat('log', b, '10'); //(id, viewParent, maxMessage)
 const d = document.body;
 
 

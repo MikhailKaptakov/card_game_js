@@ -1,11 +1,11 @@
 GAME_CORE.TextEntity = class TextEntity {
 	
-	constructor(id, value, settedParrent = document.body){
-		this.appender = new GAME_CORE.Appender(id, this, settedParrent, 'var');
+	constructor(id, value, viewParent = document.body){
+		this.appender = new GAME_CORE.Appender(id, this, viewParent, 'var');
 		this.value = value;
 		//this.append();
 		this.updateView();
-		GAME_CORE.LOGGERS.InfoTextEntityLogger.log(this.view.id + ' created in ' + this.parrent.id + '. Value:' + value);
+		GAME_CORE.LOGGERS.InfoTextEntityLogger.log(this.view.id + ' created in ' + this.viewParent.id + '. Value:' + value);
 	}
 	
 	updateView() {
@@ -18,7 +18,7 @@ GAME_CORE.TextEntity = class TextEntity {
 		this.updateView();
 	}
 
-	setParrent(parrent) {return this.appender.setParrent(parrent);}
+	setParrent(parrent) {return this.appender.setViewParent(parrent);}
 	remove() {return this.appender.remove();} 
 	append() {return this.appender.append();}
 };

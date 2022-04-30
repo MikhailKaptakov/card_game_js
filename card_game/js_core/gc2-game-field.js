@@ -1,6 +1,6 @@
 GAME_CORE.GameField = class GameField {
-	constructor(id, cardsCount, settedParrent = document.body) {
-		this.appender = new GAME_CORE.Appender(id, this, settedParrent);
+	constructor(id, cardsCount, viewParent = document.body) {
+		this.appender = new GAME_CORE.Appender(id, this, viewParent);
 		this.cardsCount = cardsCount;
 		this.cardArray = [];	
 		for (let i = 0; i < this.cardsCount; i++) {
@@ -9,7 +9,7 @@ GAME_CORE.GameField = class GameField {
 		}
 		this.isEmpty = true;		
 		
-		GAME_CORE.LOGGERS.InfoGameFieldLogger.log(this.view.id + ' created in ' + this.parrent.id);
+		GAME_CORE.LOGGERS.InfoGameFieldLogger.log(this.view.id + ' created in ' + this.viewParent.id);
 	}
 				
 	doIt(cardAction) {
@@ -90,7 +90,7 @@ GAME_CORE.GameField = class GameField {
 		GAME_CORE.LOGGERS.InfoGameFieldLogger.logMethod(this.view.id + ' removed listners', 'addListeners');
 	}
 	
-	setParrent(parrent) {return this.appender.setParrent(parrent);}
+	setParrent(parrent) {return this.appender.setViewParent(parrent);}
 	remove() {return this.appender.remove();}
 	append() {return this.appender.append();}
 };

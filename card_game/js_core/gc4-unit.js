@@ -1,7 +1,7 @@
 GAME_CORE.Unit = class Unit {
 	//this id - base to ids of entry entities
-	constructor(id, name, settedParrent = document.body) {
-		this.appender = new GAME_CORE.Appender(id, this, settedParrent);
+	constructor(id, name, viewParent = document.body) {
+		this.appender = new GAME_CORE.Appender(id, this, viewParent);
 
 		this.dodgeReplic = GAME_CORE.UNITS_PROP.dodgeReplics;
 		this.atackReplic = GAME_CORE.UNITS_PROP.atackReplics;
@@ -150,7 +150,7 @@ GAME_CORE.Unit = class Unit {
 		this.replics.remove();
 	}
 	
-	setParrent(parrent) {return this.appender.setParrent(parrent);}
+	setParrent(parrent) {return this.appender.setViewParent(parrent);}
 	remove() {return this.appender.remove();}
 	append() {return this.appender.append();}
 };

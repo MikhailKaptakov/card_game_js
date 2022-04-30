@@ -16,10 +16,10 @@ GAME_CORE.Price = class Price {
 
 GAME_CORE.StatSet =  class StatSet  {
     constructor (health=0, damage=0, luck=0, dodge=0) {
-        this.healthBonus = health;
-        this.damageBonus = damage;
-        this.luckBonus = luck;
-        this.dodgeBonus = dodge;
+        this.health = health;
+        this.damage = damage;
+        this.luck = luck;
+        this.dodge = dodge;
     }
 };
 
@@ -42,11 +42,11 @@ GAME_CORE.RarityCollection = class RarityCollection {
         this.randomRange = randomRange;
     }
 
-    randomGen() {return Math.floor(Math.random()*this.randomRange);};
+    _randomGen() {return Math.floor(Math.random()*this.randomRange);};
 
     getRandomRarity() {
         for (let i = 0; i < this.rarityArray.length; i++) {
-            if (this.randomGen() <= this.rarityArray[i].difficult) {
+            if (this._randomGen() <= this.rarityArray[i].difficult) {
                 return this.rarityArray[Math.max(i-1,0)];
             }
         }
@@ -58,14 +58,14 @@ GAME_CORE.RarityCollection = class RarityCollection {
                 return this.rarityArray[i];
             }
         }
-        return undefined;
+        return this.rarityArray[0];
     }
 
     getRarityByIndex(arrayIndex) {
         if (arrayIndex < this.rarityArray.length && arrayIndex >= 0) {
             return this.rarityArray[arrayIndex];
         }
-        return undefined;
+        return this.rarityArray[0];
     }
 }
 GAME_CORE.CardType = class CardType {
@@ -86,14 +86,14 @@ GAME_CORE.CardTypeCollection = class CardTypeCollection {
                 return this.cardTypeArray[i];
             }
         }
-        return undefined;
+        return this.cardTypeArray[0];
     }
 
     getTypeByArrayIndex(index) {
         if (index < this.cardTypeArray.length && index >= 0) {
             return this.cardTypeArray[index];
         }
-        return undefined;
+        return this.cardTypeArray[0];
     }
 
     getRandomType() {

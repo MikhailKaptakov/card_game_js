@@ -1,8 +1,8 @@
 GAME_CORE.Equipment = class Equipment {
 
-	constructor(id, settedParrent = document.body,
+	constructor(id, viewParent = document.body,
 				equipmentTable = new GAME_CORE.EquipmentBonusTable()) {
-		this.appender = new GAME_CORE.Appender(id, this, settedParrent);
+		this.appender = new GAME_CORE.Appender(id, this, viewParent);
 		this.equipmentTable = equipmentTable;
 		//todo поле бонус вынести в отдельный объект
 		//todo сделать отдельный объект бонусов, в котором поля типа int соджержат конкретные значнеия бонусов
@@ -85,7 +85,7 @@ GAME_CORE.Equipment = class Equipment {
 		}
 	}	
 	
-	setParrent(parrent) {return this.appender.setParrent(parrent);}
+	setParrent(parrent) {return this.appender.setViewParent(parrent);}
 	remove() {return this.appender.remove();}
 	append() {return this.appender.append();}
 };
