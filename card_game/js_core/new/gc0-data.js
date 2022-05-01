@@ -1,11 +1,24 @@
 const GAME_CORE = {};
 
-GAME_CORE.ColoredText = class ColoredText {
-    constructor (letter, color=undefined){
-        this.letter = letter;
-        this.color = color;
+GAME_CORE.Letter = class Letter {
+    constructor(letter, color=undefined, backgroundColor =undefined) {
+        this.view = document.createElement('var');
+        this.view.textContent = letter;
+        if (color !== undefined) {this.view.style.color = color;}
+        if (backgroundColor !== undefined) {this.view.style.backgroundColor = backgroundColor;}
     }
-};
+    getText(){return this.view.textContent;}
+    //todo добавить больше полей к настройке letter
+}
+
+GAME_CORE.Message = class Message {
+    constructor(letterArray) {
+        this.view = document.createElement('p');
+        for (let i = 0; i<letterArray.length; i++) {
+            this.view.appendChild(letterArray[i].view);
+        }
+    }
+}
 
 GAME_CORE.Price = class Price {
     constructor (buy, sell){

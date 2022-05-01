@@ -3,37 +3,37 @@ GAME_CORE.DEFAULT_PROPS = {};
 GAME_CORE.DEFAULT_PROPS.rarityOptions = [
     // args: index, difficult, viewClassName, cardText, coloredAdjective (letter, color), price (buy,sell), bonus (health,damage,luck,dodge)
     new GAME_CORE.RarityOption('empty', 0, 'emptyCard', ' ',
-        new GAME_CORE.ColoredText('ничего'),
+        new GAME_CORE.Letter('ничего'),
         new GAME_CORE.Price(0,0), new GAME_CORE.StatSet()),
     new GAME_CORE.RarityOption('common', 35000, 'commonCard', 'comm.',
-        new GAME_CORE.ColoredText('обычный', 'grey'),
+        new GAME_CORE.Letter('обычный', 'grey'),
         new GAME_CORE.Price(100,25), new GAME_CORE.StatSet(50,5,5,2)),
     new GAME_CORE.RarityOption('uncommon', 40000, 'uncommonCard', 'uncom.',
-        new GAME_CORE.ColoredText('необычный', 'blue'),
+        new GAME_CORE.Letter('необычный', 'blue'),
         new GAME_CORE.Price(200,50), new GAME_CORE.StatSet(100,10,10,4)),
     new GAME_CORE.RarityOption('rare', 45000, 'rareCard', 'rare.',
-        new GAME_CORE.ColoredText('редкий', 'yellow'),
+        new GAME_CORE.Letter('редкий', 'yellow'),
         new GAME_CORE.Price(500,125), new GAME_CORE.StatSet(150,15,15,6)),
     new GAME_CORE.RarityOption('epic', 47500, 'epicCard', 'epic',
-        new GAME_CORE.ColoredText('эпический', 'blueviolet'),
+        new GAME_CORE.Letter('эпический', 'blueviolet'),
         new GAME_CORE.Price(1000,250), new GAME_CORE.StatSet(200,20,20,8)),
     new GAME_CORE.RarityOption('legendary', 50000, 'legendaryCard', 'legend.',
-        new GAME_CORE.ColoredText('легендарный', 'orange'),
+        new GAME_CORE.Letter('легендарный', 'orange'),
         new GAME_CORE.Price(1500,375), new GAME_CORE.StatSet(250,25,30,10)),
     new GAME_CORE.RarityOption('mythical', 52500, 'mythicalCard', 'mythic.',
-        new GAME_CORE.ColoredText('мифический', 'pink'),
+        new GAME_CORE.Letter('мифический', 'pink'),
         new GAME_CORE.Price(2000,500), new GAME_CORE.StatSet(300,30,40,12)),
     new GAME_CORE.RarityOption('divine', 55000, 'divineCard', 'divine',
-        new GAME_CORE.ColoredText('божественный', 'aqua'),
+        new GAME_CORE.Letter('божественный', 'aqua'),
         new GAME_CORE.Price(4000,1000), new GAME_CORE.StatSet(350,35,50,14)),
     new GAME_CORE.RarityOption('ancient', 80000, 'ancientCard', 'ancient',
-        new GAME_CORE.ColoredText('древний', 'rgb(100,191,100,1)'),
+        new GAME_CORE.Letter('древний', 'rgb(100,191,100,1)'),
         new GAME_CORE.Price(8000,2000), new GAME_CORE.StatSet(400,40,60,16)),
     new GAME_CORE.RarityOption('hell', 80000, 'hellCard', 'hell',
-        new GAME_CORE.ColoredText('адский', 'rgb(255,0,0,1)'),
+        new GAME_CORE.Letter('адский', 'rgb(255,0,0,1)'),
         new GAME_CORE.Price(12000,3000), new GAME_CORE.StatSet(500,50,80,20)),
     new GAME_CORE.RarityOption('star', 80000, 'starCard', 'StaR',
-        new GAME_CORE.ColoredText('звездный', 'rgb(255,255,0,1)'),
+        new GAME_CORE.Letter('звездный', 'rgb(255,255,0,1)'),
         new GAME_CORE.Price(16000,4000), new GAME_CORE.StatSet(600,60,120,24))
 ];
 
@@ -44,9 +44,12 @@ GAME_CORE.DEFAULT_PROPS.cardTypes = [
     new GAME_CORE.CardType('legs','legsType'),
     new GAME_CORE.CardType('feet','feetType')
 ];
+
+GAME_CORE.DEFAULT_PROPS.cardTypeCollection = new GAME_CORE.CardTypeCollection(GAME_CORE.DEFAULT_PROPS.cardTypes);
 GAME_CORE.DEFAULT_PROPS.rarityCollection = new GAME_CORE.RarityCollection(GAME_CORE.DEFAULT_PROPS.rarityOptions);
 GAME_CORE.DEFAULT_PROPS.cardState = new GAME_CORE.CardState('opened-card','closed-card');
 GAME_CORE.DEFAULT_PROPS.cardActivity = new GAME_CORE.CardActivity('','card-inactive');
+GAME_CORE.DEFAULT_PROPS.cardFactory = new GAME_CORE.CardFactory({});
 
 GAME_CORE.DEFAULT_PROPS.unitStats = new GAME_CORE.StatSet(300,25,0,5);
 GAME_CORE.DEFAULT_PROPS.headMultiple = new GAME_CORE.StatSet(0, 0, 1, 0);

@@ -3,7 +3,7 @@
 
 GAME_CORE.CardFactory = class CardFactory {
     constructor ({rarityCollection =GAME_CORE.DEFAULT_PROPS.rarityCollection,
-                     cardTypeCollection =GAME_CORE.DEFAULT_PROPS.cardTypes,
+                     cardTypeCollection =GAME_CORE.DEFAULT_PROPS.cardTypeCollection,
                      defaultCardState =GAME_CORE.DEFAULT_PROPS.cardState,
                      defaultCardActivity =GAME_CORE.DEFAULT_PROPS.cardActivity}) {
         this.rarityCollection = rarityCollection;
@@ -12,7 +12,8 @@ GAME_CORE.CardFactory = class CardFactory {
         this.defaultCardActivity = defaultCardActivity;
     }
 
-    create(id) {return new CardBuilder(this, id);}
+    create(id) {return new GAME_CORE._CardBuilder(this, id);}
+    createByView(id, viewParent) {return new GAME_CORE._CardBuilder(this, id, viewParent);}
     getRandomRarity() {return this.rarityCollection.getRandomRarity();}
     getRarityByRarityName(name) {return this.rarityCollection.getRarityByRarityName(name);}
     getRarityByIndex(arrayIndex) {return this.rarityCollection.getRarityByIndex(arrayIndex);}
@@ -22,26 +23,26 @@ GAME_CORE.CardFactory = class CardFactory {
 }
 
 GAME_CORE._CardBuilder = class CardBuilder {
-    constructor(factory, id) {
+    constructor(factory, id, viewParent= document.body) {
         this.factory = factory;
         this.id = id;
-        this.viewParent = document.body;
+        this.viewParent = viewParent;
         this.rarityOption = this.factory.rarityCollection.getRarityByIndex(0);
         this.cardType = this.factory.cardTypeCollection.getTypeByArrayIndex(0);
         this.cardState = this.factory.defaultCardState;
         this.cardActivity = this.factory.defaultCardActivity;
     }
-    setId(id) {this.id = id;}
-    setViewParent(viewParent) {this.viewParent = viewParent;}
-    setRarityRandom() {this.rarityOption = this.factory.rarityCollection.getRandomRarity();}
-    setRarityByRarityName(name) {this.rarityOption = this.factory.rarityCollection.getRarityByRarityName(name);}
-    setRarityByIndex(arrayIndex) {this.rarityOption = this.factory.rarityCollection.getRarityByIndex(arrayIndex);}
-    setCardTypeRandom() {this.cardType = this.factory.cardTypeCollection.getRandomType();}
-    setCardTypeByName(name) {this.cardType = this.factory.cardTypeCollection.getTypeByName(name);}
-    setCardTypeByArrayIndex(index) {this.cardType = this.factory.cardTypeCollection.getTypeByArrayIndex(index);}
-    setDifferentCardState(cardState) {this.cardState = cardState;}
-    setDifferentCardActivity(cardActivity) {this.cardActivity = cardActivity;}
-    createCard() {return new Card(this.id, this.viewParent, this.rarityOption, this.cardType, this.cardState, this.cardActivity);}
+    setId(id) {this.id = id; return this;}
+    setViewParent(viewParent) {this.viewParent = viewParent; return this;}
+    setRarityRandom() {this.rarityOption = this.factory.rarityCollection.getRandomRarity(); return this;}
+    setRarityByRarityName(name) {this.rarityOption = this.factory.rarityCollection.getRarityByRarityName(name); return this;}
+    setRarityByIndex(arrayIndex) {this.rarityOption = this.factory.rarityCollection.getRarityByIndex(arrayIndex); return this;}
+    setCardTypeRandom() {this.cardType = this.factory.cardTypeCollection.getRandomType(); return this;}
+    setCardTypeByName(name) {this.cardType = this.factory.cardTypeCollection.getTypeByName(name); return this;}
+    setCardTypeByArrayIndex(index) {this.cardType = this.factory.cardTypeCollection.getTypeByArrayIndex(index); return this;}
+    setDifferentCardState(cardState) {this.cardState = cardState; return this;}
+    setDifferentCardActivity(cardActivity) {this.cardActivity = cardActivity; return this;}
+    createCard() {return new GAME_CORE.Card(this.id, this.viewParent, this.rarityOption, this.cardType, this.cardState, this.cardActivity);}
 }
 
 GAME_CORE.Card = class Card {
@@ -53,7 +54,7 @@ GAME_CORE.Card = class Card {
         this.cardActivity = cardActivity;
         this.cardViewOption = new GAME_CORE._cardViewOption(this);
         this.action = undefined;
-        GAME_CORE.LOGGERS.InfoCardLogger.log('Created card ' + this.view.id + ' rarity: ' + rarity + ' ('
+        GAME_CORE.LOGGERS.InfoCardLogger.log('Created card ' + this.view.id + ' rarity: ' + this.rarityName() + ' ('
             + this.rarityName() + ')');
     }
 
@@ -82,13 +83,9 @@ GAME_CORE.Card = class Card {
     setActive() {this.cardViewOption.setActive();}
     setInactive (){this.cardViewOption.setInactive();}
     //appender
-    //todo при замене класса Card заменить старые названия методов setParrent, deleteCard, appendCard в ядре
     setViewParent(viewParent) {return this.appender.setViewParent(viewParent);}
     remove(){return this.appender.remove();}
     append(){return this.appender.append();}
-    deleteCard(){return this.appender.remove();}
-    appendCard(){return this.appender.append();}
-    setParrent(parrent) {return this.appender.setViewParent(parrent);}
 
     setEventListener(eventType, action) {
         this.view.addEventListener(eventType, action);
