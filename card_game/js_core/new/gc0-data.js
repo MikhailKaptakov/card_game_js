@@ -34,6 +34,12 @@ GAME_CORE.StatSet =  class StatSet  {
         this.luck = luck;
         this.dodge = dodge;
     }
+
+    //обработчики состояния, по умолчанию возвращают значение, но могут быть изменены
+    getHealth(args =undefined) {return this.health}
+    getDamage(args =undefined) {return this.damage}
+    getluck(args =undefined) {return this.luck}
+    getdodge(args =undefined) {return this.dodge}
 };
 
 GAME_CORE.RarityOption = class RarityOption {
@@ -144,10 +150,37 @@ GAME_CORE.CardActivity = class CardActivity {
 
 GAME_CORE.EquipmentMultiple = class EquipmentMultiple {
     constructor(head, arms, body, legs, feet ) {
-        this.head = head;
-        this.arms = arms;
-        this.body = body;
-        this.legs = legs;
-        this.feet = feet;
+        this.statSets = [head,arms,body,legs,feet];
+    }
+}
+
+GAME_CORE.EquipmentCardInit = class EquipmentCardInit {
+    constructor(cardFactory =GAME_CORE.DEFAULT_PROPS.cardFactory) {
+        this.cardFactory = cardFactory;
+    }
+
+    initEquipmentCards(owner) {
+        owner.cards = [
+        this.cardFactory
+            .createByView(owner.view.id + 'head', owner.view)
+            .setCardTypeByName('head')
+            .createCard(),
+        this.cardFactory
+            .createByView(owner.view.id + 'arms', owner.view)
+            .setCardTypeByName('arms')
+            .createCard(),
+        this.cardFactory
+            .createByView(owner.view.id + 'body', owner.view)
+            .setCardTypeByName('body')
+            .createCard(),
+        this.cardFactory
+            .createByView(owner.view.id + 'legs', owner.view)
+            .setCardTypeByName('legs')
+            .createCard(),
+        this.cardFactory
+            .createByView(owner.view.id + 'feet', owner.view)
+            .setCardTypeByName('feet')
+            .createCard()
+        ]
     }
 }

@@ -4,8 +4,6 @@ GAME_CORE.Equipment = class Equipment {
 				equipmentTable = new GAME_CORE.EquipmentBonusTable()) {
 		this.appender = new GAME_CORE.Appender(id, this, viewParent);
 		this.equipmentTable = equipmentTable;
-		//todo поле бонус вынести в отдельный объект
-		//todo сделать отдельный объект бонусов, в котором поля типа int соджержат конкретные значнеия бонусов
 		this.bonus = GAME_CORE.UNITS_PROP.bonus;
 		this.head = new GAME_CORE.Card(id + 'head', 0, this.view);
 		this.arms = new GAME_CORE.Card(id + 'arms', 0, this.view);

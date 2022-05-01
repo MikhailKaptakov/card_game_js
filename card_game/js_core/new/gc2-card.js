@@ -113,10 +113,10 @@ GAME_CORE.Card = class Card {
     getBuyPrice() {return this.rarityOption.price.buy;}
     getSellPrice() {return this.rarityOption.price.sell;}
     getBonus() {return this.rarityOption.bonus;}
-    getHealthBonus() {return this.getBonus().health;}
-    getDamageBonus() {return this.getBonus().damage;}
-    getLuckBonus() {return this.getBonus().luck;}
-    getDodgeBonus() {return this.getBonus().dodge;}
+    getHealthBonus() {return this.getBonus().getHealth();}
+    getDamageBonus() {return this.getBonus().getDamage();}
+    getLuckBonus() {return this.getBonus().geyLuck();}
+    getDodgeBonus() {return this.getBonus().getDodge();}
     getCardTypeName() {return this.cardType.name;}
 }
 

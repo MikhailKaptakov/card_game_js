@@ -63,6 +63,7 @@ GAME_CORE.DEFAULT_PROPS.equipmentMultiple = new GAME_CORE.EquipmentMultiple(
     GAME_CORE.DEFAULT_PROPS.bodyMultiple,
     GAME_CORE.DEFAULT_PROPS.legsMultiple,
     GAME_CORE.DEFAULT_PROPS.feetsMultiple);
+GAME_CORE.DEFAULT_PROPS.equipmentCardInit = new GAME_CORE.EquipmentCardInit();
 
 GAME_CORE.DEFAULT_PROPS.dodgeReplics = ['Попробуй поймай', 'Ха - ха, А я уже тут', 'Мимо!'];
 GAME_CORE.DEFAULT_PROPS.atackReplics = ['Получи', 'Так тебе', 'Больно?!'];
