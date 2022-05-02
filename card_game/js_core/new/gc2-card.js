@@ -115,7 +115,7 @@ GAME_CORE.Card = class Card {
     getBonus() {return this.rarityOption.bonus;}
     getHealthBonus() {return this.getBonus().getHealth();}
     getDamageBonus() {return this.getBonus().getDamage();}
-    getLuckBonus() {return this.getBonus().geyLuck();}
+    getLuckBonus() {return this.getBonus().getLuck();}
     getDodgeBonus() {return this.getBonus().getDodge();}
     getCardTypeName() {return this.cardType.name;}
 }

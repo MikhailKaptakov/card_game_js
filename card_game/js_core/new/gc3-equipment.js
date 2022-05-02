@@ -20,7 +20,7 @@ GAME_CORE.Equipment = class Equipment {
 		let healthBonus = 0;
 		for (let i = 0; i < this.cards.length; i++) {
 			healthBonus += this.cards[i].getHealthBonus()*this.equipmentMultiple.statSets[i].getHealth(this.cards[i]) +
-			this.equipmentAdditional.statSets[i].getHealth(this.card[i]);
+			this.equipmentAdditional.statSets[i].getHealth(this.cards[i]);
 		}
 		return healthBonus;
 	}
@@ -30,7 +30,7 @@ GAME_CORE.Equipment = class Equipment {
 		let damageBonus = 0;
 		for (let i = 0; i < this.cards.length; i++) {
 			damageBonus += this.cards[i].getDamageBonus()*this.equipmentMultiple.statSets[i].getDamage(this.cards[i]) +
-				this.equipmentAdditional.statSets[i].getDamage(this.card[i]);
+				this.equipmentAdditional.statSets[i].getDamage(this.cards[i]);
 		}
 		return damageBonus;
 	}
@@ -40,7 +40,7 @@ GAME_CORE.Equipment = class Equipment {
 		let luckBonus = 0;
 		for (let i = 0; i < this.cards.length; i++) {
 			luckBonus += this.cards[i].getLuckBonus() * this.equipmentMultiple.statSets[i].getLuck(this.cards[i]) +
-				this.equipmentAdditional.statSets[i].getLuck(this.card[i]);
+				this.equipmentAdditional.statSets[i].getLuck(this.cards[i]);
 		}
 		return luckBonus;
 	}
@@ -50,7 +50,7 @@ GAME_CORE.Equipment = class Equipment {
 		let dodgeBonus = 0;
 		for (let i = 0; i < this.cards.length; i++) {
 			dodgeBonus += this.cards[i].getDodgeBonus() * this.equipmentMultiple.statSets[i].getDodge(this.cards[i]) +
-				this.equipmentAdditional.statSets[i].getDodge(this.card[i]);
+				this.equipmentAdditional.statSets[i].getDodge(this.cards[i]);
 		}
 		return dodgeBonus;
 	}

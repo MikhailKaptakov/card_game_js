@@ -8,15 +8,8 @@ GAME_CORE.Unit = class Unit {
 				equipmentCardInit =GAME_CORE.DEFAULT_PROPS.equipmentCardInit) {
 		this.appender = new GAME_CORE.Appender(id, this, viewParent);
 		this.replicsSet = replicsSet;
-		/*this.dodgeReplic = GAME_CORE.UNITS_PROP.dodgeReplics;
-		this.atackReplic = GAME_CORE.UNITS_PROP.atackReplics;
-		this.dieReplic = GAME_CORE.UNITS_PROP.dieReplics;*/
 
 		this.baseCharacteristics = baseCharacteristics;
-		/*this.baseHealth = GAME_CORE.UNITS_PROP.baseHealth;
-		this.baseDamage = GAME_CORE.UNITS_PROP.baseDamage;
-		this.baseLuck = GAME_CORE.UNITS_PROP.baseLuck;
-		this.baseDodge = GAME_CORE.UNITS_PROP.baseDodge;*/
 		this.equipmentMultiple = equipmentMultiple;
 		this.equipmentAdditional = equipmentAdditional;
 		//views
@@ -31,15 +24,10 @@ GAME_CORE.Unit = class Unit {
 
 		this.equipment = new GAME_CORE.Equipment(id + 'SET', this.view, this.equipmentAdditional, this.equipmentMultiple, equipmentCardInit);
 		this.equipment.owner = this;
+		this.updateAllParam();
 		GAME_CORE.LOGGERS.InfoUnitLogger.log(this.view.id + ' created');
 	}
 
-	/*
-функции как набор параметров юнита
-_randomGen = function(){return Math.floor(Math.random()*100) + 1};
-GAME_CORE.UNITS_PROP.
-
-*/
 	updateAllParam() {
 		this.updateMaxHealth();
 		this.updateDamage();
