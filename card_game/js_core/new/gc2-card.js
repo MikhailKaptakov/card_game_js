@@ -120,7 +120,6 @@ GAME_CORE.Card = class Card {
     getCardTypeName() {return this.cardType.name;}
 }
 
-GAME_CORE._cardViewOption = {};
 GAME_CORE._cardViewOption = class ViewOption {
     constructor(owner) {
         this.owner = owner;

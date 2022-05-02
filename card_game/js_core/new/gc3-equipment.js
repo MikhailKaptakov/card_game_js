@@ -1,7 +1,11 @@
 GAME_CORE.Equipment = class Equipment {
 
-	constructor(id, equipmentMultiple =GAME_CORE.DEFAULT_PROPS.equipmentMultiple, viewParent = document.body, equipmentCardInit =GAME_CORE.DEFAULT_PROPS.equipmentCardInit) {
+	constructor(id, viewParent = document.body,
+				equipmentAdditional =GAME_CORE.DEFAULT_PROPS.equipmentAdditional(),
+				equipmentMultiple =GAME_CORE.DEFAULT_PROPS.equipmentMultiple(),
+				equipmentCardInit =GAME_CORE.DEFAULT_PROPS.equipmentCardInit) {
 		this.appender = new GAME_CORE.Appender(id, this, viewParent);
+		this.equipmentAdditional = equipmentAdditional;
 		this.equipmentMultiple = equipmentMultiple;
 		equipmentCardInit.initEquipmentCards(this);
 		GAME_CORE.LOGGERS.InfoEquipmentLogger.log(this.view.id + ' created');
@@ -15,7 +19,8 @@ GAME_CORE.Equipment = class Equipment {
 		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod('run', 'returnHealthBonus');
 		let healthBonus = 0;
 		for (let i = 0; i < this.cards.length; i++) {
-			healthBonus += this.cards[i].getHealthBonus()*this.equipmentMultiple.statSets[i].getHealth(this.cards[i]);
+			healthBonus += this.cards[i].getHealthBonus()*this.equipmentMultiple.statSets[i].getHealth(this.cards[i]) +
+			this.equipmentAdditional.statSets[i].getHealth(this.card[i]);
 		}
 		return healthBonus;
 	}
@@ -24,7 +29,8 @@ GAME_CORE.Equipment = class Equipment {
 		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod('run', 'returnDamageBonus');
 		let damageBonus = 0;
 		for (let i = 0; i < this.cards.length; i++) {
-			damageBonus += this.cards[i].getDamageBonus()*this.equipmentMultiple.statSets[i].getDamage(this.cards[i]);
+			damageBonus += this.cards[i].getDamageBonus()*this.equipmentMultiple.statSets[i].getDamage(this.cards[i]) +
+				this.equipmentAdditional.statSets[i].getDamage(this.card[i]);
 		}
 		return damageBonus;
 	}
@@ -33,7 +39,8 @@ GAME_CORE.Equipment = class Equipment {
 		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod('run', 'returnLuckBonus');
 		let luckBonus = 0;
 		for (let i = 0; i < this.cards.length; i++) {
-			luckBonus += this.cards[i].getLuckBonus() * this.equipmentMultiple.statSets[i].getLuck(this.cards[i]);
+			luckBonus += this.cards[i].getLuckBonus() * this.equipmentMultiple.statSets[i].getLuck(this.cards[i]) +
+				this.equipmentAdditional.statSets[i].getLuck(this.card[i]);
 		}
 		return luckBonus;
 	}
@@ -42,7 +49,8 @@ GAME_CORE.Equipment = class Equipment {
 		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod('run', 'returnDodgeBonus');
 		let dodgeBonus = 0;
 		for (let i = 0; i < this.cards.length; i++) {
-			dodgeBonus += this.cards[i].getDodgeBonus() * this.equipmentMultiple.statSets[i].getDodge(this.cards[i]);
+			dodgeBonus += this.cards[i].getDodgeBonus() * this.equipmentMultiple.statSets[i].getDodge(this.cards[i]) +
+				this.equipmentAdditional.statSets[i].getDodge(this.card[i]);
 		}
 		return dodgeBonus;
 	}

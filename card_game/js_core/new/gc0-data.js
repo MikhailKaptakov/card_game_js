@@ -35,11 +35,13 @@ GAME_CORE.StatSet =  class StatSet  {
         this.dodge = dodge;
     }
 
-    //обработчики состояния, по умолчанию возвращают значение, но могут быть изменены
+    cloneThis() {return new GAME_CORE.StatSet(this.health,this.damage,this.luck,this.dodge);}
+
+    // по умолчанию возвращают значение, но могут быть изменены
     getHealth(args =undefined) {return this.health}
     getDamage(args =undefined) {return this.damage}
-    getluck(args =undefined) {return this.luck}
-    getdodge(args =undefined) {return this.dodge}
+    getLuck(args =undefined) {return this.luck}
+    getDodge(args =undefined) {return this.dodge}
 };
 
 GAME_CORE.RarityOption = class RarityOption {
@@ -59,6 +61,14 @@ GAME_CORE.RarityCollection = class RarityCollection {
     constructor(rarityArray, randomRange = 100000) {
         this.rarityArray = rarityArray;
         this.randomRange = randomRange;
+        this._initRarityCollection();
+    }
+
+    _initRarityCollection() {
+        for (let i = 0; i < this.rarityArray.length; i++) {
+            this.rarityArray[i].rarityCollection = this;
+            this.rarityArray[i].collectionIndex = i;
+        }
     }
 
     _randomGen() {return Math.floor(Math.random()*this.randomRange);};
@@ -152,6 +162,9 @@ GAME_CORE.EquipmentMultiple = class EquipmentMultiple {
     constructor(head, arms, body, legs, feet ) {
         this.statSets = [head,arms,body,legs,feet];
     }
+
+    cloneThis() {return new GAME_CORE.EquipmentMultiple(this.statSets[0].cloneThis(), this.statSets[1].cloneThis(),
+        this.statSets[2].cloneThis(),this.statSets[3].cloneThis(),this.statSets[4].cloneThis());}
 }
 
 GAME_CORE.EquipmentCardInit = class EquipmentCardInit {
@@ -182,5 +195,17 @@ GAME_CORE.EquipmentCardInit = class EquipmentCardInit {
             .setCardTypeByName('feet')
             .createCard()
         ]
+    }
+}
+
+GAME_CORE.ReplicsSet = class ReplicsSet {
+    constructor(dodgeArray, attackArray, defeatArray) {
+        this.dodgeArray = dodgeArray;
+        this.attackArray = attackArray;
+        this.defeatArray = defeatArray;
+    }
+
+    cloneThis() {
+        return new GAME_CORE.ReplicsSet([...this.dodgeArray], [...this.attackArray], [...this.defeatArray]);
     }
 }

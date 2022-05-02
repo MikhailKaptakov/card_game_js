@@ -51,37 +51,32 @@ GAME_CORE.DEFAULT_PROPS.cardState = new GAME_CORE.CardState('opened-card','close
 GAME_CORE.DEFAULT_PROPS.cardActivity = new GAME_CORE.CardActivity('','card-inactive');
 GAME_CORE.DEFAULT_PROPS.cardFactory = new GAME_CORE.CardFactory({});
 
-GAME_CORE.DEFAULT_PROPS.unitStats = new GAME_CORE.StatSet(300,25,0,5);
+GAME_CORE.DEFAULT_PROPS.baseCharacteristic = function() {return new GAME_CORE.StatSet(300,25,0,5);};
 GAME_CORE.DEFAULT_PROPS.headMultiple = new GAME_CORE.StatSet(0, 0, 1, 0);
 GAME_CORE.DEFAULT_PROPS.armsMultiple = new GAME_CORE.StatSet(0, 1, 0, 0);
 GAME_CORE.DEFAULT_PROPS.bodyMultiple = new GAME_CORE.StatSet(1, 0, 0, 0);
 GAME_CORE.DEFAULT_PROPS.legsMultiple = new GAME_CORE.StatSet(0.5, 0, 0, 0.5);
 GAME_CORE.DEFAULT_PROPS.feetsMultiple = new GAME_CORE.StatSet(0, 0.5, 0, 0.5);
-GAME_CORE.DEFAULT_PROPS.equipmentMultiple = new GAME_CORE.EquipmentMultiple(
-    GAME_CORE.DEFAULT_PROPS.headMultiple,
-    GAME_CORE.DEFAULT_PROPS.armsMultiple,
-    GAME_CORE.DEFAULT_PROPS.bodyMultiple,
-    GAME_CORE.DEFAULT_PROPS.legsMultiple,
-    GAME_CORE.DEFAULT_PROPS.feetsMultiple);
+
+GAME_CORE.DEFAULT_PROPS.equipmentMultiple = function() {return new GAME_CORE.EquipmentMultiple(
+    GAME_CORE.DEFAULT_PROPS.headMultiple.cloneThis(),
+    GAME_CORE.DEFAULT_PROPS.armsMultiple.cloneThis(),
+    GAME_CORE.DEFAULT_PROPS.bodyMultiple.cloneThis(),
+    GAME_CORE.DEFAULT_PROPS.legsMultiple.cloneThis(),
+    GAME_CORE.DEFAULT_PROPS.feetsMultiple.cloneThis()); }
+GAME_CORE.DEFAULT_PROPS.equipmentAdditional = function() {
+    const set = new GAME_CORE.StatSet(0,0,0,0);
+    return new GAME_CORE.EquipmentMultiple(set, set.cloneThis(), set.cloneThis(),
+        set.cloneThis(), set.cloneThis());
+};
+
 GAME_CORE.DEFAULT_PROPS.equipmentCardInit = new GAME_CORE.EquipmentCardInit();
 
 GAME_CORE.DEFAULT_PROPS.dodgeReplics = ['Попробуй поймай', 'Ха - ха, А я уже тут', 'Мимо!'];
-GAME_CORE.DEFAULT_PROPS.atackReplics = ['Получи', 'Так тебе', 'Больно?!'];
-GAME_CORE.DEFAULT_PROPS.dieReplics = ['Я ещё вернусь', 'Ну как так??!', 'Неверю!!!', 'Это только начало!', 'Это что! КРОВЬ?!' ,'Как??? Как такое могло произойти???!'];
-
-/*
-функции как набор параметров юнита
-GAME_CORE.UNITS_PROP.randomGen = function(){return UTIL_CORE.randomGen(GAME_CORE.UNITS_PROP.randomRange)}; зашить в юнита и переработать так как расчет идет от инициативы
-GAME_CORE.UNITS_PROP.damageDeal = function(damage) {return damage+Math.floor(damage*((GAME_CORE.UNITS_PROP.randomRange/2) - GAME_CORE.UNITS_PROP.randomGen())/(5*GAME_CORE.UNITS_PROP.randomRange));};
-GAME_CORE.UNITS_PROP.punish = function(){
-    const num = UTIL_CORE.randomGen(5) - 1;
-    const card = this.equipment.getEquipByNumber(num);
-    card.setRarity(0);
-    card.updateCard();
-    this.updateAllParam();
-    GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + 'is run', 'punish');
-}
-*/
+GAME_CORE.DEFAULT_PROPS.attackReplics = ['Получи', 'Так тебе', 'Больно?!'];
+GAME_CORE.DEFAULT_PROPS.defeatReplics = ['Я ещё вернусь', 'Ну как так??!', 'Неверю!!!', 'Это только начало!', 'Это что! КРОВЬ?!' ,'Как??? Как такое могло произойти???!'];
+GAME_CORE.DEFAULT_PROPS.replicsSet = function() {return new GAME_CORE.ReplicsSet([...GAME_CORE.DEFAULT_PROPS.dodgeReplics],
+    [...GAME_CORE.DEFAULT_PROPS.attackReplics], [...GAME_CORE.DEFAULT_PROPS.defeatReplics])};
 
 GAME_CORE.LOGGERS = {};
 GAME_CORE.LOGGERS.loggerInfo = new UTIL_CORE.Logger('info');
