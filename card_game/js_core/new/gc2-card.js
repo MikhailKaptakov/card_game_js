@@ -31,6 +31,8 @@ GAME_CORE._CardBuilder = class CardBuilder {
         this.cardType = this.factory.cardTypeCollection.getTypeByArrayIndex(0);
         this.cardState = this.factory.defaultCardState;
         this.cardActivity = this.factory.defaultCardActivity;
+        this.description = undefined;
+
     }
     setId(id) {this.id = id; return this;}
     setViewParent(viewParent) {this.viewParent = viewParent; return this;}
@@ -42,17 +44,18 @@ GAME_CORE._CardBuilder = class CardBuilder {
     setCardTypeByArrayIndex(index) {this.cardType = this.factory.cardTypeCollection.getTypeByArrayIndex(index); return this;}
     setDifferentCardState(cardState) {this.cardState = cardState; return this;}
     setDifferentCardActivity(cardActivity) {this.cardActivity = cardActivity; return this;}
-    createCard() {return new GAME_CORE.Card(this.id, this.viewParent, this.rarityOption, this.cardType, this.cardState, this.cardActivity);}
+    setDescription(description) {this.description = description; return this;}
+    createCard() {return new GAME_CORE.Card(this.id, this.viewParent, this.rarityOption, this.cardType, this.cardState, this.cardActivity, this.description);}
 }
 
 GAME_CORE.Card = class Card {
-    constructor(id, viewParent, rarityOption, cardType, cardState, cardActivity) {
+    constructor(id, viewParent, rarityOption, cardType, cardState, cardActivity, description =undefined) {
         this.appender = new GAME_CORE.Appender(id, this, viewParent);
         this.rarityOption = rarityOption;
         this.cardType = cardType;
         this.cardState = cardState;
         this.cardActivity = cardActivity;
-        this.cardViewOption = new GAME_CORE._cardViewOption(this);
+        this.cardViewOption = new GAME_CORE._cardViewOption(this, description);
         this.action = undefined;
         GAME_CORE.LOGGERS.InfoCardLogger.log('Created card ' + this.view.id + ' rarity: ' + this.rarityName() + ' ('
             + this.rarityName() + ')');
@@ -121,10 +124,11 @@ GAME_CORE.Card = class Card {
 }
 
 GAME_CORE._cardViewOption = class ViewOption {
-    constructor(owner) {
+    constructor(owner, description=undefined) {
         this.owner = owner;
         this.state = false;
         this.activity = true;
+        this.description = description;
         this._setViewClasses(this.owner.cardActivity.viewClassActive,
             this.owner.cardState.viewClassClosed, '', '');
         this.viewText = '';
@@ -151,6 +155,12 @@ GAME_CORE._cardViewOption = class ViewOption {
     update() {
         this.owner.view.className = this.viewClass;
         this.owner.view.textContent = this.viewText;
+        if (this.state && this.activity) {
+            this.owner.view.title = (this.description === undefined)?this.owner.rarityOption.description:this.description;
+        }
+        else {
+            this.owner.view.title = '';
+        }
     }
 
     _setViewClasses (activityViewClass =undefined, stateViewClass =undefined,
@@ -214,3 +224,131 @@ GAME_CORE._cardViewOption = class ViewOption {
         }
     }
 };
+
+GAME_CORE.RarityOption = class RarityOption {
+    constructor (name, difficult, viewClass, cardText, coloredAdjective, price, bonus,
+                 description =undefined) {
+        this.name = name;
+        this.difficult = difficult;
+        this.viewClass = viewClass;
+        this.cardText = cardText;
+        this.coloredAdjective = coloredAdjective;
+        this.price = price;
+        this.bonus = bonus;
+        if (this.description !== undefined) {
+            this.description = description;
+        } else {
+            this.description = this.name + ' ' + 'Health: ' + this.bonus.health + ' Damage: ' + this.bonus.damage +
+                ' Luck: ' + this.bonus.luck + '  Dodge: ' + this.bonus.dodge + '  Sell: '
+                + this.price.sell + '  Buy: ' + this.price.buy;
+        }
+        //todo при изменении карт цену карты формировать из стоимости рарной карты + добавочная стоимость переданным параметром
+    }
+}
+
+GAME_CORE.RarityCollection = class RarityCollection {
+    constructor(rarityArray, randomRange = 100000) {
+        this.rarityArray = rarityArray;
+        this.randomRange = randomRange;
+        this._initRarityCollection();
+    }
+
+    doThisToAllRarityCollection(actionWithArgumentRarityOption) {
+        for (let i = 0; i < this.rarityArray.length; i++) {
+            actionWithArgumentRarityOption(this.rarityArray[i]);
+        }
+    }
+
+    _initRarityCollection() {
+        for (let i = 0; i < this.rarityArray.length; i++) {
+            this.rarityArray[i].rarityCollection = this;
+            this.rarityArray[i].collectionIndex = i;
+        }
+    }
+
+    _randomGen() {return Math.floor(Math.random()*this.randomRange);};
+
+    getRandomRarity() {
+        for (let i = 0; i < this.rarityArray.length; i++) {
+            if (this._randomGen() <= this.rarityArray[i].difficult) {
+                return this.rarityArray[Math.max(i-1,0)];
+            }
+        }
+    }
+
+    getRarityByRarityName(name){
+        for (let i = 0; i< this.rarityArray.length; i++) {
+            if (this.rarityArray[i].name === name) {
+                return this.rarityArray[i];
+            }
+        }
+        return this.rarityArray[0];
+    }
+
+    getRarityByIndex(arrayIndex) {
+        if (arrayIndex < this.rarityArray.length && arrayIndex >= 0) {
+            return this.rarityArray[arrayIndex];
+        }
+        return this.rarityArray[0];
+    }
+}
+GAME_CORE.CardType = class CardType {
+    constructor(name, viewClass) {
+        this.name = name;
+        this.viewClass = viewClass;
+    }
+}
+
+GAME_CORE.CardTypeCollection = class CardTypeCollection {
+    constructor(cardTypeArray) {
+        this.cardTypeArray = cardTypeArray;
+    }
+
+    getTypeByName(name) {
+        for (let i = 0; i< this.cardTypeArray.length; i++) {
+            if (this.cardTypeArray[i].name === name) {
+                return this.cardTypeArray[i];
+            }
+        }
+        return this.cardTypeArray[0];
+    }
+
+    getTypeByArrayIndex(index) {
+        if (index < this.cardTypeArray.length && index >= 0) {
+            return this.cardTypeArray[index];
+        }
+        return this.cardTypeArray[0];
+    }
+
+    getRandomType() {
+        return this.cardTypeArray[Math.floor(Math.random()*this.cardTypeArray.length)];
+    }
+}
+
+GAME_CORE.CardState = class CardState {
+    constructor(viewClassOpened, viewClassClosed) {
+        this.viewClassOpened = viewClassOpened;
+        this.viewClassClosed = viewClassClosed;
+    }
+
+    getState(bool) {
+        if (bool) {
+            return this.viewClassOpened;
+        }
+        return this.viewClassClosed;
+    }
+}
+
+GAME_CORE.CardActivity = class CardActivity {
+    constructor(viewClassActive, viewClassInactive) {
+        this.viewClassActive = viewClassActive;
+        this.viewClassInactive = viewClassInactive;
+    }
+
+    getActivity(bool) {
+        if (bool) {
+            return this.viewClassActive;
+        }
+        return this.viewClassInactive;
+    }
+}

@@ -86,7 +86,7 @@ GAME_CORE.Unit = class Unit {
 		_die(unit) {
 			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id, 'die');
 			this.say(this.dieReplic[UTIL_CORE.randomGen(this.dieReplic.length) - 1]);
-			this.punish();
+			this.defeatPunish();
 			this.wins.updateValue(0);
 			unit.wins.updateValue(unit.wins.value++);
 		}
@@ -95,7 +95,7 @@ GAME_CORE.Unit = class Unit {
 		// исходящая атака return -1 - увернулся; 0 - не смертельный урон; 1 - убил;
 	atack(unit) {
 		if (unit._dodgeAtack()) {
-			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(unit.view.id + ' dodge is success', 'atack(unit)');
+			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(unit.view.id + ' dodge is success', 'attack(unit)');
 			return {type : -1, dmg : 0};
 		}
 		const damage = this._dealDamage();
@@ -103,10 +103,10 @@ GAME_CORE.Unit = class Unit {
 		this.say(this.atackReplic[UTIL_CORE.randomGen(this.atackReplic.length) - 1]);
 		if (unit.currentHealth.value <= 0) {
 			unit._die(this);
-			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' enemy ' + unit.view.id + ' is die', 'atack(unit)');
+			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' enemy ' + unit.view.id + ' is die', 'attack(unit)');
 			return {type : 1, dmg : damage};
 		} else {
-			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' enemy ' + unit.view.id + ' get damage', 'atack(unit)');
+			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' enemy ' + unit.view.id + ' get damage', 'attack(unit)');
 			return {type : 0, dmg : damage};
 		}
 	}

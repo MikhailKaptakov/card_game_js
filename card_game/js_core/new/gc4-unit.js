@@ -56,9 +56,9 @@ GAME_CORE.Unit = class Unit {
 		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' value: ' + this.dodge.value, 'updateDodge');
 	}
 	
-	beAllHealed() {
+	beFullHealed() {
 		this.currentHealth.updateValue(this.maxHealth.value);
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' value: ' + this.currentHealth.value, 'beAllHealed');
+		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' value: ' + this.currentHealth.value, 'beFullHealed');
 	}
 	
 	beHealed(value) {
@@ -97,28 +97,28 @@ GAME_CORE.Unit = class Unit {
 		return cond;
 	}
 
-	punish() {
+	defeatPunish() {
 		const num = Math.floor(Math.random()*5);
 		const card = this.equipment.getEquipByNumber(num);
 		const rar = Math.max(card.rarityOption.collectionIndex - 1, 0);
 		card.changeRarityOption(card.rarityOption.rarityCollection[rar]);
 		this.updateAllParam();
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + 'is run', 'punish');
+		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + 'is run', 'defeatPunish');
 	}
 		
 		//аргумент - убийца
 	die(unit) {
 		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id, 'die');
 		this.say(this.dieReplic[Math.floor(Math.random()*this.replicsSet.defeatArray.length)]);
-		this.punish();
+		this.defeatPunish();
 		this.wins.updateValue(0);
 		unit.wins.updateValue(unit.wins.value++);
 	}
 		
 		// исходящая атака return -1 - увернулся; 0 - не смертельный урон; 1 - убил;
-	atack(unit) {
+	attack(unit) {
 		if (unit.dodgeAtack()) {
-			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(unit.view.id + ' dodge is success', 'atack(unit)');
+			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(unit.view.id + ' dodge is success', 'attack(unit)');
 			return {type : -1, dmg : 0};
 		}
 		const damage = this.dealDamage();
@@ -126,10 +126,10 @@ GAME_CORE.Unit = class Unit {
 		this.say(this.replicsSet.attackArray[Math.floor(Math.random()*this.replicsSet.attackArray.length)]);
 		if (unit.currentHealth.value <= 0) {
 			unit.die(this);
-			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' enemy ' + unit.view.id + ' is die', 'atack(unit)');
+			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' enemy ' + unit.view.id + ' is die', 'attack(unit)');
 			return {type : 1, dmg : damage};
 		} else {
-			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' enemy ' + unit.view.id + ' get damage', 'atack(unit)');
+			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' enemy ' + unit.view.id + ' get damage', 'attack(unit)');
 			return {type : 0, dmg : damage};
 		}
 	}
@@ -179,3 +179,50 @@ GAME_CORE.Unit = class Unit {
 	remove() {return this.appender.remove();}
 	append() {return this.appender.append();}
 };
+
+GAME_CORE.ReplicsSet = class ReplicsSet {
+	constructor(dodgeArray, attackArray, defeatArray) {
+		this.dodgeArray = dodgeArray;
+		this.attackArray = attackArray;
+		this.defeatArray = defeatArray;
+	}
+
+	cloneThis() {
+		return new GAME_CORE.ReplicsSet([...this.dodgeArray], [...this.attackArray], [...this.defeatArray]);
+	}
+}
+
+GAME_CORE.Modificator = class Modificator {
+	//method execute(unitOwner, unitTarget)
+	constructor(name, type, state, executeMethod) {
+		this.name = name;
+		this.type = type;
+		this.state = state;
+		this.execute = executeMethod;
+	}
+}
+
+GAME_CORE.ModificatorCollection = class ModificatorCollection {
+	constructor() {
+	}
+
+/*	todo коллекция модификаторов - имя коллекцииб массив со списком модификаторов, удалить модификатор по имени и индексу,
+	модификатору добавляемому в
+	коллекцию присвоить поле индекс.
+	поля коллекций модификаторов в юните: - для каждого места где есть методы выполнения модификаторов
+	в коллекции сделать метод выполнить все - выполняет все исполняемые методы активных модификаторов
+	*/
+}
+
+
+
+/*todo
+	для мультипликаторов и добавочных бонус к снаряжению зависящик от карты в ячейке снаряжения
+	equipmentMultiple и equipmentAdditional, эти бафы разовые - класс модификаторыСнаряжения
+	в этом классе методы прикрепить, открепить, метод исполнения - он заменяет соответсвующие значения в статсетах и/или
+	методы вернуть здоровье и прочее
+	один из таких бафов - полностью очищает мультипликаторы до начального состояния
+	метод открепления желательно должен иметь возможность откатить все изменения модификатора
+	добавить для кажждого поля equipmentMultiple и equipmentAdditional - состояния - доступна модификация или нет, если не доступна - не изменять
+
+ */

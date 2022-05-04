@@ -96,3 +96,79 @@ UTIL_CORE.Logger = class Logger {
 		childLogger.parrent = this;
 	}
 }
+
+UTIL_CORE.EntityView = class EntityView {
+	constructor(id, owner, viewParent = document.body, elemType = 'div') {
+		this.owner = owner;
+		const elem = document.getElementById(id);
+		if (elem == null) {
+			this.view = document.createElement(elemType);
+			this.view.id = id;
+			this.viewParent = viewParent;
+			this.isConnected = false;
+		} else {
+			this.view = elem;
+			this.viewParent = this.view.parentElement;
+			this.isConnected = true;
+		}
+	}
+
+	setViewParent(viewParent) {
+		if (this.isConnected) {return false;}
+		this.viewParent = viewParent;
+		return true;
+	}
+
+	remove() {
+		if (!this.isConnected) {return false;}
+		this.viewParent.removeChild(this.view);
+		this.isConnected = false;
+		return true;
+	}
+
+	append() {
+		if(!this.isConnected) {return false;}
+		this.viewParent.appendChild(this.view);
+		this.isConnected = true;
+		return true;
+	}
+
+	replace(newViewParent) {
+		this.remove();
+		this.setViewParent(newViewParent);
+		this.append();
+	}
+
+	setClass(viewClassName) {
+		this.view.class = viewClassName;
+	}
+	setTextContent(viewTextContent) {
+		this.view.textContent = viewTextContent;
+	}
+	setTitle(viewTitle) {
+		this.view.title = viewTitle;
+	}
+}
+
+UTIL_CORE.Letter = class Letter {
+	constructor(letter, color=undefined, backgroundColor =undefined) {
+		this.view = document.createElement('var');
+		this.view.textContent = letter;
+		if (color !== undefined) {this.view.style.color = color;}
+		if (backgroundColor !== undefined) {this.view.style.backgroundColor = backgroundColor;}
+	}
+	append(viewParent) { viewParent.append(this.view);}
+	appendClone(viewParent) {viewParent.append(this.view.cloneNode(true));}
+	getText(){return this.view.textContent;}
+}
+
+UTIL_CORE.Message = class Message {
+	constructor(letterArray) {
+		this.view = document.createElement('p');
+		for (let i = 0; i<letterArray.length; i++) {
+			this.view.appendChild(letterArray[i].view);
+		}
+	}
+	append(viewParent) { viewParent.append(this.view);}
+	appendClone(viewParent) {viewParent.append(this.view.cloneNode(true));}
+}

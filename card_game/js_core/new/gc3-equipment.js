@@ -82,3 +82,43 @@ GAME_CORE.Equipment = class Equipment {
 	remove() {return this.appender.remove();}
 	append() {return this.appender.append();}
 };
+
+GAME_CORE.EquipmentCardInit = class EquipmentCardInit {
+	constructor(cardFactory =GAME_CORE.DEFAULT_PROPS.cardFactory) {
+		this.cardFactory = cardFactory;
+	}
+
+	initEquipmentCards(owner) {
+		owner.cards = [
+			this.cardFactory
+				.createByView(owner.view.id + 'head', owner.view)
+				.setCardTypeByName('head')
+				.createCard(),
+			this.cardFactory
+				.createByView(owner.view.id + 'arms', owner.view)
+				.setCardTypeByName('arms')
+				.createCard(),
+			this.cardFactory
+				.createByView(owner.view.id + 'body', owner.view)
+				.setCardTypeByName('body')
+				.createCard(),
+			this.cardFactory
+				.createByView(owner.view.id + 'legs', owner.view)
+				.setCardTypeByName('legs')
+				.createCard(),
+			this.cardFactory
+				.createByView(owner.view.id + 'feet', owner.view)
+				.setCardTypeByName('feet')
+				.createCard()
+		]
+	}
+}
+
+GAME_CORE.EquipmentMultiple = class EquipmentMultiple {
+	constructor(head, arms, body, legs, feet ) {
+		this.statSets = [head,arms,body,legs,feet];
+	}
+
+	cloneThis() {return new GAME_CORE.EquipmentMultiple(this.statSets[0].cloneThis(), this.statSets[1].cloneThis(),
+		this.statSets[2].cloneThis(),this.statSets[3].cloneThis(),this.statSets[4].cloneThis());}
+}

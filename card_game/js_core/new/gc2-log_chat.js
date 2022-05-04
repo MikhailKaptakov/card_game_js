@@ -24,7 +24,7 @@ GAME_CORE.LogChat = class LogChat {
 		await UTIL_CORE.sleep(st);
 		this._clearIfNecessary()
 		GAME_CORE.LOGGERS.InfoLogChatLogger.logMethod(this.view.id, 'writeMessage');
-		this.view.appendChild(message.view.cloneNode(true));
+		message.appendClone(this.view);
 		this.messageCount++;
 		await UTIL_CORE.sleep(sleepTime - st);
 	}

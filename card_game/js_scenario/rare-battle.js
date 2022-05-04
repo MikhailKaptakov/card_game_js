@@ -244,10 +244,10 @@ rareBattle.battle = async function() {
 				{letter : res.dmg, color : rareBattle.damageColor}, {letter : " и повергает его!"}], rareBattle.timeout);
 				atacker.owner.score.updateValue(atacker.owner.score.value + 1);
 				await rareBattle.gameLog.writeColoredMessage([{letter : " В битве побеждает "}, atColoredName, {letter : "!"}], 2000)
-				rareBattle.unit1.beAllHealed();
+				rareBattle.unit1.beFullHealed();
 				atacker.wins.updateValue(atacker.wins.value + 1);
 				defender.wins.updateValue(0);
-				rareBattle.unit2.beAllHealed();
+				rareBattle.unit2.beFullHealed();
 				rez = true;
 			}
 		}
