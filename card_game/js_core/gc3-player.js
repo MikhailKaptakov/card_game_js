@@ -13,8 +13,8 @@ GAME_CORE.Player = class Player {
 		this.score.append();
 		this.money.append();
 	}
-	
-	setParrent(parrent) {return this.appender.setViewParent(parrent);}
+
+	setViewParent(viewParent) {return this.appender.setViewParent(viewParent);}
 	remove() {return this.appender.remove();}
 	append() {return this.appender.append();}
 	

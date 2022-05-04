@@ -1,89 +1,124 @@
 GAME_CORE.Equipment = class Equipment {
 
 	constructor(id, viewParent = document.body,
-				equipmentTable = new GAME_CORE.EquipmentBonusTable()) {
+				equipmentAdditional =GAME_CORE.DEFAULT_PROPS.equipmentAdditional(),
+				equipmentMultiple =GAME_CORE.DEFAULT_PROPS.equipmentMultiple(),
+				equipmentCardInit =GAME_CORE.DEFAULT_PROPS.equipmentCardInit) {
 		this.appender = new GAME_CORE.Appender(id, this, viewParent);
-		this.equipmentTable = equipmentTable;
-		this.bonus = GAME_CORE.UNITS_PROP.bonus;
-		this.head = new GAME_CORE.Card(id + 'head', 0, this.view);
-		this.arms = new GAME_CORE.Card(id + 'arms', 0, this.view);
-		this.body = new GAME_CORE.Card(id + 'body', 0, this.view);
-		this.legs = new GAME_CORE.Card(id + 'legs', 0, this.view);
-		this.feets = new GAME_CORE.Card(id + 'feets', 0, this.view);	
+		this.equipmentAdditional = equipmentAdditional;
+		this.equipmentMultiple = equipmentMultiple;
+		equipmentCardInit.initEquipmentCards(this);
 		GAME_CORE.LOGGERS.InfoEquipmentLogger.log(this.view.id + ' created');
-	}		
-		
-	returnBonus(i) {
-		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod('run', 'returnBonus('+i+')');
-		return (this.equipmentTable.head[i]*this.bonus[i][this.head.rarity] +
-			this.equipmentTable.arms[i]*this.bonus[i][this.arms.rarity] +
-			this.equipmentTable.body[i]*this.bonus[i][this.body.rarity] +
-			this.equipmentTable.legs[i]*this.bonus[i][this.legs.rarity] +
-			this.equipmentTable.feets[i]*this.bonus[i][this.feets.rarity]);
+	}
+
+	returnBonus() {
+		return new GAME_CORE.StatSet(this.getHealthBonus(), this.getDamageBonus(), this.getLuckBonus(), this.getDodgeBonus());
 	}
 		
-	returnHealthBonus() {
+	getHealthBonus() {
 		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod('run', 'returnHealthBonus');
-		return this.returnBonus(0);}
+		let healthBonus = 0;
+		for (let i = 0; i < this.cards.length; i++) {
+			healthBonus += this.cards[i].getHealthBonus()*this.equipmentMultiple.statSets[i].getHealth(this.cards[i]) +
+			this.equipmentAdditional.statSets[i].getHealth(this.cards[i]);
+		}
+		return healthBonus;
+	}
 		
-	returnDamageBonus() {
+	getDamageBonus() {
 		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod('run', 'returnDamageBonus');
-		return this.returnBonus(1);}
+		let damageBonus = 0;
+		for (let i = 0; i < this.cards.length; i++) {
+			damageBonus += this.cards[i].getDamageBonus()*this.equipmentMultiple.statSets[i].getDamage(this.cards[i]) +
+				this.equipmentAdditional.statSets[i].getDamage(this.cards[i]);
+		}
+		return damageBonus;
+	}
 		
-	returnLuckBonus()   {
+	getLuckBonus() {
 		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod('run', 'returnLuckBonus');
-		return this.returnBonus(2);}
+		let luckBonus = 0;
+		for (let i = 0; i < this.cards.length; i++) {
+			luckBonus += this.cards[i].getLuckBonus() * this.equipmentMultiple.statSets[i].getLuck(this.cards[i]) +
+				this.equipmentAdditional.statSets[i].getLuck(this.cards[i]);
+		}
+		return luckBonus;
+	}
 		
-	returnDodgeBonus()  {
+	getDodgeBonus()  {
 		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod('run', 'returnDodgeBonus');
-		return this.returnBonus(3);}
+		let dodgeBonus = 0;
+		for (let i = 0; i < this.cards.length; i++) {
+			dodgeBonus += this.cards[i].getDodgeBonus() * this.equipmentMultiple.statSets[i].getDodge(this.cards[i]) +
+				this.equipmentAdditional.statSets[i].getDodge(this.cards[i]);
+		}
+		return dodgeBonus;
+	}
 		
 	appendCards() {
 		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod(' run ', 'appendCard');
-		this.head.appendCard();
-		this.arms.appendCard();
-		this.body.appendCard();
-		this.legs.appendCard();
-		this.feets.appendCard();
+		for (let i = 0; i<this.cards.length; i++) {
+			this.cards[i].append();
+		}
 	}
 	
 	openCards() {
 		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod(this.view.id + ' is open equipment cards ', 'openCards');
-		this.head.openCard();
-		this.arms.openCard();
-		this.body.openCard();
-		this.legs.openCard();
-		this.feets.openCard();
+		for (let i = 0; i<this.cards.length; i++) {
+			this.cards[i].openCard();
+		}
 	}
 
 	closeCards() {
-		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod(this.view.id + ' is open equipment cards ', 'openCards');
-		this.head.closeCard();
-		this.arms.closeCard();
-		this.body.closeCard();
-		this.legs.closeCard();
-		this.feets.closeCard();
+		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod(this.view.id + ' is open equipment cards ', 'closeCards');
+		for (let i = 0; i<this.cards.length; i++) {
+			this.cards[i].closeCard();
+		}
 	}
 	
-	getEquipByNumber(num) {
-		if (num === 0) {
-			return this.head;
-		}
-		if (num === 1) {
-			return this.arms;
-		}
-		if (num === 2) {
-			return this.body;
-		}
-		if (num === 3) {
-			return this.legs;
-		}
-		if (num === 4) {
-			return this.feets;
-		}
-	}	
+	getEquipByNumber(i) {return this.cards[i];}
 	
-	setParrent(parrent) {return this.appender.setViewParent(parrent);}
+	setViewParent(viewParent) {return this.appender.setViewParent(viewParent);}
 	remove() {return this.appender.remove();}
 	append() {return this.appender.append();}
 };
+
+GAME_CORE.EquipmentCardInit = class EquipmentCardInit {
+	constructor(cardFactory =GAME_CORE.DEFAULT_PROPS.cardFactory) {
+		this.cardFactory = cardFactory;
+	}
+
+	initEquipmentCards(owner) {
+		owner.cards = [
+			this.cardFactory
+				.createByView(owner.view.id + 'head', owner.view)
+				.setCardTypeByName('head')
+				.createCard(),
+			this.cardFactory
+				.createByView(owner.view.id + 'arms', owner.view)
+				.setCardTypeByName('arms')
+				.createCard(),
+			this.cardFactory
+				.createByView(owner.view.id + 'body', owner.view)
+				.setCardTypeByName('body')
+				.createCard(),
+			this.cardFactory
+				.createByView(owner.view.id + 'legs', owner.view)
+				.setCardTypeByName('legs')
+				.createCard(),
+			this.cardFactory
+				.createByView(owner.view.id + 'feet', owner.view)
+				.setCardTypeByName('feet')
+				.createCard()
+		]
+	}
+}
+
+GAME_CORE.EquipmentMultiple = class EquipmentMultiple {
+	constructor(head, arms, body, legs, feet ) {
+		this.statSets = [head,arms,body,legs,feet];
+	}
+
+	cloneThis() {return new GAME_CORE.EquipmentMultiple(this.statSets[0].cloneThis(), this.statSets[1].cloneThis(),
+		this.statSets[2].cloneThis(),this.statSets[3].cloneThis(),this.statSets[4].cloneThis());}
+}

@@ -1,3 +1,0 @@
- - added to gc2-log_chat.js new method
- - writeColoredMessage(array[{letter, color},{letter, color}...])
- - new rarity hell and star
