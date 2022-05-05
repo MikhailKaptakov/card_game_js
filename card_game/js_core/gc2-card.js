@@ -50,66 +50,17 @@ GAME_CORE._CardBuilder = class CardBuilder {
 
 GAME_CORE.Card = class Card {
     constructor(id, viewParent, rarityOption, cardType, cardState, cardActivity, description =undefined) {
-        this.appender = new GAME_CORE.Appender(id, this, viewParent);
         this.rarityOption = rarityOption;
         this.cardType = cardType;
         this.cardState = cardState;
         this.cardActivity = cardActivity;
-        this.cardViewOption = new GAME_CORE._cardViewOption(this, description);
+        this.cardViewOption = new GAME_CORE._cardViewOption(this, viewParent,description);
         this.action = undefined;
-        GAME_CORE.LOGGERS.InfoCardLogger.log('Created card ' + this.view.id + ' rarity: ' + this.rarityName() + ' ('
+        GAME_CORE.LOGGERS.InfoCardLogger.log('Created card ' + this.cardViewOption.viewEntity.view.id + ' rarity: ' + this.rarityName() + ' ('
             + this.rarityName() + ')');
     }
 
-    resetView() {
-        const newView = document.createElement('div');
-        newView.id = this.view.id;
-        this.viewParent.removeChild(this.view);
-        this.view = newView;
-        this.viewParent.appendChild(this.view);
-        this.updateView()
-    }
-
-    //cardViewOption
-    changeRarityOption(rarityOption) {
-        this.rarityOption = rarityOption;
-        this.cardViewOption._changeViewOptions();
-    }
-    changeTypeOption(cardType) {
-        this.cardType = cardType;
-        this.cardViewOption._changeViewOptions();
-    }
-
-    updateView() {this.cardViewOption.update();}
-    openCard() {this.cardViewOption.open();}
-    closeCard() {this.cardViewOption.close();}
-    setActive() {this.cardViewOption.setActive();}
-    setInactive (){this.cardViewOption.setInactive();}
-    //appender
-    setViewParent(viewParent) {return this.appender.setViewParent(viewParent);}
-    remove(){return this.appender.remove();}
-    append(){return this.appender.append();}
-
-    setEventListener(eventType, action) {
-        this.view.addEventListener(eventType, action);
-        if (this.action === undefined) {
-            this.listener = action;
-            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.view.id + ' setted ' + eventType, 'setEventListener');
-            return;
-        }
-        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.view.id + 'action is already setted ' + eventType, 'setEventListener');
-    }
-
-    removeEventListener(eventType) {
-        if (this.action !== undefined) {
-            this.view.removeEventListener(eventType, this.action);
-            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.view.id + ' removed ' + eventType, 'removeEventListener');
-            return;
-        }
-        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.view.id + 'action is not setted ' + eventType, 'removeEventListener');
-    }
-
-    isState() {return this.cardViewOption.state;}
+    isOpen() {return this.cardViewOption.state;}
     isActive() {return this.cardViewOption.activity;}
     rarityName() {return this.rarityOption.name;}
     getColoredAjective(){return this.rarityOption.coloredAdjective;}
@@ -121,22 +72,102 @@ GAME_CORE.Card = class Card {
     getLuckBonus() {return this.getBonus().getLuck();}
     getDodgeBonus() {return this.getBonus().getDodge();}
     getCardTypeName() {return this.cardType.name;}
-}
 
-GAME_CORE._cardViewOption = class ViewOption {
-    constructor(owner, description=undefined) {
-        this.owner = owner;
-        this.state = false;
-        this.activity = true;
-        this.description = description;
-        this._setViewClasses(this.owner.cardActivity.viewClassActive,
-            this.owner.cardState.viewClassClosed, '', '');
-        this.viewText = '';
-        this.update();
+    //viewEntity
+    setViewParent(viewParent) {return this.cardViewOption.viewEntity.setViewParent(viewParent);}
+    remove(){return this.cardViewOption.viewEntity.remove();}
+    append(){return this.cardViewOption.viewEntity.append();}
+    replace(newViewParent) {return this.cardViewOption.viewEntity.replace(newViewParent);}
+    resetView() {
+        //todo переработать, вызывает методы viewEntity
+        const newView = document.createElement('div');
+        newView.id = this.cardViewOption.viewEntity.view.id;
+        this.cardViewOption.viewParent.removeChild(this.cardViewOption.viewEntity.view);
+        this.cardViewOption.viewEntity.view = newView;
+        this.cardViewOption.viewParent.appendChild(this.cardViewOption.viewEntity.view);
+        this.updateView()
+    }
+    //cardViewOption
+    changeRarityOption(rarityOption) {
+        this.rarityOption = rarityOption;
+        this.cardViewOption.updateViewOptions();
+    }
+    changeTypeOption(cardType) {
+        this.cardType = cardType;
+        this.cardViewOption.updateViewOptions();
     }
 
-    _changeViewOptions() {
-        if (this.state) {
+    updateView() {this.cardViewOption.update();}
+    openCard() {this.cardViewOption.open();}
+    closeCard() {this.cardViewOption.close();}
+    setActive() {this.cardViewOption.setActive();}
+    setInactive (){this.cardViewOption.setInactive();}
+
+    setEventListener(eventType, action) {
+        this.cardViewOption.setEventListener(eventType,action);
+    }
+
+    removeEventListener(eventType) {
+        this.cardViewOption.removeEventListener(eventType);
+    }
+}
+
+GAME_CORE._cardViewOption = class CardViewOption {
+    constructor(owner, viewParent, description=undefined) {
+        this.owner = owner;
+        this.viewEntity = new UTIL_CORE.ViewEntity(id, viewParent);
+        this.isOpen = false;
+        this.activity = true;
+        this.description = description;
+        this.listener === undefined;
+        this._initViewClassName();
+        this.viewText = '';
+        this.setViewOptions();
+    }
+
+    open() {
+        if (this.isOpen) {
+            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.viewEntity.view.id + ' Is already open!', 'open');
+            return;
+        }
+        this.isOpen = true;
+        this._setOpenViewClassName();
+        this._showCardText();
+        this.setViewOptions();
+        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.viewEntity.view.id + ' Card is open', 'open');
+
+    }
+
+    close() {
+        if (!this.isOpen) {
+            GAME_CORE.LOGGERS.InfoCardLogger.logMethod('NOT CLOSE ' + this.owner.view.id + ' is already closed!', 'close');
+            return;
+        }
+        this.isOpen = false;
+        this._setCloseViewClassName();
+        this._hideCardText();
+        this.setViewOptions();
+        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.owner.view.id + ' Card is closed', 'close');
+    }
+
+    setInactive() {
+        if (this.activity) {
+            this.activity = false;
+            this._setActiveClassName();
+            this.setViewOptions();
+        }
+    }
+
+    setActive() {
+        if (!this.activity) {
+            this.activity = true;
+            this._setInactiveClassName();
+            this.setViewOptions();
+        }
+    }
+
+    updateViewOptions() {
+        if (this.isOpen) {
             this.close();
             this.open();
         } else {
@@ -152,10 +183,34 @@ GAME_CORE._cardViewOption = class ViewOption {
         }
     }
 
-    update() {
+    setViewOptions() {
         this.owner.view.className = this.viewClass;
         this.owner.view.textContent = this.viewText;
-        if (this.state && this.activity) {
+        this._setDescriptionView();
+    }
+
+    setEventListener(eventType, action) {
+        if (this.listener === undefined) {
+            this.viewEntity.view.addEventListener(eventType, action);
+            this.listener = action;
+            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.viewEntity.view.id + ' setted ' + eventType, 'setEventListener');
+            return;
+        }
+        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.viewEntity.view.id + 'action is already setted ' + eventType, 'setEventListener');
+    }
+
+    removeEventListener(eventType) {
+        if (this.listener !== undefined) {
+            this.viewEntity.view.removeEventListener(eventType, this.listener);
+            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.viewEntity.view.id + ' removed ' + eventType, 'removeEventListener');
+            this.listener = undefined;
+            return;
+        }
+        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.viewEntity.view.id + 'action is not setted ' + eventType, 'removeEventListener');
+    }
+
+    _setDescriptionView() {
+        if (this.isOpen && this.activity) {
             this.owner.view.title = (this.description === undefined)?this.owner.rarityOption.description:this.description;
         }
         else {
@@ -163,8 +218,37 @@ GAME_CORE._cardViewOption = class ViewOption {
         }
     }
 
-    _setViewClasses (activityViewClass =undefined, stateViewClass =undefined,
-                     rarityOptionViewClass =undefined, cardTypeViewClass =undefined) {
+    _hideCardText() {
+        this.viewText = '';
+    }
+    _showCardText() {
+        this.viewText = this.owner.rarityOption.cardText;
+    }
+
+    _initViewClassName() {
+        this._setViewClassName(this.owner.cardActivity.viewClassActive, this.owner.cardState.viewClassClosed,
+            '', '');
+    }
+
+    _setOpenViewClassName() {
+        this._setViewClassName(undefined, this.owner.cardState.viewClassOpened,
+            this.owner.rarityOption.viewClass, this.owner.cardType.viewClass);
+    }
+    _setCloseViewClassName() {
+        this._setViewClassName(undefined, this.owner.cardState.viewClassClosed,
+            '','');
+    }
+
+    _setActiveClassName() {
+        this._setViewClassName(this.owner.cardActivity.viewClassInactive);
+    }
+
+    _setInactiveClassName() {
+        this._setViewClassName(this.owner.cardActivity.viewClassActive);
+    }
+
+    _setViewClassName (activityViewClass =undefined, stateViewClass =undefined,
+                       rarityOptionViewClass =undefined, cardTypeViewClass =undefined) {
         if (activityViewClass !== undefined) {
             this.activityViewClass = activityViewClass;
         }
@@ -181,48 +265,6 @@ GAME_CORE._cardViewOption = class ViewOption {
             ' ' +  this.rarityOptionViewClass + ' ' + this.cardTypeViewClass;
     }
 
-
-    open() {
-        if (!this.state) {
-            this.state = true;
-            this._setViewClasses(undefined, this.owner.cardState.viewClassOpened,
-                this.owner.rarityOption.viewClass, this.owner.cardType.viewClass);
-            this.viewText = this.owner.rarityOption.cardText;
-            this.update();
-            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.owner.view.id + ' Card is open', 'open');
-        } else {
-            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.owner.view.id + ' Is already oppened!', 'open');
-        }
-    }
-
-    close() {
-        if (this.state) {
-            this.state = false;
-            this._setViewClasses(undefined, this.owner.cardState.viewClassClosed,
-                '','');
-            this.viewText = '';
-            this.update();
-            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.owner.view.id + ' Card is closed', 'close');
-        } else {
-            GAME_CORE.LOGGERS.InfoCardLogger.logMethod('NOT CLOSE ' + this.owner.view.id + ' is already closed!', 'close');
-        }
-    }
-
-    setInactive() {
-        if (this.activity) {
-            this.activity = false;
-            this._setViewClasses(this.owner.cardActivity.viewClassInactive);
-            this.update();
-        }
-    }
-
-    setActive() {
-        if (!this.activity) {
-            this.activity = true;
-            this._setViewClasses(this.owner.cardActivity.viewClassActive);
-            this.update();
-        }
-    }
 };
 
 GAME_CORE.RarityOption = class RarityOption {
@@ -253,7 +295,7 @@ GAME_CORE.RarityCollection = class RarityCollection {
         this._initRarityCollection();
     }
 
-    doThisToAllRarityCollection(actionWithArgumentRarityOption) {
+    doThisToEveryElement(actionWithArgumentRarityOption) {
         for (let i = 0; i < this.rarityArray.length; i++) {
             actionWithArgumentRarityOption(this.rarityArray[i]);
         }

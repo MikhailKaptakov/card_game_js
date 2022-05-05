@@ -97,9 +97,8 @@ UTIL_CORE.Logger = class Logger {
 	}
 }
 
-UTIL_CORE.EntityView = class EntityView {
-	constructor(id, owner, viewParent = document.body, elemType = 'div') {
-		this.owner = owner;
+UTIL_CORE.ViewEntity = class ViewEntity {
+	constructor(id, viewParent = document.body, elemType = 'div') {
 		const elem = document.getElementById(id);
 		if (elem == null) {
 			this.view = document.createElement(elemType);

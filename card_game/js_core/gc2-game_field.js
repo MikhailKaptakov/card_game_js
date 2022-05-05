@@ -110,7 +110,7 @@ GAME_CORE.GameField = class GameField {
         GAME_CORE.LOGGERS.InfoGameFieldLogger.logMethod(this.view.id + ' removed listners', 'addListeners');
     }
 
-    //setParrent(parrent) {return this.appender.setViewParent(parrent);}
+    //setParrent(parrent) {return this.viewEntity.setViewParent(parrent);}
     setViewParent(viewParent) {return this.appender.setViewParent(viewParent);}
     remove() {return this.appender.remove();}
     append() {return this.appender.append();}
