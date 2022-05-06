@@ -37,10 +37,26 @@ UTIL_CORE.Logger = class Logger {
 			console.log(str);
 		}
 	}
+
+	_getMethodName = function() {
+		try {
+			throw new Error();
+		}
+		catch (e) {
+			try {
+				return e.stack.split('at ')[3].split(' ')[0];
+			} catch (e) {
+				return '';
+			}
+		}
+	}
 		
-	logMethod(message, methodName) {
+	logMethod(message ='', methodName =this._getMethodName()) {
 		if (this.turn) {
-			const str =  this.title.toUpperCase() + ": " + this.getDateTime() + " " + methodName +" : " + message;
+			let str =  this.title.toUpperCase() + ": " + this.getDateTime() + " " + methodName;
+			if (message.length !== 0) {
+				str+= " : " + message;
+			}
 			console.log(str);
 		}
 	}
@@ -104,31 +120,35 @@ UTIL_CORE.ViewEntity = class ViewEntity {
 			this.view = document.createElement(elemType);
 			this.view.id = id;
 			this.viewParent = viewParent;
-			this.isConnected = false;
+			this.isAppended = false;
 		} else {
 			this.view = elem;
 			this.viewParent = this.view.parentElement;
-			this.isConnected = true;
+			this.isAppended = true;
 		}
 	}
 
+	getId() {
+		return this.view.id;
+	}
+
 	setViewParent(viewParent) {
-		if (this.isConnected) {return false;}
+		if (this.isAppended) {return false;}
 		this.viewParent = viewParent;
 		return true;
 	}
 
 	remove() {
-		if (!this.isConnected) {return false;}
+		if (!this.isAppended) {return false;}
 		this.viewParent.removeChild(this.view);
-		this.isConnected = false;
+		this.isAppended = false;
 		return true;
 	}
 
 	append() {
-		if(!this.isConnected) {return false;}
+		if(this.isAppended) {return false;}
 		this.viewParent.appendChild(this.view);
-		this.isConnected = true;
+		this.isAppended = true;
 		return true;
 	}
 

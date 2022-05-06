@@ -1,6 +1,6 @@
 //создание карт проводить через фабрику метод create - возвращает билдер,
 // в котором проводить необходимую настройку и вызывать метод createCard
-
+//todo сделать логирование по аналогии с game_field
 GAME_CORE.CardFactory = class CardFactory {
     constructor ({rarityCollection =GAME_CORE.DEFAULT_PROPS.rarityCollection,
                      cardTypeCollection =GAME_CORE.DEFAULT_PROPS.cardTypeCollection,
@@ -14,6 +14,7 @@ GAME_CORE.CardFactory = class CardFactory {
 
     create(id) {return new GAME_CORE._CardBuilder(this, id);}
     createByView(id, viewParent) {return new GAME_CORE._CardBuilder(this, id, viewParent);}
+
     getRandomRarity() {return this.rarityCollection.getRandomRarity();}
     getRarityByRarityName(name) {return this.rarityCollection.getRarityByRarityName(name);}
     getRarityByIndex(arrayIndex) {return this.rarityCollection.getRarityByIndex(arrayIndex);}
@@ -50,13 +51,9 @@ GAME_CORE._CardBuilder = class CardBuilder {
 
 GAME_CORE.Card = class Card {
     constructor(id, viewParent, rarityOption, cardType, cardState, cardActivity, description =undefined) {
+        this.cardViewOption = new GAME_CORE._cardViewOption(this, id, viewParent,cardType, cardState, cardActivity, description);
         this.rarityOption = rarityOption;
-        this.cardType = cardType;
-        this.cardState = cardState;
-        this.cardActivity = cardActivity;
-        this.cardViewOption = new GAME_CORE._cardViewOption(this, viewParent,description);
-        this.action = undefined;
-        GAME_CORE.LOGGERS.InfoCardLogger.log('Created card ' + this.cardViewOption.viewEntity.view.id + ' rarity: ' + this.rarityName() + ' ('
+        GAME_CORE.LOGGERS.InfoCardLogger.log('Created card ' + this.getViewId() + ' rarity: ' + this.rarityName() + ' ('
             + this.rarityName() + ')');
     }
 
@@ -74,9 +71,10 @@ GAME_CORE.Card = class Card {
     getCardTypeName() {return this.cardType.name;}
 
     //viewEntity
+    getViewId() {return this.cardViewOption.getId();}
     setViewParent(viewParent) {return this.cardViewOption.viewEntity.setViewParent(viewParent);}
-    remove(){return this.cardViewOption.viewEntity.remove();}
-    append(){return this.cardViewOption.viewEntity.append();}
+    remove(){this.cardViewOption.viewEntity.remove();}
+    append(){this.cardViewOption.append();}
     replace(newViewParent) {return this.cardViewOption.viewEntity.replace(newViewParent);}
     resetView() {
         //todo переработать, вызывает методы viewEntity
@@ -87,7 +85,7 @@ GAME_CORE.Card = class Card {
         this.cardViewOption.viewParent.appendChild(this.cardViewOption.viewEntity.view);
         this.updateView()
     }
-    //cardViewOption
+    //viewEntity
     changeRarityOption(rarityOption) {
         this.rarityOption = rarityOption;
         this.cardViewOption.updateViewOptions();
@@ -113,13 +111,16 @@ GAME_CORE.Card = class Card {
 }
 
 GAME_CORE._cardViewOption = class CardViewOption {
-    constructor(owner, viewParent, description=undefined) {
+    constructor(owner, id, viewParent,cardType, cardState, cardActivity, description=undefined) {
         this.owner = owner;
         this.viewEntity = new UTIL_CORE.ViewEntity(id, viewParent);
+        this.cardType = cardType;
+        this.cardState = cardState;
+        this.cardActivity = cardActivity;
         this.isOpen = false;
         this.activity = true;
         this.description = description;
-        this.listener === undefined;
+        this.action = undefined;
         this._initViewClassName();
         this.viewText = '';
         this.setViewOptions();
@@ -127,27 +128,27 @@ GAME_CORE._cardViewOption = class CardViewOption {
 
     open() {
         if (this.isOpen) {
-            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.viewEntity.view.id + ' Is already open!', 'open');
+            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + ' Is already open!', 'open');
             return;
         }
         this.isOpen = true;
         this._setOpenViewClassName();
         this._showCardText();
         this.setViewOptions();
-        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.viewEntity.view.id + ' Card is open', 'open');
+        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + ' Card is open', 'open');
 
     }
 
     close() {
         if (!this.isOpen) {
-            GAME_CORE.LOGGERS.InfoCardLogger.logMethod('NOT CLOSE ' + this.owner.view.id + ' is already closed!', 'close');
+            GAME_CORE.LOGGERS.InfoCardLogger.logMethod('NOT CLOSE ' + this.getId() + ' is already closed!', 'close');
             return;
         }
         this.isOpen = false;
         this._setCloseViewClassName();
         this._hideCardText();
         this.setViewOptions();
-        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.owner.view.id + ' Card is closed', 'close');
+        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + ' Card is closed', 'close');
     }
 
     setInactive() {
@@ -184,37 +185,40 @@ GAME_CORE._cardViewOption = class CardViewOption {
     }
 
     setViewOptions() {
-        this.owner.view.className = this.viewClass;
-        this.owner.view.textContent = this.viewText;
+        this._getView().className = this.viewClass;
+        this._getView().textContent = this.viewText;
         this._setDescriptionView();
     }
 
     setEventListener(eventType, action) {
-        if (this.listener === undefined) {
-            this.viewEntity.view.addEventListener(eventType, action);
-            this.listener = action;
-            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.viewEntity.view.id + ' setted ' + eventType, 'setEventListener');
+        if (this.action === undefined) {
+            this._getView().addEventListener(eventType, action);
+            this.action = action;
+            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + ' setted ' + eventType, 'setEventListener');
             return;
         }
-        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.viewEntity.view.id + 'action is already setted ' + eventType, 'setEventListener');
+        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + 'action is already setted ' + eventType, 'setEventListener');
     }
 
     removeEventListener(eventType) {
-        if (this.listener !== undefined) {
-            this.viewEntity.view.removeEventListener(eventType, this.listener);
-            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.viewEntity.view.id + ' removed ' + eventType, 'removeEventListener');
-            this.listener = undefined;
+        if (this.action !== undefined) {
+            this._getView().removeEventListener(eventType, this.action);
+            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + ' removed ' + eventType, 'removeEventListener');
+            this.action = undefined;
             return;
         }
-        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.viewEntity.view.id + 'action is not setted ' + eventType, 'removeEventListener');
+        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + 'action is not setted ' + eventType, 'removeEventListener');
     }
+
+    append() {this.viewEntity.append();}
+    getId() {return this._getView().id;}
 
     _setDescriptionView() {
         if (this.isOpen && this.activity) {
-            this.owner.view.title = (this.description === undefined)?this.owner.rarityOption.description:this.description;
+            this._getView().title = (this.description === undefined)?this.owner.rarityOption.description:this.description;
         }
         else {
-            this.owner.view.title = '';
+            this._getView().title = '';
         }
     }
 
@@ -226,25 +230,25 @@ GAME_CORE._cardViewOption = class CardViewOption {
     }
 
     _initViewClassName() {
-        this._setViewClassName(this.owner.cardActivity.viewClassActive, this.owner.cardState.viewClassClosed,
+        this._setViewClassName(this.cardActivity.viewClassActive, this.cardState.viewClassClosed,
             '', '');
     }
 
     _setOpenViewClassName() {
-        this._setViewClassName(undefined, this.owner.cardState.viewClassOpened,
-            this.owner.rarityOption.viewClass, this.owner.cardType.viewClass);
+        this._setViewClassName(undefined, this.cardState.viewClassOpened,
+            this.owner.rarityOption.viewClass, this.cardType.viewClass);
     }
     _setCloseViewClassName() {
-        this._setViewClassName(undefined, this.owner.cardState.viewClassClosed,
+        this._setViewClassName(undefined, this.cardState.viewClassClosed,
             '','');
     }
 
     _setActiveClassName() {
-        this._setViewClassName(this.owner.cardActivity.viewClassInactive);
+        this._setViewClassName(this.cardActivity.viewClassInactive);
     }
 
     _setInactiveClassName() {
-        this._setViewClassName(this.owner.cardActivity.viewClassActive);
+        this._setViewClassName(this.cardActivity.viewClassActive);
     }
 
     _setViewClassName (activityViewClass =undefined, stateViewClass =undefined,
@@ -264,6 +268,8 @@ GAME_CORE._cardViewOption = class CardViewOption {
         this.viewClass = this.activityViewClass + ' ' +  this.stateViewClass +
             ' ' +  this.rarityOptionViewClass + ' ' + this.cardTypeViewClass;
     }
+
+    _getView() {return this.viewEntity.view;}
 
 };
 

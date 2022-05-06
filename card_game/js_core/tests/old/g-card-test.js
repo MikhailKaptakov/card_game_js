@@ -24,7 +24,7 @@ async function run() {
 	a.updateCard();
 	await sleep(1000);
 	a.closeCard();
-	console.log('run test listener')
+	console.log('run test action')
 	a.setEventListener('click', f, false);
 	await sleep(10000);
 	a.removeEventListener('click', f);
