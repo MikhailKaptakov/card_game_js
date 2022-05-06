@@ -38,6 +38,7 @@ UTIL_CORE.Logger = class Logger {
 		}
 	}
 
+	//https://stackoverflow.com/questions/29572466/how-do-you-find-out-the-caller-function-in-javascript-when-use-strict-is-enabled
 	_getMethodName = function() {
 		try {
 			throw new Error();
