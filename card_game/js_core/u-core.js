@@ -112,9 +112,7 @@ UTIL_CORE.Logger = class Logger {
 		childLogger.parrent = this;
 	}
 }
-
 UTIL_CORE.ViewEntity = class ViewEntity {
-	//todo add logger
 	constructor(id, viewParent = document.body, elemType = 'div') {
 		const elem = document.getElementById(id);
 		if (elem == null) {
@@ -129,17 +127,15 @@ UTIL_CORE.ViewEntity = class ViewEntity {
 		}
 	}
 
-	getId() {
-		return this.view.id;
-	}
-
 	setViewParent(viewParent) {
+		this._log();
 		if (this.isAppended) {return false;}
 		this.viewParent = viewParent;
 		return true;
 	}
 
 	remove() {
+		this._log();
 		if (!this.isAppended) {return false;}
 		this.viewParent.removeChild(this.view);
 		this.isAppended = false;
@@ -147,6 +143,7 @@ UTIL_CORE.ViewEntity = class ViewEntity {
 	}
 
 	append() {
+		this._log();
 		if(this.isAppended) {return false;}
 		this.viewParent.appendChild(this.view);
 		this.isAppended = true;
@@ -154,20 +151,39 @@ UTIL_CORE.ViewEntity = class ViewEntity {
 	}
 
 	replace(newViewParent) {
+		this._log();
 		this.remove();
 		this.setViewParent(newViewParent);
 		this.append();
 	}
 
-	setClass(viewClassName) {
-		this.view.class = viewClassName;
+	resetView() {
+		const newView = document.createElement(this.view.tagName);
+		newView.id = this.getId();
+		const isRemove = this.remove();
+		this.view = newView;
+		if (isRemove) {
+			this.append();
+		}
 	}
-	setTextContent(viewTextContent) {
-		this.view.textContent = viewTextContent;
+
+	setClass(viewClassName) {this.view.class = viewClassName;}
+	setTextContent(viewTextContent) {this.view.textContent = viewTextContent;}
+	setTitle(viewTitle) {this.view.title = viewTitle;}
+	getClass() {return this.view.class;}
+	getTextContent() {return this.view.textContent;}
+	getTitle() {return this.view.title;}
+	getId() {return this.view.id;}
+
+	setLogger(logger) {
+		if(logger instanceof UTIL_CORE.Logger) {
+			this._log = function (message ='', methodName=this.logger._getMethodName()) {
+				logger.logMethod(this.getId() + ' ' + message, methodName);
+			};
+		}
 	}
-	setTitle(viewTitle) {
-		this.view.title = viewTitle;
-	}
+
+	_log(message =undefined, methodName=undefined) {}
 }
 
 UTIL_CORE.Letter = class Letter {

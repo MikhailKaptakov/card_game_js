@@ -1,6 +1,5 @@
 //создание карт проводить через фабрику метод create - возвращает билдер,
 // в котором проводить необходимую настройку и вызывать метод createCard
-//todo сделать логирование по аналогии с game_field
 GAME_CORE.CardFactory = class CardFactory {
     constructor ({rarityCollection =GAME_CORE.DEFAULT_PROPS.rarityCollection,
                      cardTypeCollection =GAME_CORE.DEFAULT_PROPS.cardTypeCollection,
@@ -69,24 +68,13 @@ GAME_CORE.Card = class Card {
     getDodgeBonus() {return this.getBonus().getDodge();}
     getCardTypeName() {return this.cardType.name;}
 
-    //viewEntity
     getViewId() {return this.cardViewOption.getId();}
     setViewParent(viewParent) {return this.cardViewOption.viewEntity.setViewParent(viewParent);}
-    remove(){
-
-        this.cardViewOption.viewEntity.remove();}
+    remove(){this.cardViewOption.viewEntity.remove();}
     append(){this.cardViewOption.append();}
     replace(newViewParent) {return this.cardViewOption.viewEntity.replace(newViewParent);}
-    resetView() {
-        //todo переработать, вызывает методы viewEntity
-        const newView = document.createElement('div');
-        newView.id = this.cardViewOption.viewEntity.view.id;
-        this.cardViewOption.viewParent.removeChild(this.cardViewOption.viewEntity.view);
-        this.cardViewOption.viewEntity.view = newView;
-        this.cardViewOption.viewParent.appendChild(this.cardViewOption.viewEntity.view);
-        this.updateView()
-    }
-    //viewEntity
+    resetView() {this.cardViewOption.resetView();}
+
     changeRarityOption(rarityOption) {
         this.rarityOption = rarityOption;
         this.cardViewOption.updateViewOptions();
@@ -96,7 +84,7 @@ GAME_CORE.Card = class Card {
         this.cardViewOption.updateViewOptions();
     }
 
-    updateView() {this.cardViewOption.update();}
+    updateView() {this.cardViewOption.updateViewOptions();}
     openCard() {this.cardViewOption.open();}
     closeCard() {this.cardViewOption.close();}
     setActive() {this.cardViewOption.setActive();}
@@ -193,8 +181,8 @@ GAME_CORE._cardViewOption = class CardViewOption {
     }
 
     setViewOptions() {
-        this._getView().className = this.viewClass;
-        this._getView().textContent = this.viewText;
+        this.viewEntity.setClass(this.viewClass);
+        this.viewEntity.setTextContent(this.viewText);
         this._setDescriptionView();
     }
 
@@ -215,7 +203,7 @@ GAME_CORE._cardViewOption = class CardViewOption {
             this.action = undefined;
             return;
         }
-        this._log('Listener is not setted');
+        this._log('Listener is not set');
     }
 
     append() {
@@ -229,14 +217,21 @@ GAME_CORE._cardViewOption = class CardViewOption {
         return ans;
     }
 
+    resetView() {
+        this.viewEntity.resetView();
+        this.updateViewOptions();
+    }
+
     getId() {return this._getView().id;}
 
     _setDescriptionView() {
         if (this.isOpen && this.activity) {
-            this._getView().title = (this.description === undefined)?this.owner.rarityOption.description:this.description;
+            this.viewEntity.setTitle((this.description === undefined)?
+                this.owner.rarityOption.description
+                : this.description);
         }
         else {
-            this._getView().title = '';
+            this.viewEntity.setTitle('');
         }
     }
 
