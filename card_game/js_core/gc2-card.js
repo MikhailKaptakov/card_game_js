@@ -53,8 +53,7 @@ GAME_CORE.Card = class Card {
     constructor(id, viewParent, rarityOption, cardType, cardState, cardActivity, description =undefined) {
         this.cardViewOption = new GAME_CORE._cardViewOption(this, id, viewParent,cardType, cardState, cardActivity, description);
         this.rarityOption = rarityOption;
-        GAME_CORE.LOGGERS.InfoCardLogger.log('Created card ' + this.getViewId() + ' rarity: ' + this.rarityName() + ' ('
-            + this.rarityName() + ')');
+        this._log('Created card ', 'constructor' )
     }
 
     isOpen() {return this.cardViewOption.state;}
@@ -73,7 +72,9 @@ GAME_CORE.Card = class Card {
     //viewEntity
     getViewId() {return this.cardViewOption.getId();}
     setViewParent(viewParent) {return this.cardViewOption.viewEntity.setViewParent(viewParent);}
-    remove(){this.cardViewOption.viewEntity.remove();}
+    remove(){
+
+        this.cardViewOption.viewEntity.remove();}
     append(){this.cardViewOption.append();}
     replace(newViewParent) {return this.cardViewOption.viewEntity.replace(newViewParent);}
     resetView() {
@@ -108,6 +109,10 @@ GAME_CORE.Card = class Card {
     removeEventListener(eventType) {
         this.cardViewOption.removeEventListener(eventType);
     }
+
+    _log(message ='', methodName=GAME_CORE.LOGGERS.InfoGameFieldLogger._getMethodName()) {
+        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getViewId() + ' ' + message, methodName);
+    }
 }
 
 GAME_CORE._cardViewOption = class CardViewOption {
@@ -128,27 +133,26 @@ GAME_CORE._cardViewOption = class CardViewOption {
 
     open() {
         if (this.isOpen) {
-            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + ' Is already open!', 'open');
+            this._log(' Is already open!');
             return;
         }
         this.isOpen = true;
         this._setOpenViewClassName();
         this._showCardText();
         this.setViewOptions();
-        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + ' Card is open', 'open');
-
+        this._log();
     }
 
     close() {
         if (!this.isOpen) {
-            GAME_CORE.LOGGERS.InfoCardLogger.logMethod('NOT CLOSE ' + this.getId() + ' is already closed!', 'close');
+            this._log(' Is already close!');
             return;
         }
         this.isOpen = false;
         this._setCloseViewClassName();
         this._hideCardText();
         this.setViewOptions();
-        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + ' Card is closed', 'close');
+        this._log();
     }
 
     setInactive() {
@@ -156,7 +160,9 @@ GAME_CORE._cardViewOption = class CardViewOption {
             this.activity = false;
             this._setActiveClassName();
             this.setViewOptions();
+            this._log();
         }
+        this._log('Is already inactive');
     }
 
     setActive() {
@@ -164,7 +170,9 @@ GAME_CORE._cardViewOption = class CardViewOption {
             this.activity = true;
             this._setInactiveClassName();
             this.setViewOptions();
+            this._log();
         }
+        this._log('Is already active');
     }
 
     updateViewOptions() {
@@ -194,23 +202,33 @@ GAME_CORE._cardViewOption = class CardViewOption {
         if (this.action === undefined) {
             this._getView().addEventListener(eventType, action);
             this.action = action;
-            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + ' setted ' + eventType, 'setEventListener');
+            this._log(eventType);
             return;
         }
-        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + 'action is already setted ' + eventType, 'setEventListener');
+        this._log("Can't set second listener");
     }
 
     removeEventListener(eventType) {
         if (this.action !== undefined) {
             this._getView().removeEventListener(eventType, this.action);
-            GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + ' removed ' + eventType, 'removeEventListener');
+            this._log();
             this.action = undefined;
             return;
         }
-        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + 'action is not setted ' + eventType, 'removeEventListener');
+        this._log('Listener is not setted');
     }
 
-    append() {this.viewEntity.append();}
+    append() {
+        const ans = this.viewEntity.append();
+        this._log(ans);
+        return ans;
+    }
+    remove() {
+        const ans = this.viewEntity.remove();
+        this._log(ans);
+        return ans;
+    }
+
     getId() {return this._getView().id;}
 
     _setDescriptionView() {
@@ -270,7 +288,9 @@ GAME_CORE._cardViewOption = class CardViewOption {
     }
 
     _getView() {return this.viewEntity.view;}
-
+    _log(message ='',methodName =GAME_CORE.LOGGERS.InfoGameFieldLogger._getMethodName()) {
+        GAME_CORE.LOGGERS.InfoCardLogger.logMethod(this.getId() + ' ' + message, methodName);
+    }
 };
 
 GAME_CORE.RarityOption = class RarityOption {

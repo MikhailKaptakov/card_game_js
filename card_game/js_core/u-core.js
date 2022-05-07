@@ -12,7 +12,6 @@ UTIL_CORE.sleep = async function(milliseconds) {
 }
 
 UTIL_CORE.Logger = class Logger {
-	
 	constructor(title){
 		this.title = title;
 		this.turn = true;
@@ -115,6 +114,7 @@ UTIL_CORE.Logger = class Logger {
 }
 
 UTIL_CORE.ViewEntity = class ViewEntity {
+	//todo add logger
 	constructor(id, viewParent = document.body, elemType = 'div') {
 		const elem = document.getElementById(id);
 		if (elem == null) {

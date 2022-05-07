@@ -6,7 +6,7 @@ GAME_CORE.Unit = class Unit {
 				equipmentMultiple =GAME_CORE.DEFAULT_PROPS.equipmentMultiple(),
 				equipmentAdditional = GAME_CORE.DEFAULT_PROPS.equipmentAdditional(),
 				equipmentCardInit =GAME_CORE.DEFAULT_PROPS.equipmentCardInit) {
-		this.appender = new GAME_CORE.Appender(id, this, viewParent);
+		this.viewEntity = new UTIL_CORE.ViewEntity(id, viewParent);
 		this.replicsSet = replicsSet;
 
 		this.baseCharacteristics = baseCharacteristics;
@@ -25,7 +25,7 @@ GAME_CORE.Unit = class Unit {
 		this.equipment = new GAME_CORE.Equipment(id + 'SET', this.view, this.equipmentAdditional, this.equipmentMultiple, equipmentCardInit);
 		this.equipment.owner = this;
 		this.updateAllParam();
-		GAME_CORE.LOGGERS.InfoUnitLogger.log(this.view.id + ' created');
+		this._log('created', 'constructor');
 	}
 
 	updateAllParam() {
@@ -33,37 +33,37 @@ GAME_CORE.Unit = class Unit {
 		this.updateDamage();
 		this.updateLuck();
 		this.updateDodge();
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id, 'updateAllParam');
+		this._log();
 	}
 	
 	updateMaxHealth() {
 		this.maxHealth.updateValue(Math.round(this.baseCharacteristics.getHealth() + this.equipment.getHealthBonus()));
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' value: ' + this.maxHealth.value, 'updateMaxHealth');
+		this._log(this.maxHealth.value);
 	}
 	
 	updateDamage() {
 		this.damage.updateValue(Math.round(this.baseCharacteristics.getDamage() + this.equipment.getDamageBonus()));
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' value: ' + this.damage.value, 'updateDamage');
+		this._log(this.damage.value);
 	}
 	
 	updateLuck() {
 		this.luck.updateValue(Math.round(this.baseCharacteristics.getLuck() + this.equipment.getLuckBonus()));
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' value: ' + this.luck.value, 'updateLuck');
+		this._log(this.luck.value);
 	}
 
 	updateDodge() {
 		this.dodge.updateValue(Math.round(this.baseCharacteristics.getDodge() + this.equipment.getDodgeBonus()));
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' value: ' + this.dodge.value, 'updateDodge');
+		this._log(this.dodge.value);
 	}
 	
 	beFullHealed() {
 		this.currentHealth.updateValue(this.maxHealth.value);
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' value: ' + this.currentHealth.value, 'beFullHealed');
+		this._log(this.currentHealth.value);
 	}
 	
 	beHealed(value) {
 		this.currentHealth.updateValue(Math.min(Math.max(this.currentHealth.value + value, 1), this.maxHealth.value));
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' value: ' + this.currentHealth.value, 'beHealed');
+		this._log(this.currentHealth.value);
 	}
 
 	_addingDamageModification(){
@@ -72,7 +72,7 @@ GAME_CORE.Unit = class Unit {
 	_multipleDamageModification(){return 1;}
 	dealDamage() {
 		const dmg = this.damage.value*this._multipleDamageModification() + this._addingDamageModification();
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' damage is ' + dmg, 'dealDamage');
+		this._log();
 		return dmg;
 	}
 		
@@ -91,9 +91,9 @@ GAME_CORE.Unit = class Unit {
 	dodgeAtack() {
 		const cond = (this._isDodge()&&this._modeAndCondition() || this._modeOrCondition());
 		if (cond) {
-			this.say(this.dodgeReplic[UTIL_CORE.randomGen(this.dodgeReplic.length) - 1]);
+			this.say(this.replicsSet.dodgeArray[UTIL_CORE.randomGen(this.replicsSet.length) - 1]);
 		}
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id, 'dodgeAtack');
+		this._log();
 		return cond;
 	}
 
@@ -103,13 +103,13 @@ GAME_CORE.Unit = class Unit {
 		const rar = Math.max(card.rarityOption.collectionIndex - 1, 0);
 		card.changeRarityOption(card.rarityOption.rarityCollection[rar]);
 		this.updateAllParam();
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + 'is run', 'defeatPunish');
+		this._log();
 	}
 		
 		//аргумент - убийца
 	die(unit) {
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id, 'die');
-		this.say(this.dieReplic[Math.floor(Math.random()*this.replicsSet.defeatArray.length)]);
+		this._log();
+		this.say(this.replicsSet.defeatArray[Math.floor(Math.random()*this.replicsSet.defeatArray.length)]);
 		this.defeatPunish();
 		this.wins.updateValue(0);
 		unit.wins.updateValue(unit.wins.value++);
@@ -118,7 +118,7 @@ GAME_CORE.Unit = class Unit {
 		// исходящая атака return -1 - увернулся; 0 - не смертельный урон; 1 - убил;
 	attack(unit) {
 		if (unit.dodgeAtack()) {
-			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(unit.view.id + ' dodge is success', 'attack(unit)');
+			this._log(unit.getViewId() +  ' dodge is success')
 			return {type : -1, dmg : 0};
 		}
 		const damage = this.dealDamage();
@@ -126,16 +126,16 @@ GAME_CORE.Unit = class Unit {
 		this.say(this.replicsSet.attackArray[Math.floor(Math.random()*this.replicsSet.attackArray.length)]);
 		if (unit.currentHealth.value <= 0) {
 			unit.die(this);
-			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' enemy ' + unit.view.id + ' is die', 'attack(unit)');
+			this._log(' enemy ' + unit.getViewId() + ' die')
 			return {type : 1, dmg : damage};
 		} else {
-			GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' enemy ' + unit.view.id + ' get damage', 'attack(unit)');
+			this._log(' enemy ' + unit.getViewId() + ' get damage');
 			return {type : 0, dmg : damage};
 		}
 	}
 	
 	say(message) {
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id, 'say');
+		this._log();
 		this.replics.updateValue(message);
 	}
 
@@ -145,13 +145,12 @@ GAME_CORE.Unit = class Unit {
 	getInitiative() {
 		const ini = Math.floor(Math.random()*(this.luck.value + 100
 			+ this._getRandomInitiativeBonus())*100) + this._getInitiativeBonus();
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + 'initiative =' + ini, 'getInitiative');
+		this._log(ini);
 		return  ini;
 	}
-		
-	//append all inner elements to their parrents
+
 	appendAll() {
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' is run', 'appendAll');
+		this._log();
 		this.maxHealth.append();
 		this.currentHealth.append();
 		this.damage.append();
@@ -163,7 +162,7 @@ GAME_CORE.Unit = class Unit {
 	}
 		
 	removeAll() {
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + 'is run', 'removeAll');
+		this._log();
 		this.remove();
 		this.maxHealth.remove();
 		this.currentHealth.remove();
@@ -175,9 +174,15 @@ GAME_CORE.Unit = class Unit {
 		this.replics.remove();
 	}
 	
-	setParrent(parrent) {return this.appender.setViewParent(parrent);}
-	remove() {return this.appender.remove();}
-	append() {return this.appender.append();}
+	setViewParent(viewParent) {return this.viewEntity.setViewParent(viewParent);}
+	remove() {return this.viewEntity.remove();}
+	append() {return this.viewEntity.append();}
+	getView() {return this.viewEntity.view;}
+	getViewId() {return this.getView().id;}
+
+	_log(message ='', methodName=GAME_CORE.LOGGERS.InfoUnitLogger._getMethodName()) {
+		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.getViewId() + ' ' + message, methodName);
+	}
 };
 
 GAME_CORE.ReplicsSet = class ReplicsSet {
