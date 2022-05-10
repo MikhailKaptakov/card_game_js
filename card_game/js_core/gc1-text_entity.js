@@ -1,14 +1,16 @@
-GAME_CORE.TextEntity = class TextEntity {
-	
-	constructor(id, value, viewParent = document.body){
-		this.viewEntity = new UTIL_CORE.ViewEntity(id, viewParent, 'var');
+GAME_CORE.TextEntity = class TextEntity extends UTIL_CORE.ViewEntity{
+	constructor(id,  viewParent = undefined,value){
+		super(id, viewParent, 'var');
+		this.setLogger(GAME_CORE.LOGGERS.InfoTextEntityLogger);
 		this.value = value;
 		this.updateView();
 		this._log('created', 'constructor')
 	}
-	
+
+	getValue() {return this.value;}
+
 	updateView() {
-		this.viewEntity.view.textContent = this.value;
+		this.view.textContent = this.value;
 		this._log();
 	}
 	updateValue(value) {
@@ -16,13 +18,6 @@ GAME_CORE.TextEntity = class TextEntity {
 		this._log();
 		this.updateView();
 	}
-
-	setViewParent(viewParent) {return this.viewEntity.setViewParent(viewParent);}
-	remove() {return this.viewEntity.remove();}
-	append() {return this.viewEntity.append();}
-	getViewId() {return this.viewEntity.getId();}
-
-	_log(message ='', methodName=GAME_CORE.LOGGERS.InfoTextEntityLogger._getMethodName()) {
-		GAME_CORE.LOGGERS.InfoTextEntityLogger.logMethod(this.getViewId() + ' ' + message, methodName);
-	}
 };
+
+//todo внимание во многих классах изменен порядок аргументов viewParent на второй аргумент
