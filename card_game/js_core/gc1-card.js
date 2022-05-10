@@ -11,6 +11,7 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
         this.cardState = cardState;
         this.cardActivity = cardActivity;
         this.action = undefined;
+        this.eventType = undefined;
         this._initRarityOptions();
         this._initCardTypeOptions();
         this._initViewOptions();
@@ -82,6 +83,7 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
         if (this.action === undefined) {
             this.getView().addEventListener(eventType, action);
             this.action = action;
+            this.eventType = eventType;
             this._log(eventType);
             return;
         }
@@ -93,6 +95,7 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
             this.getView().removeEventListener(eventType, this.action);
             this._log();
             this.action = undefined;
+            this.eventType = undefined;
             return;
         }
         this._log('Listener is not set');

@@ -1,23 +1,16 @@
-GAME_CORE.GameField = class GameField {
-    constructor(id, cardsCount, viewParent = document.body, cardBuilder = GAME_CORE.DEFAULT_PROPS.getCardBuilder(), initCard = true ) {
-        this.viewEntity = new UTIL_CORE.ViewEntity(id, viewParent);
+GAME_CORE.GameField = class GameField extends UTIL_CORE.ViewEntity{
+    constructor(id, viewParent = undefined, cardsCount,
+                cardOptions = new GAME_CORE.CardOptions()) {
+        super(id, viewParent);
+        this.setLogger(GAME_CORE.LOGGERS.InfoGameFieldLogger);
         this.cardsCount = cardsCount;
-        this.cardBuilder = cardBuilder;
-        if (initCard) {
-            this.initCardArray();
-        }
-        this.isEmpty = true;
+        this.cardOptions = cardOptions;
+        this._initCardArray();
+        this.emptyState = true;
         this._log('created','constructor');
     }
-    //you can change initMethod, but don't delete this string this.cardArray = [];
-    initCardArray() {
-        this.cardArray = [];
-        for (let i = 0; i < this.cardsCount; i++) {
-            this.cardArray.push(this.cardBuilder.setId(this.getViewId() + 'c' + i)
-                .setViewParent(this.getView())
-                .createCard());
-        }
-    }
+
+    isEmpty() {return this.emptyState;}
 
     doIt(cardAction) {
         for (const card of this.cardArray) {
@@ -41,28 +34,42 @@ GAME_CORE.GameField = class GameField {
         this._log();
     }
 
+    setActive() {
+        for (const card of this.cardArray) {
+            card.setActive();
+        }
+        this._log();
+    }
+
+    setInactive() {
+        for (const card of this.cardArray) {
+            card.setInactive();
+        }
+        this._log();
+    }
+
     fill() {
-        if (!this.isEmpty) {
+        if (!this.isEmpty()) {
             this._log(' not empty ');
             return false;
         }
         this._log();
         for ( const card of this.cardArray) {
             card.append();
-            this.isEmpty = false;
+            this.emptyState = false;
         }
         return true;
     }
 
     clear() {
-        if (this.isEmpty) {
+        if (this.isEmpty()) {
             this._log(' is empty ');
             return false;
         }
         this._log();
         for (const card of this.cardArray) {
             card.remove();
-            this.isEmpty = true;
+            this.emptyState = true;
         }
         return true;
     }
@@ -71,27 +78,73 @@ GAME_CORE.GameField = class GameField {
         this._log();
         for (const card of this.cardArray) {
             card.closeCard();
-            card.changeRarityOption(this.cardBuilder.getRandomRarity());
+            card.setRandomRarity();
         }
     }
 
-    setCardType(cardType) {
+    increaseRarity() {
+        this._log();
         for (const card of this.cardArray) {
-            card.changeTypeOption(cardType);
+            card.closeCard();
+            card.increaseRarity();
+        }
+    }
+
+    decreaseRarity() {
+        this._log();
+        for (const card of this.cardArray) {
+            card.closeCard();
+            card.decreaseRarity();
+        }
+    }
+
+    setRarityByIndex(index) {
+        this._log();
+        for (const card of this.cardArray) {
+            card.closeCard();
+            card.setRarityByIndex(index);
+        }
+    }
+
+    setZeroRarity() {
+        this.setRarityByIndex(0);
+    }
+
+    setCardTypeByName(cardTypeName) {
+        for (const card of this.cardArray) {
+            card.setCardTypeByName(cardTypeName);
         }
         this._log();
     }
 
     setRandomCardType() {
         for (const card of this.cardArray) {
-            card.changeTypeOption(this.cardBuilder.getRandomType());
+            card.setRandomCardType();
         }
         this._log();
     }
 
+    setCardTypeByIndex(index) {
+        for (const card of this.cardArray) {
+            card.setCardTypeByIndex(index);
+        }
+        this._log();
+    }
+
+    resetCardView() {
+        if (this.isEmpty()) {
+            this._log(' is empty ');
+            return false;
+        }
+        this._log();
+        for (const card of this.cardArray) {
+            card.resetView();
+        }
+        return true;
+    }
+
     addListeners(type, action) {
-        for (let i = 0; i < this.cardArray.length ; i++ ) {
-            const card = this.cardArray[i];
+        for (const card of this.cardArray) {
             const wrap = function() {
                 action(card);
             }
@@ -100,29 +153,17 @@ GAME_CORE.GameField = class GameField {
         this._log();
     }
 
-    removeListeners(type, action) {
-        for (let i = 0; i < this.cardArray.length ; i++ ) {
-            const card = this.cardArray[i];
-            const wrap = function() {
-                action(card);
-            }
-            card.removeEventListener(type, wrap);
+    removeListeners() {
+        for (const card of this.cardArray) {
+            card.removeEventListener();
         }
         this._log();
     }
 
-    //setParrent(parrent) {return this.viewEntity.setViewParent(parrent);}
-    setViewParent(viewParent) {return this.viewEntity.setViewParent(viewParent);}
-    remove() {return this.viewEntity.remove();}
-    append() {
-        const isAppend = this.viewEntity.append();
-        this._log(isAppend);
+    _initCardArray() {
+        this.cardArray = [];
+        for (let i = 0; i < this.cardsCount; i++) {
+            this.cardArray.push(this.cardOptions.getCard(this.getViewId() + 'c' + i, this.getView()));
+        }
     }
-
-
-    _log(message ='', methodName=GAME_CORE.LOGGERS.InfoGameFieldLogger._getMethodName()) {
-        GAME_CORE.LOGGERS.InfoGameFieldLogger.logMethod(this.getViewId() + ' ' + message, methodName);
-    }
-    getViewId() {return this.viewEntity.getId();}
-    getView() {return this.viewEntity.view;}
 };

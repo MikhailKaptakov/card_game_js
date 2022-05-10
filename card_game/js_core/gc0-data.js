@@ -151,3 +151,24 @@ GAME_CORE.CardActivity = class CardActivity {
     }
 };
 
+GAME_CORE.CardOptions = class CardOptions {
+    constructor(rarityPack =GAME_CORE.DEFAULT_PROPS.rarityPack,
+                cardTypePack =GAME_CORE.DEFAULT_PROPS.cardTypePack,
+                cardState =GAME_CORE.DEFAULT_PROPS.cardState,
+                cardActivity =GAME_CORE.DEFAULT_PROPS.cardActivity) {
+        this.rarityPack = rarityPack;
+        this.cardTypePack = cardTypePack;
+        this.cardState = cardState;
+        this.cardActivity = cardActivity;
+    }
+
+    getRarityPack() {return this.rarityPack;}
+    getCardTypePack() {return this.cardTypePack;}
+    getCardState() {return this.cardState;}
+    getCardActivity() {return this.cardActivity;}
+
+    getCard(id, viewParent) {
+        return new GAME_CORE.Card(id, viewParent, this.rarityPack, this.cardTypePack, this.cardState, this.cardActivity);
+    }
+}
+
