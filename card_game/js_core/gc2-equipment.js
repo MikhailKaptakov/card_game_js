@@ -3,12 +3,11 @@ GAME_CORE.Equipment = class Equipment {
 	constructor(id, viewParent = document.body,
 				equipmentAdditional =GAME_CORE.DEFAULT_PROPS.equipmentAdditional(),
 				equipmentMultiple =GAME_CORE.DEFAULT_PROPS.equipmentMultiple(),
-				equipmentCardInit =GAME_CORE.DEFAULT_PROPS.equipmentCardInit) {
+				equipmentCards =GAME_CORE.DEFAULT_PROPS.equipmentCardInit(id, viewParent)) {
 		this.viewEntity = new UTIL_CORE.ViewEntity(id, viewParent);
 		this.equipmentAdditional = equipmentAdditional;
 		this.equipmentMultiple = equipmentMultiple;
-		this.cards = undefined;
-		equipmentCardInit.initEquipmentCards(this);
+		this.cards = equipmentCards;
 		this._log('created', 'constructor');
 	}
 
@@ -88,37 +87,6 @@ GAME_CORE.Equipment = class Equipment {
 		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod(this.getViewId() + ' ' + message, methodName);
 	}
 };
-
-GAME_CORE.EquipmentCardInit = class EquipmentCardInit {
-	constructor(cardFactory =GAME_CORE.DEFAULT_PROPS.cardFactory) {
-		this.cardFactory = cardFactory;
-	}
-
-	initEquipmentCards(owner) {
-		owner.cards = [
-			this.cardFactory
-				.createByView(owner.view.id + 'head', owner.view)
-				.setCardTypeByName('head')
-				.createCard(),
-			this.cardFactory
-				.createByView(owner.view.id + 'arms', owner.view)
-				.setCardTypeByName('arms')
-				.createCard(),
-			this.cardFactory
-				.createByView(owner.view.id + 'body', owner.view)
-				.setCardTypeByName('body')
-				.createCard(),
-			this.cardFactory
-				.createByView(owner.view.id + 'legs', owner.view)
-				.setCardTypeByName('legs')
-				.createCard(),
-			this.cardFactory
-				.createByView(owner.view.id + 'feet', owner.view)
-				.setCardTypeByName('feet')
-				.createCard()
-		]
-	}
-}
 
 GAME_CORE.EquipmentMultiple = class EquipmentMultiple {
 	constructor(head, arms, body, legs, feet ) {

@@ -1,5 +1,6 @@
 const UTIL_CORE = {};
-UTIL_CORE.randomGen = function(num){return Math.floor(Math.random()*num) + 1;};
+UTIL_CORE.randomGen = function(num){return Math.floor(Math.random()*num);};
+UTIL_CORE.randomGenPLusOne = function(num){return UTIL_CORE.randomGen(num) + 1;};
 UTIL_CORE.sleep = async function(milliseconds) {
 	const start = Date.now();
 	do {
@@ -119,34 +120,34 @@ UTIL_CORE.ViewEntity = class ViewEntity {
 			this.view = document.createElement(elemType);
 			this.view.id = id;
 			this.viewParent = viewParent;
-			this.isAppended = false;
+			this.appendState = false;
 		} else {
 			this.view = elem;
 			this.viewParent = this.view.parentElement;
-			this.isAppended = true;
+			this.appendState = true;
 		}
 	}
 
 	setViewParent(viewParent) {
 		this._log();
-		if (this.isAppended) {return false;}
+		if (this.appendState) {return false;}
 		this.viewParent = viewParent;
 		return true;
 	}
 
 	remove() {
 		this._log();
-		if (!this.isAppended) {return false;}
+		if (!this.appendState) {return false;}
 		this.viewParent.removeChild(this.view);
-		this.isAppended = false;
+		this.appendState = false;
 		return true;
 	}
 
 	append() {
 		this._log();
-		if(this.isAppended) {return false;}
+		if(this.appendState) {return false;}
 		this.viewParent.appendChild(this.view);
-		this.isAppended = true;
+		this.appendState = true;
 		return true;
 	}
 
@@ -166,15 +167,17 @@ UTIL_CORE.ViewEntity = class ViewEntity {
 			this.append();
 		}
 	}
-
-	setClass(viewClassName) {this.view.class = viewClassName;}
-	setTextContent(viewTextContent) {this.view.textContent = viewTextContent;}
-	setTitle(viewTitle) {this.view.title = viewTitle;}
+	isAppended() {return this.appendState;}
+	getViewParent() {return this.viewParent;}
+	getView() {return this.view;}
 	getClass() {return this.view.class;}
 	getTextContent() {return this.view.textContent;}
 	getTitle() {return this.view.title;}
 	getId() {return this.view.id;}
 
+	setClass(viewClassName) {this.view.class = viewClassName;}
+	setTextContent(viewTextContent) {this.view.textContent = viewTextContent;}
+	setTitle(viewTitle) {this.view.title = viewTitle;}
 	setLogger(logger) {
 		if(logger instanceof UTIL_CORE.Logger) {
 			this._log = function (message ='', methodName=this.logger._getMethodName()) {

@@ -1,9 +1,8 @@
 GAME_CORE.GameField = class GameField {
-    constructor(id, cardsCount, viewParent = document.body, cardFactory = GAME_CORE.DEFAULT_PROPS.cardFactory, initCard = true ) {
+    constructor(id, cardsCount, viewParent = document.body, cardBuilder = GAME_CORE.DEFAULT_PROPS.getCardBuilder(), initCard = true ) {
         this.viewEntity = new UTIL_CORE.ViewEntity(id, viewParent);
         this.cardsCount = cardsCount;
-        this.cardFactory = cardFactory;
-        this.cardBuilder = this.cardFactory.createByView(id, this.viewEntity.view);
+        this.cardBuilder = cardBuilder;
         if (initCard) {
             this.initCardArray();
         }
@@ -14,7 +13,9 @@ GAME_CORE.GameField = class GameField {
     initCardArray() {
         this.cardArray = [];
         for (let i = 0; i < this.cardsCount; i++) {
-            this.cardArray.push(this.cardBuilder.setId(this.getViewId() + 'c' + i).createCard());
+            this.cardArray.push(this.cardBuilder.setId(this.getViewId() + 'c' + i)
+                .setViewParent(this.getView())
+                .createCard());
         }
     }
 
@@ -70,7 +71,7 @@ GAME_CORE.GameField = class GameField {
         this._log();
         for (const card of this.cardArray) {
             card.closeCard();
-            card.changeRarityOption(this.cardFactory.getRandomRarity());
+            card.changeRarityOption(this.cardBuilder.getRandomRarity());
         }
     }
 
@@ -83,7 +84,7 @@ GAME_CORE.GameField = class GameField {
 
     setRandomCardType() {
         for (const card of this.cardArray) {
-            card.changeTypeOption(this.cardFactory.getRandomType());
+            card.changeTypeOption(this.cardBuilder.getRandomType());
         }
         this._log();
     }
@@ -122,7 +123,6 @@ GAME_CORE.GameField = class GameField {
     _log(message ='', methodName=GAME_CORE.LOGGERS.InfoGameFieldLogger._getMethodName()) {
         GAME_CORE.LOGGERS.InfoGameFieldLogger.logMethod(this.getViewId() + ' ' + message, methodName);
     }
-    getViewId() {
-        return this.viewEntity.getId();
-    }
+    getViewId() {return this.viewEntity.getId();}
+    getView() {return this.viewEntity.view;}
 };

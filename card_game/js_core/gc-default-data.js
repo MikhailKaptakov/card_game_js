@@ -45,11 +45,10 @@ GAME_CORE.DEFAULT_PROPS.cardTypes = [
     new GAME_CORE.CardType('feet','feetType')
 ];
 
-GAME_CORE.DEFAULT_PROPS.cardTypeCollection = new GAME_CORE.CardTypeCollection(GAME_CORE.DEFAULT_PROPS.cardTypes);
-GAME_CORE.DEFAULT_PROPS.rarityCollection = new GAME_CORE.RarityCollection(GAME_CORE.DEFAULT_PROPS.rarityOptions);
+GAME_CORE.DEFAULT_PROPS.cardTypePack = new GAME_CORE.CardTypePack(GAME_CORE.DEFAULT_PROPS.cardTypes);
+GAME_CORE.DEFAULT_PROPS.rarityPack = new GAME_CORE.RarityPack(GAME_CORE.DEFAULT_PROPS.rarityOptions);
 GAME_CORE.DEFAULT_PROPS.cardState = new GAME_CORE.CardState('opened-card','closed-card');
 GAME_CORE.DEFAULT_PROPS.cardActivity = new GAME_CORE.CardActivity('','card-inactive');
-GAME_CORE.DEFAULT_PROPS.cardFactory = new GAME_CORE.CardFactory({});
 
 GAME_CORE.DEFAULT_PROPS.baseCharacteristic = function() {return new GAME_CORE.StatSet(300,25,0,5);};
 GAME_CORE.DEFAULT_PROPS.headMultiple = new GAME_CORE.StatSet(0, 0, 1, 0);
@@ -69,8 +68,22 @@ GAME_CORE.DEFAULT_PROPS.equipmentAdditional = function() {
     return new GAME_CORE.EquipmentMultiple(set, set.cloneThis(), set.cloneThis(),
         set.cloneThis(), set.cloneThis());
 };
+GAME_CORE.DEFAULT_PROPS.getEquipment = function (id, viewParent) {return new GAME_CORE.Equipment(id, viewParent);};
 
-GAME_CORE.DEFAULT_PROPS.equipmentCardInit = new GAME_CORE.EquipmentCardInit();
+GAME_CORE.DEFAULT_PROPS.equipmentCardInit = function (id, viewParent =undefined) {
+    const equipCards = [];
+    const createCard = function (typeName) {
+        const card = new GAME_CORE.Card(id + typeName, viewParent);
+        card.setCardTypeByName(typeName);
+        equipCards.push();
+    }
+    createCard('head');
+    createCard('arms');
+    createCard('body');
+    createCard('legs');
+    createCard('feet');
+    return equipCards;
+};
 
 GAME_CORE.DEFAULT_PROPS.dodgeReplics = ['Попробуй поймай', 'Ха - ха, А я уже тут', 'Мимо!'];
 GAME_CORE.DEFAULT_PROPS.attackReplics = ['Получи', 'Так тебе', 'Больно?!'];
@@ -101,4 +114,6 @@ GAME_CORE.LOGGERS.loggerInfo.addChildLogger(GAME_CORE.LOGGERS.InfoPlayerLogger);
 GAME_CORE.LOGGERS.loggerInfo.addChildLogger(GAME_CORE.LOGGERS.InfoGameFieldLogger);
 GAME_CORE.LOGGERS.loggerInfo.addChildLogger(GAME_CORE.LOGGERS.InfoLogChatLogger);
 GAME_CORE.LOGGERS.loggerInfo.addChildLogger(GAME_CORE.LOGGERS.InfoAppenderLogger);
+
+
 

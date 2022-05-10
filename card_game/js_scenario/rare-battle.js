@@ -11,7 +11,7 @@ GAME_CORE.CARDS_PROP.rarityTable = [90000,90000,90000,90000,90000,90000,90000,90
 GAME_CORE.CARDS_PROP.rarityDecrease = [1000,1000,1000,500,500,500,250,250,125,125];
 GAME_CORE.CARDS_PROP.rarityMin = [15000,20000,25000,30000,32500,35000,35000,35000,50000,50000];
 GAME_CORE.UNITS_PROP.punish = function(){
-		const num = UTIL_CORE.randomGen(5) - 1;
+		const num = UTIL_CORE.randomGenPLusOne(5) - 1;
 		const card = this.equipment.getEquipByNumber(num);
 		const rar = (card.rarity - 1)>=0?card.rarity - 1:0;
 		card.setRarity(rar);
@@ -26,7 +26,7 @@ GAME_CORE.Unit.prototype.updateLuck = function(){
 	GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' value: ' + this.luck.value, 'updateLuck');
 }
 GAME_CORE.Unit.prototype.getInitiative = function(){
-	const ini = UTIL_CORE.randomGen(this.luck.value);
+	const ini = UTIL_CORE.randomGenPLusOne(this.luck.value);
 	GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + 'initiative =' + ini, 'getInitiative');
 	return  ini;
 }
