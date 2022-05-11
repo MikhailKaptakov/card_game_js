@@ -49,6 +49,7 @@ GAME_CORE.DEFAULT_PROPS.cardTypePack = new GAME_CORE.CardTypePack(GAME_CORE.DEFA
 GAME_CORE.DEFAULT_PROPS.rarityPack = new GAME_CORE.RarityPack(GAME_CORE.DEFAULT_PROPS.rarityOptions);
 GAME_CORE.DEFAULT_PROPS.cardState = new GAME_CORE.CardState('opened-card','closed-card');
 GAME_CORE.DEFAULT_PROPS.cardActivity = new GAME_CORE.CardActivity('','card-inactive');
+GAME_CORE.DEFAULT_PROPS.cardOptions = new GAME_CORE.CardOptions();
 
 GAME_CORE.DEFAULT_PROPS.baseCharacteristic = function() {return new GAME_CORE.StatSet(300,25,0,5);};
 GAME_CORE.DEFAULT_PROPS.headMultiple = new GAME_CORE.StatSet(0, 0, 1, 0);
@@ -57,7 +58,7 @@ GAME_CORE.DEFAULT_PROPS.bodyMultiple = new GAME_CORE.StatSet(1, 0, 0, 0);
 GAME_CORE.DEFAULT_PROPS.legsMultiple = new GAME_CORE.StatSet(0.5, 0, 0, 0.5);
 GAME_CORE.DEFAULT_PROPS.feetsMultiple = new GAME_CORE.StatSet(0, 0.5, 0, 0.5);
 
-GAME_CORE.DEFAULT_PROPS.equipmentMultiple = function() {return new GAME_CORE.EquipmentMultiple(
+GAME_CORE.DEFAULT_PROPS.equipmentMultiple = function() {return new GAME_CORE.EquipmentModificator(
     GAME_CORE.DEFAULT_PROPS.headMultiple.cloneThis(),
     GAME_CORE.DEFAULT_PROPS.armsMultiple.cloneThis(),
     GAME_CORE.DEFAULT_PROPS.bodyMultiple.cloneThis(),
@@ -65,7 +66,7 @@ GAME_CORE.DEFAULT_PROPS.equipmentMultiple = function() {return new GAME_CORE.Equ
     GAME_CORE.DEFAULT_PROPS.feetsMultiple.cloneThis()); }
 GAME_CORE.DEFAULT_PROPS.equipmentAdditional = function() {
     const set = new GAME_CORE.StatSet(0,0,0,0);
-    return new GAME_CORE.EquipmentMultiple(set, set.cloneThis(), set.cloneThis(),
+    return new GAME_CORE.EquipmentModificator(set, set.cloneThis(), set.cloneThis(),
         set.cloneThis(), set.cloneThis());
 };
 GAME_CORE.DEFAULT_PROPS.getEquipment = function (id, viewParent) {return new GAME_CORE.Equipment(id, viewParent);};

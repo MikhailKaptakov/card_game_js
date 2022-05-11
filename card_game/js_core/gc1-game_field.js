@@ -1,16 +1,24 @@
 GAME_CORE.GameField = class GameField extends UTIL_CORE.ViewEntity{
     constructor(id, viewParent = undefined, cardsCount,
-                cardOptions = new GAME_CORE.CardOptions()) {
+                cardOptions = GAME_CORE.DEFAULT_PROPS.cardOptions) {
         super(id, viewParent);
         this.setLogger(GAME_CORE.LOGGERS.InfoGameFieldLogger);
         this.cardsCount = cardsCount;
         this.cardOptions = cardOptions;
+        this.cardArray = [];
         this._initCardArray();
         this.emptyState = true;
         this._log('created','constructor');
     }
 
     isEmpty() {return this.emptyState;}
+
+    getCardByIndex(index) {
+        if (index < this.cardArray.length && index >= 0) {
+            return this.cardArray[index];
+        }
+        throw throw new RangeError('index ' + index + ' out of range');
+    }
 
     doIt(cardAction) {
         for (const card of this.cardArray) {
@@ -161,7 +169,6 @@ GAME_CORE.GameField = class GameField extends UTIL_CORE.ViewEntity{
     }
 
     _initCardArray() {
-        this.cardArray = [];
         for (let i = 0; i < this.cardsCount; i++) {
             this.cardArray.push(this.cardOptions.getCard(this.getViewId() + 'c' + i, this.getView()));
         }

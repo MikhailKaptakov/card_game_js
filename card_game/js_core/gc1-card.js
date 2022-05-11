@@ -22,15 +22,11 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
     getColoredAdjective(){return this.rarityOption.getColoredAdjective();}
     getBuyPrice() {return this.rarityOption.getPrice().getBuyPrice();}
     getSellPrice() {return this.rarityOption.getPrice().getSellPrice();}
-    getBonus() {return this.rarityOption.getBonus();}
+    getBonus() {return this.rarityOption.getBonus();} //todo переименовать getStatMap
     getHealthBonus() {return this.getBonus().getHealth();}
     getDamageBonus() {return this.getBonus().getDamage();}
     getLuckBonus() {return this.getBonus().getLuck();}
     getDodgeBonus() {return this.getBonus().getDodge();}
-    getCardCopy(id, viewParent =undefined) {
-        return new Card(id, viewParent, this.rarityPack, this.cardTypePack, this.cardState,
-            this.cardActivity);
-    }
 
     /******CardType_Options******/
     getCardTypePack() {return this.cardTypePack;}
@@ -51,7 +47,7 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
         this.cardType = this.cardTypePack.getByIndex(index);
         this.updateView();
     }
-    /***** *****/
+
 
     /******Rarity_Options******/
     getRarityPack() {return this.rarityPack;}
@@ -76,7 +72,7 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
         this.rarityOption = this.rarityPack.getByIndex(index);
         this.updateView();
     }
-    /***** *****/
+
 
     /******Listener******/
     setEventListener(eventType, action) {
@@ -100,7 +96,8 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
         }
         this._log('Listener is not set');
     }
-    /***** *****/
+
+
     /******View******/
     isOpen() {return this.openState;}
     isActive() {return this.activityState;}
@@ -238,7 +235,6 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
     _setInactiveClassName() {this._setViewClassName(this.cardActivity.getInactiveViewClass());}
     _hideCardText() {this.viewText = '';}
     _showCardText() {this.viewText = this.rarityOption.getCardText();}
-    /***** *****/
 }
 
 

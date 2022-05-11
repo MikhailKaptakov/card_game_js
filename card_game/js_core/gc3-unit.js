@@ -41,7 +41,7 @@ GAME_CORE.Unit = class Unit {
 		this.initiativeModifications = new GAME_CORE.ModificationCollection([]);
 		this.randomInitiativeModifications = new GAME_CORE.ModificationCollection([]);
 		this.punishModifications = new GAME_CORE.ModificationCollection([]);
-		//todo добавить остальные
+		//todo добавить остальные - модификаторы продажи и покупки карты - добавить в эквипмент
 		//todo вызовы методов взаимодействия принимают два аргумента thisUnit, targetUnit
 	}
 

@@ -1,5 +1,4 @@
 const GAME_CORE = {};
-//todo - выделить класс коллекции и унаследовать от него RarityPack, CardTypePack, ModificatorCollection
 
 GAME_CORE.Price = class Price {
     constructor (buy, sell){
@@ -11,7 +10,6 @@ GAME_CORE.Price = class Price {
 };
 
 GAME_CORE.StatSet =  class StatSet  {
-    //todo изменить название, модовые сеты в класс наследник
     constructor (health=0, damage=0, luck=0, dodge=0) {
         this.health = health;
         this.damage = damage;
@@ -21,12 +19,37 @@ GAME_CORE.StatSet =  class StatSet  {
 
     cloneThis() {return new GAME_CORE.StatSet(this.health,this.damage,this.luck,this.dodge);}
 
-    //todo наследник для мультипликаторов с аргументом юнита владельца по умолчанию возвращают значение, но могут быть изменены
     getHealth() {return this.health}
     getDamage() {return this.damage}
     getLuck() {return this.luck}
     getDodge() {return this.dodge}
 };
+
+GAME_CORE.StatMap = class StatMap extends Map{
+    constructor () {
+        super();
+    }
+}
+
+GAME_CORE.BaseStatMap = class BaseStatMap extends StatMap {
+    constructor(health=0, damage=0, luck=0, dodge=0) {
+        super();
+        this.set('health', health);
+        this.set('damage', damage);
+        this.set('luck', luck);
+        this.set('dodge', dodge);
+    }
+
+    getHealth() {return this.get('health')}
+    getDamage() {return this.get('damage')}
+    getLuck() {return this.get('luck')}
+    getDodge() {return this.get('dodge')}
+    getStat(statName) {return this.get(statName)};
+
+    setStat(statName, value) {return this.set(statName, value)};
+
+    //todo заменить StatSet в классе карт и удалить его при замене не менять публичные методы
+}
 
 GAME_CORE.RarityOption = class RarityOption {
     constructor (name, difficult, viewClass, cardText, coloredAdjective, price, bonus,
@@ -75,7 +98,7 @@ GAME_CORE.TypePack = class  {
         if (index <= this.getMaxIndex() && index >= 0) {
             return this.typeArray[index];
         }
-        throw new RangeError('index ' + index + ' out of range')
+        throw new RangeError('index ' + index + ' out of range');
     }
 
     getRandomIndex() {return UTIL_CORE.randomGen(this.typeArray.length);}

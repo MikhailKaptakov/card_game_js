@@ -1,18 +1,21 @@
-GAME_CORE.Equipment = class Equipment {
+GAME_CORE.Equipment = class Equipment extends UTIL_CORE.ViewEntity{
 
 	constructor(id, viewParent = document.body,
 				equipmentAdditional =GAME_CORE.DEFAULT_PROPS.equipmentAdditional(),
 				equipmentMultiple =GAME_CORE.DEFAULT_PROPS.equipmentMultiple(),
 				equipmentCards =GAME_CORE.DEFAULT_PROPS.equipmentCardInit(id, viewParent)) {
-		this.viewEntity = new UTIL_CORE.ViewEntity(id, viewParent);
+		super(id, viewParent);
+		this.setLogger(GAME_CORE.LOGGERS.InfoEquipmentLogger);
 		this.equipmentAdditional = equipmentAdditional;
 		this.equipmentMultiple = equipmentMultiple;
 		this.cards = equipmentCards;
 		this._log('created', 'constructor');
 	}
 
+	/******Card_Bonus******/
 	returnBonus() {
-		return new GAME_CORE.StatSet(this.getHealthBonus(), this.getDamageBonus(), this.getLuckBonus(), this.getDodgeBonus());
+		return new GAME_CORE.StatSet(this.getHealthBonus(), this.getDamageBonus(),
+			this.getLuckBonus(), this.getDodgeBonus());
 	}
 		
 	getHealthBonus() {
@@ -54,45 +57,60 @@ GAME_CORE.Equipment = class Equipment {
 		}
 		return dodgeBonus;
 	}
+
+	/******Cards_manipulation******/
 		
 	appendCards() {
 		this._log();
-		for (let i = 0; i<this.cards.length; i++) {
-			this.cards[i].append();
+		for (const card of this.cards) {
+			card.append();
 		}
 	}
 	
 	openCards() {
 		this._log();
-		for (let i = 0; i<this.cards.length; i++) {
-			this.cards[i].openCard();
+		for (const card of this.cards) {
+			card.openCard();
 		}
 	}
 
 	closeCards() {
 		this._log();
-		for (let i = 0; i<this.cards.length; i++) {
-			this.cards[i].closeCard();
+		for (const card of this.cards) {
+			card.closeCard();
 		}
 	}
-	
-	getEquipByNumber(i) {return this.cards[i];}
-	
-	setViewParent(viewParent) {return this.viewEntity.setViewParent(viewParent);}
-	remove() {return this.viewEntity.remove();}
-	append() {return this.viewEntity.append();}
-	getViewId() {return this.viewEntity.view;}
 
-	_log(message ='', methodName=GAME_CORE.LOGGERS.InfoEquipmentLogger._getMethodName()) {
-		GAME_CORE.LOGGERS.InfoEquipmentLogger.logMethod(this.getViewId() + ' ' + message, methodName);
+	getCardByIndex(index) {
+		if (index < 0 || index >= this.cards.length) {
+			throw new RangeError('index ' + index + ' out of range');
+		}
+		return this.cards[index];
+	}
+
+	getCardByName(name) {
+		const index = this.getIndexCardByName(name);
+		if (index < 0) {
+			return undefined;
+		}
+		return this.cards[index];
+	}
+
+	getIndexCardByName(name) {
+		for (let i = 0; i < this.cards.length; i++) {
+			if (this.cards[i].getName() === name) {
+				return i
+			}
+		}
+		return -1;
 	}
 };
 
-GAME_CORE.EquipmentMultiple = class EquipmentMultiple {
+GAME_CORE.EquipmentModificator = class EquipmentMultiple {
 	constructor(head, arms, body, legs, feet ) {
 		this.statSets = [head,arms,body,legs,feet];
 	}
 
-	cloneThis() {return new GAME_CORE.EquipmentMultiple(this.statSets[0].cloneThis(), this.statSets[1].cloneThis(),
+	cloneThis() {return new GAME_CORE.EquipmentModificator(this.statSets[0].cloneThis(), this.statSets[1].cloneThis(),
 		this.statSets[2].cloneThis(),this.statSets[3].cloneThis(),this.statSets[4].cloneThis());}
 }
