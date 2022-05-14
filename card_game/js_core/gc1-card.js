@@ -22,11 +22,11 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
     getColoredAdjective(){return this.rarityOption.getColoredAdjective();}
     getBuyPrice() {return this.rarityOption.getPrice().getBuyPrice();}
     getSellPrice() {return this.rarityOption.getPrice().getSellPrice();}
-    getBonus() {return this.rarityOption.getBonus();} //todo переименовать getStatMap
-    getHealthBonus() {return this.getBonus().getHealth();}
-    getDamageBonus() {return this.getBonus().getDamage();}
-    getLuckBonus() {return this.getBonus().getLuck();}
-    getDodgeBonus() {return this.getBonus().getDodge();}
+    getStatMap() {return this.rarityOption.getStatMap();}
+    getHealthBonus() {return this.getStatMap().getHealth();}
+    getDamageBonus() {return this.getStatMap().getDamage();}
+    getLuckBonus() {return this.getStatMap().getLuck();}
+    getDodgeBonus() {return this.getStatMap().getDodge();}
 
     /******CardType_Options******/
     getCardTypePack() {return this.cardTypePack;}

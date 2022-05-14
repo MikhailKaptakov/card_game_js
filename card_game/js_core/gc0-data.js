@@ -9,22 +9,6 @@ GAME_CORE.Price = class Price {
     getSellPrice() {return this.sell;}
 };
 
-GAME_CORE.StatSet =  class StatSet  {
-    constructor (health=0, damage=0, luck=0, dodge=0) {
-        this.health = health;
-        this.damage = damage;
-        this.luck = luck;
-        this.dodge = dodge;
-    }
-
-    cloneThis() {return new GAME_CORE.StatSet(this.health,this.damage,this.luck,this.dodge);}
-
-    getHealth() {return this.health}
-    getDamage() {return this.damage}
-    getLuck() {return this.luck}
-    getDodge() {return this.dodge}
-};
-
 GAME_CORE.StatMap = class StatMap extends Map{
     constructor () {
         super();
@@ -40,15 +24,16 @@ GAME_CORE.BaseStatMap = class BaseStatMap extends StatMap {
         this.set('dodge', dodge);
     }
 
-    getHealth() {return this.get('health')}
-    getDamage() {return this.get('damage')}
-    getLuck() {return this.get('luck')}
-    getDodge() {return this.get('dodge')}
-    getStat(statName) {return this.get(statName)};
+    getHealth() {return this.get('health');}
+    getDamage() {return this.get('damage');}
+    getLuck() {return this.get('luck');}
+    getDodge() {return this.get('dodge');}
 
+    hasStat(statName) {return this.has(statName);}
+    getStat(statName) {
+        return this.get(statName);
+    };
     setStat(statName, value) {return this.set(statName, value)};
-
-    //todo заменить StatSet в классе карт и удалить его при замене не менять публичные методы
 }
 
 GAME_CORE.RarityOption = class RarityOption {
@@ -60,12 +45,12 @@ GAME_CORE.RarityOption = class RarityOption {
         this.cardText = cardText;
         this.coloredAdjective = coloredAdjective;
         this.price = price;
-        this.bonus = bonus;
+        this.statMap = bonus;
         if (description !== undefined) {
             this.description = description;
         } else {
-            this.description = this.name + ' ' + 'Health: ' + this.bonus.getHealth() + ' Damage: ' + this.bonus.getDamage() +
-                ' Luck: ' + this.bonus.getLuck() + '  Dodge: ' + this.bonus.getDodge() + '  Sell: '
+            this.description = this.name + ' ' + 'Health: ' + this.statMap.getHealth() + ' Damage: ' + this.statMap.getDamage() +
+                ' Luck: ' + this.statMap.getLuck() + '  Dodge: ' + this.statMap.getDodge() + '  Sell: '
                 + this.price.sell + '  Buy: ' + this.price.buy;
         }
         //todo при изменении карт цену карты формировать из стоимости рарной карты + добавочная стоимость переданным параметром
@@ -77,7 +62,7 @@ GAME_CORE.RarityOption = class RarityOption {
     getCardText() {return this.cardText;}
     getColoredAdjective() {return this.coloredAdjective;}
     getPrice() {return this.price;}
-    getBonus() {return this.bonus;}
+    getStatMap() {return this.statMap;}
     getDescription() {return this.description;}
 }
 
@@ -143,7 +128,7 @@ GAME_CORE.CardTypePack = class CardTypePack extends GAME_CORE.TypePack{
     }
 };
 
-GAME_CORE.CardState = class CardState {
+GAME_CORE.OpenCloseState = class OpenCloseState {
     constructor(viewClassOpened, viewClassClosed) {
         this.viewClassOpened = viewClassOpened;
         this.viewClassClosed = viewClassClosed;
@@ -159,7 +144,7 @@ GAME_CORE.CardState = class CardState {
     getOpenViewClass() {return this.viewClassOpened;}
 };
 
-GAME_CORE.CardActivity = class CardActivity {
+GAME_CORE.ActivityState = class ActivityState {
     constructor(viewClassActive, viewClassInactive) {
         this.viewClassActive = viewClassActive;
         this.viewClassInactive = viewClassInactive;
