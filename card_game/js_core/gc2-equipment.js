@@ -86,8 +86,31 @@ GAME_CORE.Equipment = class Equipment extends UTIL_CORE.ViewEntity{
 		}
 	}
 
-	getCardByName(name) {
+	getCellByName(name) {
 		return this.equipmentCells.get(name);
+	}
+
+	getCellByIndex(index) {
+		if (index < 0 || index >= this.equipmentCells.size) {
+			return undefined;
+		}
+		let i = 0;
+		for (const key of this.equipmentCells.keys) {
+			if (i === index) {
+				return this.equipmentCells.get(key);
+			}
+			i++;
+		}
+		throw new Error('проверить условие отсева')
+	}
+
+	getCellByRandomIndex() {
+		const index = UTIL_CORE.randomGen(this.equipmentCells.size);
+		return this.getCardByIndex(index);
+	}
+
+	getEquipmentSize() {
+		return this.equipmentCells.size;
 	}
 
 	getOwner() {return this.owner;}

@@ -1,6 +1,5 @@
 const UTIL_CORE = {};
-UTIL_CORE.randomGen = function(num){return Math.floor(Math.random()*num);};
-UTIL_CORE.randomGenPLusOne = function(num){return UTIL_CORE.randomGen(num) + 1;};
+UTIL_CORE.randomGen = function(num = 1){return Math.floor(Math.random()*num);};
 UTIL_CORE.sleep = async function(milliseconds) {
 	const start = Date.now();
 	do {

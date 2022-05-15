@@ -255,7 +255,7 @@ rareBattle.battle = async function() {
 }
 
 rareBattle.whoDealDamage = function(){
-	const check = rareBattle.unit1.getInitiative() - rareBattle.unit1.getInitiative();
+	const check = rareBattle.unit1.getInitiative() - rareBattle.unit2.getInitiative();
 	const ans = {};
 	if (check > 0) {
 		ans.atacker = rareBattle.unit1;

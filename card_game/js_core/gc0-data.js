@@ -36,46 +36,7 @@ GAME_CORE.BaseStatMap = class BaseStatMap extends StatMap {
     setStat(statName, value) {return this.set(statName, value)};
 }
 
-GAME_CORE.RarityOption = class RarityOption {
-    constructor (name, difficult, viewClass, cardText, coloredAdjective, price, bonus,
-                 description =undefined) {
-        this.name = name;
-        this.difficult = difficult;
-        this.viewClass = viewClass;
-        this.cardText = cardText;
-        this.coloredAdjective = coloredAdjective;
-        this.price = price;
-        this.statMap = bonus;
-        if (description !== undefined) {
-            this.description = description;
-        } else {
-            this.description = this.name + ' ' + 'Health: ' + this.statMap.getHealth() + ' Damage: ' + this.statMap.getDamage() +
-                ' Luck: ' + this.statMap.getLuck() + '  Dodge: ' + this.statMap.getDodge() + '  Sell: '
-                + this.price.sell + '  Buy: ' + this.price.buy;
-        }
-        //todo при изменении карт цену карты формировать из стоимости рарной карты + добавочная стоимость переданным параметром
-    }
-
-    getName() {return this.name;}
-    getDifficult() {return this.difficult;}
-    getViewClass() {return this.viewClass;}
-    getCardText() {return this.cardText;}
-    getColoredAdjective() {return this.coloredAdjective;}
-    getPrice() {return this.price;}
-    getStatMap() {return this.statMap;}
-    getDescription() {return this.description;}
-}
-
-GAME_CORE.CardType = class CardType {
-    constructor(name, viewClass) {
-        this.name = name;
-        this.viewClass = viewClass;
-    }
-    getName() {return this.name;}
-    getViewClass() {return this.viewClass;}
-};
-
-GAME_CORE.TypePack = class  {
+GAME_CORE.Pack = class Pack {
     constructor(typeArray) {
         this.typeArray = typeArray;
     }
@@ -98,9 +59,45 @@ GAME_CORE.TypePack = class  {
     add(type) {this.typeArray.push(type);}
     addToPosition(typeElement, index) {this.typeArray.splice(index,0,typeElement);}
     replaceToPosition(typeElement, index) {this.typeArray[index] = typeElement;}
+    deleteByIndex(index) {
+        if (index <= this.getMaxIndex() && index >= 0) {
+            this.typeArray.splice(index, 1);
+            return true;
+        }
+        return false;
+    }
 }
 
-GAME_CORE.RarityPack = class RarityPack extends GAME_CORE.TypePack{
+GAME_CORE.RarityOption = class RarityOption {
+    constructor (name, difficult, viewClass, cardText, coloredAdjective, price, bonus,
+                 description =undefined) {
+        this.name = name;
+        this.difficult = difficult;
+        this.viewClass = viewClass;
+        this.cardText = cardText;
+        this.coloredAdjective = coloredAdjective;
+        this.price = price;
+        this.statMap = bonus;
+        if (description !== undefined) {
+            this.description = description;
+        } else {
+            this.description = this.name + ' ' + 'Health: ' + this.statMap.getHealth() + ' Damage: ' + this.statMap.getDamage() +
+                ' Luck: ' + this.statMap.getLuck() + '  Dodge: ' + this.statMap.getDodge() + '  Sell: '
+                + this.price.sell + '  Buy: ' + this.price.buy;
+        }
+    }
+
+    getName() {return this.name;}
+    getDifficult() {return this.difficult;}
+    getViewClass() {return this.viewClass;}
+    getCardText() {return this.cardText;}
+    getColoredAdjective() {return this.coloredAdjective;}
+    getPrice() {return this.price;}
+    getStatMap() {return this.statMap;}
+    getDescription() {return this.description;}
+};
+
+GAME_CORE.RarityPack = class RarityPack extends GAME_CORE.Pack{
     constructor(rarityArray, randomRange = 100000) {
         super(rarityArray);
         this.randomRange = randomRange;
@@ -115,7 +112,16 @@ GAME_CORE.RarityPack = class RarityPack extends GAME_CORE.TypePack{
     }
 }
 
-GAME_CORE.CardTypePack = class CardTypePack extends GAME_CORE.TypePack{
+GAME_CORE.CardType = class CardType {
+    constructor(name, viewClass) {
+        this.name = name;
+        this.viewClass = viewClass;
+    }
+    getName() {return this.name;}
+    getViewClass() {return this.viewClass;}
+};
+
+GAME_CORE.CardTypePack = class CardTypePack extends GAME_CORE.Pack{
     constructor(cardTypeArray) {
         super(cardTypeArray)
     }
@@ -178,5 +184,89 @@ GAME_CORE.CardOptions = class CardOptions {
     getCard(id, viewParent) {
         return new GAME_CORE.Card(id, viewParent, this.rarityPack, this.cardTypePack, this.cardState, this.cardActivity);
     }
-}
+};
 
+GAME_CORE.Modification = class Modification {
+    //method execute(thisUnit, targetUnit)
+    constructor(groupName,  type, name, description, executeMethod, maxLevel = 3) {
+        this.groupName = groupName;
+        this.type = type;
+        this.name = name;
+        this.description = description;
+        this.executeMethod = executeMethod;
+        this.level = 1;
+        this.maxLevel = maxLevel;
+        this.counter = 0;
+    }
+
+    getGroupName() {return this.groupName;}
+    getType() {return this.type;}
+    getName() {return this.name;}
+    getDescription() {return this.description;}
+    getLevel() { return this.level; }
+    levelUp() {
+        this.level = Math.min(this.level +1, this.maxLevel);
+    }
+    decreaseLevel() {
+        Math.max(this.level - 1, 1);
+    }
+    execute(thisUnit, targetUnit) { this.executeMethod(thisUnit, targetUnit); }
+};
+
+GAME_CORE.ModificationMap = class ModificationMap {
+    constructor() {
+        this.modificationMap = new Map();
+    }
+
+    //todo переработать в Map - работа только с name! без индексов
+    getRandomModification() {
+        const index = UTIL_CORE.randomGen(this.modificationMap.size);
+        let i = 0;
+        for (const mod of this.modificationMap.keys()) {
+            if (i === index) {
+                return mod;
+            }
+            i++;
+        }
+    }
+
+    hasModification(groupName) {return this.modificationMap.has(groupName);}
+    getModification(groupName) {
+        return this.modificationMap.get(groupName);
+    };
+    setModification(mod) {return this.modificationMap.set(mod.getGroupName(), mod)};
+
+    deleteByName(groupName) {
+        return this.modificationMap.delete(groupName);
+    }
+
+    deleteModification(modification) {
+        return this.deleteByName(modification.getGroupName());
+    }
+
+    execute(thisUnit, targetUnit) {
+        const answer = [];
+        for (const mod of this.typeArray) {
+            answer.push(mod.execute(thisUnit, targetUnit));
+        }
+        return answer;
+    }
+};
+
+GAME_CORE.ModificationMaps = class ModificationMaps {
+    constructor() {
+        this.modificationMaps = new Map();
+        this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack,
+            new GAME_CORE.ModificationMap());
+        this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge,
+            new GAME_CORE.ModificationMap());
+        this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative,
+            new GAME_CORE.ModificationMap());
+        this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish,
+            new GAME_CORE.ModificationMap())
+    }
+
+    getModificationMap(type) {
+        return this.modificationMaps.get(type);
+    }
+};

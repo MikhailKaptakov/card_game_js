@@ -65,7 +65,37 @@ GAME_CORE.Player = class Player extends UTIL_CORE.ViewEntity{
 		if (typeof value !== 'number') {
 			return false;
 		}
+		if (value <= 0) {
+			return false;
+		}
 		const newVal = this.money.getValue() + value;
+		this.money.updateValue(newVal);
+		return true;
+	}
+
+	takeMoney(value) {
+		if (typeof value !== 'number') {
+			return false;
+		}
+		if (value <= 0) {
+			return false;
+		}
+		const newVal = Math.max(this.money.getValue() - value, 0);
+		this.money.updateValue(newVal);
+		return true;
+	}
+
+	buy(price) {
+		const newVal = this.money.getValue() - price.getSellPrice();
+		if (newVal < 0) {
+			return false;
+		}
+		this.money.updateValue(newVal);
+		return true;
+	}
+
+	sell(price) {
+		const newVal = this.money.getValue() + price.getBuyPrice();
 		if (newVal < 0) {
 			return false;
 		}

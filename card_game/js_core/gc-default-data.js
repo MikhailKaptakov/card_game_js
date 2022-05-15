@@ -102,5 +102,282 @@ GAME_CORE.LOGGERS.loggerInfo.addChildLogger(GAME_CORE.LOGGERS.InfoGameFieldLogge
 GAME_CORE.LOGGERS.loggerInfo.addChildLogger(GAME_CORE.LOGGERS.InfoLogChatLogger);
 GAME_CORE.LOGGERS.loggerInfo.addChildLogger(GAME_CORE.LOGGERS.InfoAppenderLogger);
 
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS = {};
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES = {};
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack = 'ATTACK';
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge = 'DODGE';
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative = 'INITIATIVE';
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish = 'PUNISH';
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.scatter = function() {
+    return new GAME_CORE.Modification('scatter',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack, 'Положительный разброс',
+        'задаёт разброс значения урона в 20%, смещает разброс в большую сторону с каждым уровнем на 2%',
+        (thisUnit, targetUnit) => {
+            return thisUnit.getDamage() * ((0.5 + this.getLevel() * 0.1 - Math.random()) / 5);
+        }, 5);
+};
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.scatter2 = function() {
+    return new GAME_CORE.Modification('scatter',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack, 'Как повезёт!',
+        'начальный разброс 20%, с повышением уровня разброс вырастает до 50%',
+        (thisUnit, targetUnit) => {
+            return thisUnit.getDamage() * (0.5 - Math.random()) / (5 - this.getLevel());
+        }, 3);
+};
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.scatter3 = function() {
+    return new GAME_CORE.Modification('scatter',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack, 'Базовый разброс урона',
+        'разброс урона в 20%',
+        (thisUnit, targetUnit) => {
+            return thisUnit.getDamage() * (0.5 - Math.random()) / 5;
+        }, 1);
+};
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.criticalDamage = function() {
+    return new GAME_CORE.Modification('criticalDamage',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack, 'Сильный удар',
+        'с шансом в 5% добавляет 10*уровень процентов урона',
+        (thisUnit, targetUnit) => {
+            return thisUnit.getDamage() * (Math.random() <= 0.05 ? 0.1 * this.getLevel() : 0);
+        }, 5);
+};
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.criticalDamage2 = function() {
+    return new GAME_CORE.Modification('criticalDamage',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack, 'Уязвимое место',
+        'добавляет 25 процентов урона c шансом в 2*уровень%',
+        (thisUnit, targetUnit) => {
+            return thisUnit.getDamage() * (Math.random() <= 0.02 * this.getLevel() ? 0.25 : 0);
+        }, 5);
+};
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.criticalDamage3 = function() {
+    return new GAME_CORE.Modification('criticalDamage',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack, 'Возмездие',
+        'каждый 50, 45, 40, 35, 30, 25 (в зависимости от уровня удар) наносит двойной урон ' +
+        ' (счётчик ударов не сбрасывается после битвы)',
+        (thisUnit, targetUnit) => {
+            this.counter++;
+            if (this.counter >= 50 - 5 * (this.getLevel() - 1)) {
+                this.counter = 0;
+                return thisUnit.getDamage();
+            }
+            return 0;
+        }, 6);
+};
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.criticalDamage4 = function() {
+    return new GAME_CORE.Modification('criticalDamage',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack, 'Накопление силы',
+        'каждый 10  наносит дополнительно 10% урона за уровень' +
+        ' (счётчик ударов не сбрасывается после битвы)',
+        (thisUnit, targetUnit) => {
+            this.counter++;
+            if (this.counter >= 10) {
+                this.counter = 0;
+                return thisUnit.getDamage() * 0.1 * this.getLevel();
+            }
+            return 0;
+        }, 5);
+};
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.criticalDamage5 = function() {
+    return new GAME_CORE.Modification('criticalDamage',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack, 'Удачный удар',
+        'даёт бонусный урон 100 с шансом в 5% за уровень',
+        (thisUnit, targetUnit) => {
+            return Math.random() <= this.level * 0.05 ? 100 : 0;
+        }, 5);
+};
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.increase = function() {
+    return new GAME_CORE.Modification('increase',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack, 'Сильная рука',
+        'увеличивает урон на 5% за уровень',
+        (thisUnit, targetUnit) => {
+            return thisUnit.getDamage() * 0.05 * this.level;
+        }, 5);
+};
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.increase2 = function() {
+    return new GAME_CORE.Modification('increase',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack, 'Могучий',
+        'даёт бонусный урон 2, 8, 18, 32, 50 в зависимости от уровня',
+        (thisUnit, targetUnit) => {
+            return 2 * this.getLevel() * this.getLevel();
+        }, 5);
+};
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.increase3 = function() {
+    return new GAME_CORE.Modification('increase',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack, 'Стероиды',
+        'боевые стероиды повышают урон, но при этом сильно дают по печени. ' +
+        'Дают бонусный урон в 50%, но  при этом снижают запас здоровья на 25% от максимального,' +
+        ' с каждым уровнем снижение здоровья уменьшается на 5% (нельзя умереть от этой способности).',
+        (thisUnit, targetUnit) => {
+            thisUnit.decreaseHealth(thisUnit.getMaxHealth()*(0.25 - 0.05*this.getLevel()));
+            return 0.5*thisUnit.getDamage();
+        }, 3);
+};
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.regeneration = function() {
+    return new GAME_CORE.Modification('regeneration',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack, 'Вампиризм',
+        'вампиризм от базового значения урона - 5% за уровень',
+        (thisUnit, targetUnit) => {
+            thisUnit.beHealed(Math.floor(this.level * thisUnit.getDamage() * 0.05));
+            return 0;
+        }, 3);
+};
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.regeneration2 = function() {
+    return new GAME_CORE.Modification('regeneration',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack, 'Восстановление',
+        'регенерирует за ход 5, 10, 15, 20, 25 здоровья в зависимости от уровня.',
+        (thisUnit, targetUnit) => {
+            thisUnit.beHealed(5 * this.getLevel());
+            return 0;
+        }, 5);
+};
+
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.dodgeAction = function() {
+    return new GAME_CORE.Modification('dodgeAction',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge, 'Перекус',
+        'При успешном уклонении вы перекусываете походным пайком и восстанавливаете ' +
+        '10 здоровья за каждый уровень способности.',
+        (thisUnit, targetUnit) => {
+            thisUnit.beHealed(10 * this.getLevel());
+            return false;
+        }, 5);
+};
+
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.dodgeAction = function() {
+    return new GAME_CORE.Modification('dodgeAction',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge, 'Контратака',
+        'При успешном уклонении вы с шансом 10%*уровень контратакуете противника ' +
+        'нанося базовый урон оружием (нельзя убить этой способностью). ',
+        (thisUnit, targetUnit) => {
+            if (UTIL_CORE.randomGen() <= 0.1*this.getLevel()) {
+                targetUnit.decreaseHealth(thisUnit.getDamage());
+            }
+            return false;
+        }, 5);
+};
+
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.alternateDodge = function() {
+    return new GAME_CORE.Modification('alternateDodge',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge, 'Мелкий но ловкий',
+        'Если ваше максимальное здоровье меньше здоровья противника на 50% (снижается на 10% за уровень),' +
+        ' то у вас есть 10% шанс увернуться от его атаки',
+        (thisUnit, targetUnit) => {
+            if(thisUnit.getMaxHealth() > targetUnit.getMaxHealth()*(0.6 - 0.1*this.getLevel())) {
+                return false;
+            }
+            return UTIL_CORE.randomGen() <= 0.1;
+        }, 5);
+};
+
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.alternateDodge2 = function() {
+    return new GAME_CORE.Modification('alternateDodge',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge, 'Бежать!',
+        'Чем сильнее вы ранены, тем больше нас увернуться от атаки, на каждые 10% потерянного здоровья ' +
+        '- 1, 2, 3% (в зависимости от уровня) шанса увернуться.',
+        (thisUnit, targetUnit) => {
+            return UTIL_CORE.randomGen() <= 0.1*this.getLevel()*(1 - thisUnit.getHealth()/thisUnit.getMaxHealth());
+        }, 3);
+};
+
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.bonusInitiative = function() {
+    return new GAME_CORE.Modification('bonusInitiative',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge, 'Рвение',
+        'С шансом в 5% (с уровнем повышается на 5) вы ощущаете прилив ярости, инициатива повышается на 200 единиц',
+        (thisUnit, targetUnit) => {
+            if (UTIL_CORE.randomGen() <= 0.05*this.getLevel()) {
+                return 200;
+            }
+            return 0;
+        }, 3);
+};
+
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.bonusInitiative2 = function() {
+    return new GAME_CORE.Modification('bonusInitiative',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge, 'Благословение',
+        'Повышает инициативу на 20 за каждый уровень способности',
+        (thisUnit, targetUnit) => {
+            return 20*this.getLevel();
+        }, 5);
+};
 
 
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.basePunish = function() {
+    return new GAME_CORE.Modification('basePunish',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish, 'Осквернитель снаряжения',
+        'Снижает редкость случайной вещи противника на 1 единицу, если она уже не минимальна с шансом успешного осквернения ' +
+        ' 30% за уровень',
+        (thisUnit, targetUnit) => {
+            if(UTIL_CORE.randomGen() <= 0.3*this.getLevel()) {
+                const cell = targetUnit.equipment.getCellByRandomIndex();
+                cell.getCard().decrementRarity();
+            }
+            return 0;
+        }, 3);
+};
+
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.basePunish2 = function() {
+    return new GAME_CORE.Modification('basePunish',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish, 'Подкрутить настройки',
+        'Либо снижает редкость случайной вещи противника на 2 уровня, либо повышает её на 1 с шансом 60%' +
+        ' (шанс повышения падает на 10% за уровень)',
+        (thisUnit, targetUnit) => {
+            if (UTIL_CORE.randomGen() <= 0.6 - 0.1*this.getLevel()) {
+                const cell = targetUnit.equipment.getCellByRandomIndex();
+                cell.getCard().incrementRarity();
+            } else {
+                const cell = targetUnit.equipment.getCellByRandomIndex();
+                cell.getCard().decrementRarity();
+                cell.getCard().decrementRarity();
+            }
+            return 0;
+        }, 3);
+};
+
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.addingPunish = function() {
+    return new GAME_CORE.Modification('addingPunish',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish, 'Продать в рабство',
+        'Противник теряет 10, 40, 90, 160, 250 монет (зависит от уровня) за выкуп своего бойца' +
+        ' (минимальное количество денег что у него останется - 0)',
+        (thisUnit, targetUnit) => {
+            const owner = targetUnit.getOwner();
+            if (owner === undefined) {
+                return 0;
+            }
+            owner.takeMoney(10*this.getLevel()*this.getLevel());
+            return 0;
+        }, 5);
+};
+
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.addingPunish2 = function() {
+    return new GAME_CORE.Modification('addingPunish',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish, 'Награда за победу',
+        'За победу над противником игрок владелец получает 10, 40, 90, 160, 250 монет (зависит от уровня) монет',
+        (thisUnit, targetUnit) => {
+            const owner = thisUnit.getOwner();
+            if (owner === undefined) {
+                return 0;
+            }
+            owner.getMoney(10*this.getLevel()*this.getLevel());
+            return 0;
+        }, 5);
+};
+
+GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.addingPunish3 = function() {
+    return new GAME_CORE.Modification('addingPunish',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish, 'Обчистить карманы',
+        'Забирает у поверженного 5, 20, 45, 80, 125 монет (зависит от уровня) монет',
+        (thisUnit, targetUnit) => {
+            const thisOwner = thisUnit.getOwner();
+            const targetOwner = targetUnit.getOwner();
+            if (thisOwner !== undefined) {
+                thisOwner.getMoney(5*this.getLevel()*this.getLevel());
+            }
+            if (thisOwner !== undefined) {
+                targetOwner.takeMoney(5*this.getLevel()*this.getLevel());
+            }
+            return 0;
+        }, 5);
+};
+
+GAME_CORE.DEFAULT_PROPS.ATTACK_RESULT = {};
+GAME_CORE.DEFAULT_PROPS.ATTACK_RESULT.dodge = "DODGE";
+GAME_CORE.DEFAULT_PROPS.ATTACK_RESULT.damaged = "DAMAGED";
+GAME_CORE.DEFAULT_PROPS.ATTACK_RESULT.defeated = "DEFEATED";

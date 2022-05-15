@@ -1,49 +1,31 @@
-GAME_CORE.Unit = class Unit {
-	//this id - base to ids of entry entities
+GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 	constructor(id,
 				name,
 				viewParent = document.body,
+				owner =undefined,
 				baseCharacteristics =GAME_CORE.DEFAULT_PROPS.baseCharacteristic(),
 				replicsSet =GAME_CORE.DEFAULT_PROPS.replicsSet(),
 				equipment =undefined) {
-		this.viewEntity = new UTIL_CORE.ViewEntity(id, viewParent);
+		super(id, viewParent);
+		this.setLogger(GAME_CORE.LOGGERS.InfoUnitLogger);
+		this.owner = owner;
 		this.replicsSet = replicsSet;
-
 		this.baseCharacteristics = baseCharacteristics;
 		this._initViewObj();
-		this._initModificatorsCollections();
+		this.modificationMaps = new GAME_CORE.ModificationMaps();
 		if (equipment !== undefined) {
 			this.equipment = equipment;
 		} else {
-			this.equipment = GAME_CORE.DEFAULT_PROPS.getEquipment(this.getViewId() + 'SET',  this.getView());
+			this.equipment = GAME_CORE.DEFAULT_PROPS.getEquipment(this.getId() + 'SET',  this.getView(), this);
 		}
-		this.equipment.owner = this;
 		this.updateAllParam();
 		this._log('created', 'constructor');
 	}
 
-	_initViewObj() {
-		this.name = new GAME_CORE.TextEntity(id + 'NAME', name, this.getView());
-		this.maxHealth = new GAME_CORE.TextEntity(id + 'MAXHP', this.baseCharacteristics.getHealth(), this.getView());
-		this.currentHealth =  new GAME_CORE.TextEntity(id + 'HP', this.baseCharacteristics.getHealth(), this.getView());
-		this.damage = new GAME_CORE.TextEntity(id + 'DMG', this.baseCharacteristics.getDamage(), this.getView());
-		this.luck = new GAME_CORE.TextEntity(id + 'LUCK', this.baseCharacteristics.getLuck(), this.getView());
-		this.dodge = new GAME_CORE.TextEntity(id + 'DODGE', this.baseCharacteristics.getDodge(), this.getView());
-		this.wins = new GAME_CORE.TextEntity(id + 'WINS',0, this.getView());
-		this.replics = new GAME_CORE.TextEntity(id + 'SAY', '', this.getView());
-	}
-
-	_initModificatorsCollections() {
-		this.addingDamageModifications = new GAME_CORE.ModificationCollection([]);
-		this.multipleDamageModifications = new GAME_CORE.ModificationCollection([]);
-		this.orDodgeModifications = new GAME_CORE.ModificationCollection([]);
-		this.andDodgeModifications = new GAME_CORE.ModificationCollection([]);
-		this.initiativeModifications = new GAME_CORE.ModificationCollection([]);
-		this.randomInitiativeModifications = new GAME_CORE.ModificationCollection([]);
-		this.punishModifications = new GAME_CORE.ModificationCollection([]);
-		//todo добавить остальные - модификаторы продажи и покупки карты - добавить в эквипмент
-		//todo вызовы методов взаимодействия принимают два аргумента thisUnit, targetUnit
-	}
+	getMaxHealth() { return this.maxHealth.value;}
+	getHealth() {return this.currentHealth.value;}
+	getDamage() {return this.damage.value;}
+	getOwner() {return this.owner;}
 
 	updateAllParam() {
 		this.updateMaxHealth();
@@ -52,17 +34,17 @@ GAME_CORE.Unit = class Unit {
 		this.updateDodge();
 		this._log();
 	}
-	
+
 	updateMaxHealth() {
 		this.maxHealth.updateValue(Math.round(this.baseCharacteristics.getHealth() + this.equipment.getHealthBonus()));
 		this._log(this.maxHealth.value);
 	}
-	
+
 	updateDamage() {
 		this.damage.updateValue(Math.round(this.baseCharacteristics.getDamage() + this.equipment.getDamageBonus()));
 		this._log(this.damage.value);
 	}
-	
+
 	updateLuck() {
 		this.luck.updateValue(Math.round(this.baseCharacteristics.getLuck() + this.equipment.getLuckBonus()));
 		this._log(this.luck.value);
@@ -72,98 +54,54 @@ GAME_CORE.Unit = class Unit {
 		this.dodge.updateValue(Math.round(this.baseCharacteristics.getDodge() + this.equipment.getDodgeBonus()));
 		this._log(this.dodge.value);
 	}
-	
+
 	beFullHealed() {
-		this.currentHealth.updateValue(this.maxHealth.value);
-		this._log(this.currentHealth.value);
+		this.currentHealth.updateValue(this.getMaxHealth());
+		this._log(this.getHealth());
 	}
-	
+
 	beHealed(value) {
-		this.currentHealth.updateValue(Math.min(Math.max(this.currentHealth.value + value, 1), this.maxHealth.value));
-		this._log(this.currentHealth.value);
-	}
-
-	_addingDamageModification(){
-		return Math.floor(this.damage.value*(0.5 - Math.random())/5);
-	}
-	_multipleDamageModification(){return 1;}
-	dealDamage() {
-		const dmg = this.damage.value*this._multipleDamageModification() + this._addingDamageModification();
-		this._log();
-		return dmg;
-	}
-		
-		// шанс увернуться от идущей на this атаки
-	_modeOrDodgeCondition() {
-		return false;
-	}
-
-	_modeAndDodgeCondition() {
-		return true;
-	}
-
-	_isDodge(){
-		return Math.floor(Math.random()*100) <= this.dodge.value;
-	}
-	dodgeAttack() {
-		const cond = (this._isDodge()&&this._modeAndDodgeCondition() || this._modeOrDodgeCondition());
-		if (cond) {
-			this.say(this.replicsSet.dodgeArray[UTIL_CORE.randomGen(this.replicsSet.length)]);
+		if (value < 0) {
+			throw new Error('Отрицательное значение лечения');
 		}
-		this._log();
-		return cond;
+		this.currentHealth.updateValue(Math.floor(Math.min(this.currentHealth.value + value, this.maxHealth.value)));
+		this._log(this.getHealth());
+		return this.getHealth();
 	}
 
-	defeatPunish() {
-		const num = UTIL_CORE.randomGen(5);
-		const card = this.equipment.getEquipByNumber(num);
-		const rar = Math.max(card.settingsCollections.rarityCollection.getRarityIndexByName(card.rarityOption.name) - 1, 0);
-		card.changeRarityOption(card.settingsCollections.rarityCollection[rar]);
-		this.updateAllParam();
-		this._log();
-	}
-		
-		//аргумент - убийца
-	defeat(unit) {
-		this._log();
-		this.say(this.replicsSet.defeatArray[UTIL_CORE.randomGen(this.replicsSet.defeatArray.length)]);
-		this.defeatPunish();
-		this.wins.updateValue(0);
-		unit.wins.updateValue(unit.wins.value++);
-	}
-		
-		// исходящая атака return -1 - увернулся; 0 - не смертельный урон; 1 - убил;
-	attack(unit) {
-		if (unit.dodgeAttack()) {
-			this._log(unit.getViewId() +  ' dodge is success')
-			return {type : -1, dmg : 0};
+	decreaseHealth(value) {
+		if (value < 0) {
+			throw new Error('Отрицательное значение лечения');
 		}
-		const damage = this.dealDamage();
-		unit.currentHealth.updateValue(unit.currentHealth.value - damage);
-		this.say(this.replicsSet.attackArray[UTIL_CORE.randomGen(this.replicsSet.attackArray.length)]);
-		if (unit.currentHealth.value <= 0) {
-			unit.defeat(this);
-			this._log(' enemy ' + unit.getViewId() + ' defeat')
-			return {type : 1, dmg : damage};
-		} else {
-			this._log(' enemy ' + unit.getViewId() + ' get damage');
-			return {type : 0, dmg : damage};
-		}
+		this.currentHealth.updateValue(Math.floor(Math.max(this.currentHealth.value - value, 1)));
+		this._log(this.getHealth());
+		return this.getHealth();
 	}
-	
+
+	beDamaged(damage) {
+		if (damage < 0) {
+			throw new Error('Отрицательное значение урона');
+		}
+		this.currentHealth.updateValue(Math.floor(Math.max(this.currentHealth.value - damage, 0)));
+		this._log(this.getHealth());
+		return this.getHealth();
+	}
+
+	sayDefeatReplic() {
+		this.say(this.replicsSet.getRandomDefeatReplic());
+	}
+
+	sayDodgeReplic() {
+		this.say(this.replicsSet.getRandomDodgeReplic());
+	}
+
+	sayAttackReplic() {
+		this.say(this.replicsSet.getRandomAttackReplic());
+	}
+
 	say(message) {
 		this._log();
 		this.replics.updateValue(message);
-	}
-
-	_getInitiativeModification() {return 0}
-	_getRandomInitiativeModification(){return 0;}
-
-	getInitiative() {
-		const ini = UTIL_CORE.randomGen(this.luck.value + 100
-			+ this._getRandomInitiativeModification()) + this._getInitiativeModification();
-		this._log(ini);
-		return  ini;
 	}
 
 	appendAll() {
@@ -177,7 +115,7 @@ GAME_CORE.Unit = class Unit {
 		this.equipment.append();
 		this.replics.append();
 	}
-		
+
 	removeAll() {
 		this._log();
 		this.remove();
@@ -190,15 +128,109 @@ GAME_CORE.Unit = class Unit {
 		this.equipment.remove();
 		this.replics.remove();
 	}
-	
-	setViewParent(viewParent) {return this.viewEntity.setViewParent(viewParent);}
-	remove() {return this.viewEntity.remove();}
-	append() {return this.viewEntity.append();}
-	getView() {return this.viewEntity.view;}
-	getViewId() {return this.getView().id;}
 
-	_log(message ='', methodName=GAME_CORE.LOGGERS.InfoUnitLogger._getMethodName()) {
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.getViewId() + ' ' + message, methodName);
+	setModification(modification) {
+		this.modificationMaps.getModificationMap(modification.getType()).setModification(modification);
+	}
+
+	deleteModification(modification) {
+		this.modificationMaps.getModificationMap(modification.getType()).deleteModification(modification);
+	}
+
+	attack(targetUnit) {
+		if (targetUnit.dodgeAttack(this)) {
+			this._log(targetUnit.getId() +  ' dodge is success')
+			return {type : GAME_CORE.DEFAULT_PROPS.ATTACK_RESULT.dodge, dmg : 0};
+		}
+		const damage = this.dealDamage(targetUnit);
+		this.sayAttackReplic();
+		if (targetUnit.getHealth() <= 0) {
+			this.defeat(targetUnit);
+			this._log(' enemy ' + targetUnit.getId() + ' _defeat');
+			return {type : GAME_CORE.DEFAULT_PROPS.ATTACK_RESULT.defeated, dmg : damage};
+		} else {
+			this._log(' enemy ' + targetUnit.getId() + ' get damage');
+			return {type : GAME_CORE.DEFAULT_PROPS.ATTACK_RESULT.damaged, dmg : damage};
+		}
+	}
+
+	getInitiative(targetUnit) {
+		const ini = Math.max(Math.floor(UTIL_CORE.randomGen(this.luck.value + 100)
+			+ this._getInitiativeModification(targetUnit)), 0);
+		this._log(ini);
+		return  ini;
+	}
+
+	_getInitiativeModification(targetUnit) {
+		let sum = 0;
+		for (const addInitiative of this.modificationMaps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative)
+			.execute(this, targetUnit)) {
+			sum += addInitiative;
+		}
+		return sum;
+	}
+
+	dodgeAttack(targetUnit) {
+		const cond = (this._isDodge() || this._modeDodgeCondition(targetUnit));
+		if (cond) {
+			this.sayDodgeReplic();
+		}
+		this._log();
+		return cond;
+	}
+
+	_isDodge(){
+		return Math.floor(Math.random()*100) <= this.dodge.value;
+	}
+
+	_modeDodgeCondition(targetUnit) {
+		let sumResult = false;
+		for (const cond of this.modificationMaps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge)
+			.execute(this, targetUnit)) {
+			sumResult = sumResult || cond;
+		}
+		return sumResult;
+	}
+
+	dealDamage(targetUnit) {
+		const dmg = Math.max(Math.floor(this.getDamage() + this._attackModification(targetUnit)), 0);
+		this._log();
+		return targetUnit.getMaxHealth() - targetUnit.beDamaged(dmg);
+	}
+
+	_attackModification(targetUnit){
+		let sumDmg = 0;
+		for (const dmg of this.modificationMaps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack)
+			.execute(this, targetUnit)) {
+			sumDmg += dmg;
+		}
+		return sumDmg;
+	}
+
+	defeat(targetUnit) {
+		this._log();
+		targetUnit.sayDefeatReplic();
+		this._defeatPunish(targetUnit);
+		this.wins.updateValue(0);
+		targetUnit.wins.updateValue(targetUnit.wins.value++);
+	}
+
+	_defeatPunish(targetUnit) {
+		this.modificationMaps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish)
+			.execute(this, targetUnit);
+		this.updateAllParam();
+		this._log();
+	}
+
+	_initViewObj() {
+		this.name = new GAME_CORE.TextEntity(id + 'NAME', name, this.getView());
+		this.maxHealth = new GAME_CORE.TextEntity(id + 'MAXHP', this.baseCharacteristics.getHealth(), this.getView());
+		this.currentHealth =  new GAME_CORE.TextEntity(id + 'HP', this.baseCharacteristics.getHealth(), this.getView());
+		this.damage = new GAME_CORE.TextEntity(id + 'DMG', this.baseCharacteristics.getDamage(), this.getView());
+		this.luck = new GAME_CORE.TextEntity(id + 'LUCK', this.baseCharacteristics.getLuck(), this.getView());
+		this.dodge = new GAME_CORE.TextEntity(id + 'DODGE', this.baseCharacteristics.getDodge(), this.getView());
+		this.wins = new GAME_CORE.TextEntity(id + 'WINS',0, this.getView());
+		this.replics = new GAME_CORE.TextEntity(id + 'SAY', '', this.getView());
 	}
 };
 
@@ -209,86 +241,20 @@ GAME_CORE.ReplicsSet = class ReplicsSet {
 		this.defeatArray = defeatArray;
 	}
 
+	getRandomDodgeReplic() {
+		return this.dodgeArray[UTIL_CORE.randomGen(this.dodgeArray.length)];
+	}
+
+	getRandomAttackReplic() {
+		return this.attackArray[UTIL_CORE.randomGen(this.attackArray.length)];
+	}
+
+	getRandomDefeatReplic() {
+		return this.defeatArray[UTIL_CORE.randomGen(this.defeatArray.length)];
+	}
+
 	cloneThis() {
 		return new GAME_CORE.ReplicsSet([...this.dodgeArray], [...this.attackArray], [...this.defeatArray]);
 	}
-}
+};
 
-GAME_CORE.Modification = class Modification {
-	//method execute(thisUnit, targetUnit)
-	constructor(name, type, executeMethod) {
-		this.name = name;
-		this.type = type;
-		this.executeMethod = executeMethod;
-	}
-
-	execute(thisUnit, targetUnit) {this.executeMethod(thisUnit, targetUnit);}
-}
-GAME_CORE.ModificationCollection = class ModificationCollection {
-	constructor(modificationArray) {
-		this.modifications = modificationArray;
-	}
-
-	add(modification) {
-		if (!(modification instanceof GAME_CORE.Modification)) {
-			return;
-		}
-		const index = this.getIndexByName(modification.name);
-		if (index < 0) {
-			this.modifications.push(modification);
-		} else {
-			this.modifications[index] = modification;
-		}
-	}
-
-	getByIndex(index) {return this.modifications[index];}
-	getByName(name) {
-		const index = this.getIndexByName(name);
-		if (index < 0) {
-			return false;
-		}
-		return  this.modifications[index];
-	}
-
-	getIndexByName(name) {
-		for (let i = 0; i < this.modifications.length; i++) {
-			if (this.modifications[i].name === name) {
-				return i;
-			}
-		}
-		return  -1;
-	}
-
-	deleteByIndex(index) {
-		this.modifications.splice(index,1);
-	}
-
-	deleteByName(name) {
-		this.getByName(name).s
-	}
-
-	execute(thisUnit, targetUnit) {
-		for (let i = 0; i < this.modifications.length; i++) {
-			this.modifications[i].execute(thisUnit, targetUnit);
-		}
-	}
-/*	todo коллекция модификаторов - имя коллекцииб массив со списком модификаторов, удалить модификатор по имени и индексу,
-	модификатору добавляемому в
-	коллекцию присвоить поле индекс.
-	поля коллекций модификаторов в юните: - для каждого места где есть методы выполнения модификаторов
-	в коллекции сделать метод выполнить все - выполняет все исполняемые методы активных модификаторов
-	*/
-}
-
-
-
-/*todo
-	для мультипликаторов и добавочных бонус к снаряжению зависящик от карты в ячейке снаряжения
-	equipmentMultiple и equipmentAdditional, эти бафы разовые - класс модификаторыСнаряжения
-	в этом классе методы прикрепить, открепить, метод исполнения - он заменяет соответсвующие значения в статсетах и/или
-	методы вернуть здоровье и прочее
-	один из таких бафов - полностью очищает мультипликаторы до начального состояния
-	метод открепления желательно должен иметь возможность откатить все изменения модификатора
-	добавить для кажждого поля equipmentMultiple и equipmentAdditional - состояния - доступна модификация или нет, если не доступна - не изменять
-
- */
