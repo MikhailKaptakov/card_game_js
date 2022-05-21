@@ -246,8 +246,8 @@ GAME_CORE.ModificationMap = class ModificationMap {
 
     execute(thisUnit, targetUnit) {
         const answer = [];
-        for (const mod of this.typeArray) {
-            answer.push(mod.execute(thisUnit, targetUnit));
+        for (const key of this.modificationMap.keys()) {
+            answer.push(this.modificationMap.get(key).execute(thisUnit, targetUnit));
         }
         return answer;
     }

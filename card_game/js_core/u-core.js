@@ -3,10 +3,10 @@ UTIL_CORE.randomGen = function(num = 1){return Math.floor(Math.random()*num);};
 UTIL_CORE.sleep = async function(milliseconds) {
 	const start = Date.now();
 	do {
-		const sleepper = function(milliseconds) {
+		const sleeper = function(milliseconds) {
 			return new Promise(resolve => setTimeout(resolve, milliseconds));
 		};
-		await sleepper(50);
+		await sleeper(50);
 		current = Date.now();
 	} while(current - start < milliseconds);
 }
@@ -189,15 +189,43 @@ UTIL_CORE.ViewEntity = class ViewEntity {
 }
 
 UTIL_CORE.Letter = class Letter {
-	constructor(letter, color=undefined, backgroundColor =undefined) {
+	constructor(text, color=undefined, backgroundColor =undefined) {
 		this.view = document.createElement('var');
-		this.view.textContent = letter;
+		this.view.textContent = text;
 		if (color !== undefined) {this.view.style.color = color;}
 		if (backgroundColor !== undefined) {this.view.style.backgroundColor = backgroundColor;}
 	}
 	append(viewParent) { viewParent.append(this.view);}
 	appendClone(viewParent) {viewParent.append(this.view.cloneNode(true));}
 	getText(){return this.view.textContent;}
+}
+
+UTIL_CORE.PresetLetter = class PresetLetter {
+	constructor(color=undefined, backgroundColor =undefined) {
+		this.color = color;
+		this.backgroundColor = backgroundColor;
+	}
+
+	getLetter(text) {
+		return new Letter(text, this.color, this.backgroundColor);
+	}
+
+	getNoColoredLetter(text) {
+		return new Letter(text);
+	}
+
+	getColor() {
+		return this.color;
+	}
+	getBackgroundColor() {
+		return this.backgroundColor;
+	}
+	setColor(color) {
+		this.color = color;
+	}
+	setBackground(backgroundColor) {
+		this.backgroundColor = backgroundColor;
+	}
 }
 
 UTIL_CORE.Message = class Message {

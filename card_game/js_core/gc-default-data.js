@@ -279,7 +279,7 @@ GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.alternateDodge2 = function() {
 
 GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.bonusInitiative = function() {
     return new GAME_CORE.Modification('bonusInitiative',
-        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge, 'Рвение',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative, 'Рвение',
         'С шансом в 5% (с уровнем повышается на 5) вы ощущаете прилив ярости, инициатива повышается на 200 единиц',
         (thisUnit, targetUnit) => {
             if (UTIL_CORE.randomGen() <= 0.05*this.getLevel()) {
@@ -291,7 +291,7 @@ GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.bonusInitiative = function() {
 
 GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.bonusInitiative2 = function() {
     return new GAME_CORE.Modification('bonusInitiative',
-        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge, 'Благословение',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative, 'Благословение',
         'Повышает инициативу на 20 за каждый уровень способности',
         (thisUnit, targetUnit) => {
             return 20*this.getLevel();
@@ -377,7 +377,12 @@ GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.addingPunish3 = function() {
         }, 5);
 };
 
-GAME_CORE.DEFAULT_PROPS.ATTACK_RESULT = {};
-GAME_CORE.DEFAULT_PROPS.ATTACK_RESULT.dodge = "DODGE";
-GAME_CORE.DEFAULT_PROPS.ATTACK_RESULT.damaged = "DAMAGED";
-GAME_CORE.DEFAULT_PROPS.ATTACK_RESULT.defeated = "DEFEATED";
+GAME_CORE.DEFAULT_PROPS.BATTLE = {};
+GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT = {};
+GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.failAttack = "FAIL_ATTACK";
+GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.dodge = "DODGE";
+GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.damaged = "DAMAGED";
+GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.defeated = "DEFEATED";
+
+GAME_CORE.DEFAULT_PROPS.BATTLE.NO_COMMAND = "none";
+

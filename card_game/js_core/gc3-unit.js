@@ -22,10 +22,16 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 		this._log('created', 'constructor');
 	}
 
-	getMaxHealth() { return this.maxHealth.value;}
-	getHealth() {return this.currentHealth.value;}
-	getDamage() {return this.damage.value;}
+	getName() {return this.name.getValue();}
+	getMaxHealth() { return this.maxHealth.getValue();}
+	getHealth() {return this.currentHealth.getValue();}
+	getDamage() {return this.damage.getValue();}
 	getOwner() {return this.owner;}
+	getLuck() {return this.luck.getValue();}
+	getDodge() {return this.dodge.getValue();}
+	getWins() {return this.wins.getValue();}
+	incrementWins() {return this.wins.updateValue(this.getWins());}
+	setZeroWins() {return this.wins.updateValue(0);}
 
 	updateAllParam() {
 		this.updateMaxHealth();
@@ -102,7 +108,14 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 	say(message) {
 		this._log();
 		this.replics.updateValue(message);
+
 	}
+
+	sayToGameView(message) {}
+	setSayToGameView(arrowFunctionMessageArg) {
+		this.sayToGameView = arrowFunctionMessageArg;
+	}
+
 
 	appendAll() {
 		this._log();
@@ -137,89 +150,17 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 		this.modificationMaps.getModificationMap(modification.getType()).deleteModification(modification);
 	}
 
-	attack(targetUnit) {
-		if (targetUnit.dodgeAttack(this)) {
-			this._log(targetUnit.getId() +  ' dodge is success')
-			return {type : GAME_CORE.DEFAULT_PROPS.ATTACK_RESULT.dodge, dmg : 0};
-		}
-		const damage = this.dealDamage(targetUnit);
-		this.sayAttackReplic();
-		if (targetUnit.getHealth() <= 0) {
-			this.defeat(targetUnit);
-			this._log(' enemy ' + targetUnit.getId() + ' _defeat');
-			return {type : GAME_CORE.DEFAULT_PROPS.ATTACK_RESULT.defeated, dmg : damage};
-		} else {
-			this._log(' enemy ' + targetUnit.getId() + ' get damage');
-			return {type : GAME_CORE.DEFAULT_PROPS.ATTACK_RESULT.damaged, dmg : damage};
-		}
+	getInitiativeModificationMap() {
+		return this.modificationMaps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative);
 	}
-
-	getInitiative(targetUnit) {
-		const ini = Math.max(Math.floor(UTIL_CORE.randomGen(this.luck.value + 100)
-			+ this._getInitiativeModification(targetUnit)), 0);
-		this._log(ini);
-		return  ini;
+	getDodgeModificationMap() {
+		return this.modificationMaps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge);
 	}
-
-	_getInitiativeModification(targetUnit) {
-		let sum = 0;
-		for (const addInitiative of this.modificationMaps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative)
-			.execute(this, targetUnit)) {
-			sum += addInitiative;
-		}
-		return sum;
+	getAttackModificationMap() {
+		return this.modificationMaps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack);
 	}
-
-	dodgeAttack(targetUnit) {
-		const cond = (this._isDodge() || this._modeDodgeCondition(targetUnit));
-		if (cond) {
-			this.sayDodgeReplic();
-		}
-		this._log();
-		return cond;
-	}
-
-	_isDodge(){
-		return Math.floor(Math.random()*100) <= this.dodge.value;
-	}
-
-	_modeDodgeCondition(targetUnit) {
-		let sumResult = false;
-		for (const cond of this.modificationMaps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge)
-			.execute(this, targetUnit)) {
-			sumResult = sumResult || cond;
-		}
-		return sumResult;
-	}
-
-	dealDamage(targetUnit) {
-		const dmg = Math.max(Math.floor(this.getDamage() + this._attackModification(targetUnit)), 0);
-		this._log();
-		return targetUnit.getMaxHealth() - targetUnit.beDamaged(dmg);
-	}
-
-	_attackModification(targetUnit){
-		let sumDmg = 0;
-		for (const dmg of this.modificationMaps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack)
-			.execute(this, targetUnit)) {
-			sumDmg += dmg;
-		}
-		return sumDmg;
-	}
-
-	defeat(targetUnit) {
-		this._log();
-		targetUnit.sayDefeatReplic();
-		this._defeatPunish(targetUnit);
-		this.wins.updateValue(0);
-		targetUnit.wins.updateValue(targetUnit.wins.value++);
-	}
-
-	_defeatPunish(targetUnit) {
-		this.modificationMaps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish)
-			.execute(this, targetUnit);
-		this.updateAllParam();
-		this._log();
+	getPunishModificationMap() {
+		return this.modificationMaps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish);
 	}
 
 	_initViewObj() {
