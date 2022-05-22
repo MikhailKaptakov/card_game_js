@@ -1,3 +1,4 @@
+//todo create test
 GAME_CORE.LogChat = class LogChat extends UTIL_CORE.ViewEntity{
 	constructor(id,  viewParent = undefined,maxMessage) {
 		super(id, viewParent);

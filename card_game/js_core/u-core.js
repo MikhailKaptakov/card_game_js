@@ -19,10 +19,6 @@ UTIL_CORE.Logger = class Logger {
 		this.isChild = false;
 		this.parrent = '';	
 	}
-		
-	setTitle(title) {
-		this.title = title;
-	}
 	
 	getDateTime(){
 		const date = new Date();
@@ -87,7 +83,7 @@ UTIL_CORE.Logger = class Logger {
 		return false;
 	}	
 		
-	removeParrentLogger() {
+	removeParentLogger() {
 		if (this.parrent === '') {
 			return;
 		}
@@ -179,6 +175,7 @@ UTIL_CORE.ViewEntity = class ViewEntity {
 	setTitle(viewTitle) {this.view.title = viewTitle;}
 	setLogger(logger) {
 		if(logger instanceof UTIL_CORE.Logger) {
+			this.logger = logger;
 			this._log = function (message ='', methodName=this.logger._getMethodName()) {
 				logger.logMethod(this.getId() + ' ' + message, methodName);
 			};

@@ -1,4 +1,5 @@
 GAME_CORE.Player = class Player extends UTIL_CORE.ViewEntity{
+	//todo create test
 	constructor(id, name, viewParent = document.body) {
 		super(id, viewParent);
 		this.setLogger(GAME_CORE.LOGGERS.InfoPlayerLogger);

@@ -1,4 +1,5 @@
 GAME_CORE.Equipment = class Equipment extends UTIL_CORE.ViewEntity{
+	//todo create test
 	constructor (id, viewParent = document.body, owner,
 				 equipmentCells =undefined) {
 		super(id,viewParent);
@@ -22,7 +23,7 @@ GAME_CORE.Equipment = class Equipment extends UTIL_CORE.ViewEntity{
 		this._log();
 		let healthBonus = 0;
 		for (const cell of this.equipmentCells) {
-			healthBonus = cell.getStat('health');
+			healthBonus = cell.getStat(GAME_CORE.DEFAULT_PROPS.STATS.health);
 		}
 		return healthBonus;
 	}
@@ -31,7 +32,7 @@ GAME_CORE.Equipment = class Equipment extends UTIL_CORE.ViewEntity{
 		this._log();
 		let damageBonus = 0;
 		for (const cell of this.equipmentCells) {
-			damageBonus = cell.getStat('damage');
+			damageBonus = cell.getStat(GAME_CORE.DEFAULT_PROPS.STATS.damage);
 		}
 		return damageBonus;
 	}
@@ -40,7 +41,7 @@ GAME_CORE.Equipment = class Equipment extends UTIL_CORE.ViewEntity{
 		this._log();
 		let luckBonus = 0;
 		for (const cell of this.equipmentCells) {
-			luckBonus = cell.getStat('luck');
+			luckBonus = cell.getStat(GAME_CORE.DEFAULT_PROPS.STATS.luck);
 		}
 		return luckBonus;
 	}
@@ -49,7 +50,7 @@ GAME_CORE.Equipment = class Equipment extends UTIL_CORE.ViewEntity{
 		this._log();
 		let dodgeBonus = 0;
 		for (const cell of this.equipmentCells) {
-			dodgeBonus = cell.getStat('dodge');
+			dodgeBonus = cell.getStat(GAME_CORE.DEFAULT_PROPS.STATS.dodge);
 		}
 		return dodgeBonus;
 	}
@@ -115,7 +116,7 @@ GAME_CORE.Equipment = class Equipment extends UTIL_CORE.ViewEntity{
 
 	getOwner() {return this.owner;}
 };
-
+//todo create test
 GAME_CORE.EquipmentCell = class EquipmentCell {
 	constructor(owner, cellName, card, multipleMod, additionalMod) {
 		this.owner = owner
@@ -139,14 +140,14 @@ GAME_CORE.EquipmentCell = class EquipmentCell {
 	getName() {return this.name;}
 	getOwner() {return this.owner;}
 };
-
+//todo create test
 GAME_CORE.ModStatMap = class ModStatMap extends Map{
 	constructor(health=0, damage=0, luck=0, dodge=0) {
 		super();
-		this.setStat('health', () => health);
-		this.setStat('damage', () => damage);
-		this.setStat('luck', () => luck);
-		this.setStat('dodge', () => dodge);
+		this.setStat(GAME_CORE.DEFAULT_PROPS.STATS.health, () => health);
+		this.setStat(GAME_CORE.DEFAULT_PROPS.STATS.damage, () => damage);
+		this.setStat(GAME_CORE.DEFAULT_PROPS.STATS.luck, () => luck);
+		this.setStat(GAME_CORE.DEFAULT_PROPS.STATS.dodge, () => dodge);
 	}
 
 	hasStat(statName) {return this.has(statName);}

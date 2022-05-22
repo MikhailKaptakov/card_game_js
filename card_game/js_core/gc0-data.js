@@ -1,7 +1,16 @@
 const GAME_CORE = {};
 
 GAME_CORE.Price = class Price {
-    constructor (buy, sell){
+    constructor (buy =0, sell =0){
+        if (buy < 0) {
+            throw new Error('Отрицательное значение цены');
+        }
+        if (sell < 0) {
+            throw new Error('Отрицательное значение цены');
+        }
+        if (buy<sell) {
+            throw new Error('Цена продажи не может быть больше цены покупки');
+        }
         this.buy = buy;
         this.sell = sell;
     }
@@ -15,19 +24,19 @@ GAME_CORE.StatMap = class StatMap extends Map{
     }
 }
 
-GAME_CORE.BaseStatMap = class BaseStatMap extends StatMap {
+GAME_CORE.BaseStatMap = class BaseStatMap extends GAME_CORE.StatMap {
     constructor(health=0, damage=0, luck=0, dodge=0) {
         super();
-        this.set('health', health);
-        this.set('damage', damage);
-        this.set('luck', luck);
-        this.set('dodge', dodge);
+        this.set(GAME_CORE.DEFAULT_PROPS.STATS.health, health);
+        this.set(GAME_CORE.DEFAULT_PROPS.STATS.damage, damage);
+        this.set(GAME_CORE.DEFAULT_PROPS.STATS.luck, luck);
+        this.set(GAME_CORE.DEFAULT_PROPS.STATS.dodge, dodge);
     }
 
-    getHealth() {return this.get('health');}
-    getDamage() {return this.get('damage');}
-    getLuck() {return this.get('luck');}
-    getDodge() {return this.get('dodge');}
+    getHealth() {return this.get(GAME_CORE.DEFAULT_PROPS.STATS.health);}
+    getDamage() {return this.get(GAME_CORE.DEFAULT_PROPS.STATS.damage);}
+    getLuck() {return this.get(GAME_CORE.DEFAULT_PROPS.STATS.luck);}
+    getDodge() {return this.get(GAME_CORE.DEFAULT_PROPS.STATS.dodge);}
 
     hasStat(statName) {return this.has(statName);}
     getStat(statName) {
@@ -50,9 +59,9 @@ GAME_CORE.Pack = class Pack {
     getRandomIndex() {return UTIL_CORE.randomGen(this.typeArray.length);}
     getMaxIndex() {return this.typeArray.length - 1;}
 
-    doThisToEveryElement(actionWithArgumentRarityOption) {
+    doThisToEveryElement(actionWithArgumentElement) {
         for (let i = 0; i <= this.getMaxIndex(); i++) {
-            actionWithArgumentRarityOption(this.typeArray[i]);
+            actionWithArgumentElement(this.typeArray[i]);
         }
     }
 
@@ -105,7 +114,7 @@ GAME_CORE.RarityPack = class RarityPack extends GAME_CORE.Pack{
 
     getRandomIndexByDifficult() {
         for (let i = 0; i <= this.getMaxIndex(); i++) {
-            if (UTIL_CORE.randomGen(this.randomRange) <= this.rarityArray[i].difficult) {
+            if (UTIL_CORE.randomGen(this.randomRange) <= this.typeArray[i].difficult) {
                 return Math.max(i-1,0);
             }
         }
@@ -162,111 +171,5 @@ GAME_CORE.ActivityState = class ActivityState {
             return this.viewClassActive;
         }
         return this.viewClassInactive;
-    }
-};
-
-GAME_CORE.CardOptions = class CardOptions {
-    constructor(rarityPack =GAME_CORE.DEFAULT_PROPS.rarityPack,
-                cardTypePack =GAME_CORE.DEFAULT_PROPS.cardTypePack,
-                cardState =GAME_CORE.DEFAULT_PROPS.cardState,
-                cardActivity =GAME_CORE.DEFAULT_PROPS.cardActivity) {
-        this.rarityPack = rarityPack;
-        this.cardTypePack = cardTypePack;
-        this.cardState = cardState;
-        this.cardActivity = cardActivity;
-    }
-
-    getRarityPack() {return this.rarityPack;}
-    getCardTypePack() {return this.cardTypePack;}
-    getCardState() {return this.cardState;}
-    getCardActivity() {return this.cardActivity;}
-
-    getCard(id, viewParent) {
-        return new GAME_CORE.Card(id, viewParent, this.rarityPack, this.cardTypePack, this.cardState, this.cardActivity);
-    }
-};
-
-GAME_CORE.Modification = class Modification {
-    //method execute(thisUnit, targetUnit)
-    constructor(groupName,  type, name, description, executeMethod, maxLevel = 3) {
-        this.groupName = groupName;
-        this.type = type;
-        this.name = name;
-        this.description = description;
-        this.executeMethod = executeMethod;
-        this.level = 1;
-        this.maxLevel = maxLevel;
-        this.counter = 0;
-    }
-
-    getGroupName() {return this.groupName;}
-    getType() {return this.type;}
-    getName() {return this.name;}
-    getDescription() {return this.description;}
-    getLevel() { return this.level; }
-    levelUp() {
-        this.level = Math.min(this.level +1, this.maxLevel);
-    }
-    decreaseLevel() {
-        Math.max(this.level - 1, 1);
-    }
-    execute(thisUnit, targetUnit) { this.executeMethod(thisUnit, targetUnit); }
-};
-
-GAME_CORE.ModificationMap = class ModificationMap {
-    constructor() {
-        this.modificationMap = new Map();
-    }
-
-    //todo переработать в Map - работа только с name! без индексов
-    getRandomModification() {
-        const index = UTIL_CORE.randomGen(this.modificationMap.size);
-        let i = 0;
-        for (const mod of this.modificationMap.keys()) {
-            if (i === index) {
-                return mod;
-            }
-            i++;
-        }
-    }
-
-    hasModification(groupName) {return this.modificationMap.has(groupName);}
-    getModification(groupName) {
-        return this.modificationMap.get(groupName);
-    };
-    setModification(mod) {return this.modificationMap.set(mod.getGroupName(), mod)};
-
-    deleteByName(groupName) {
-        return this.modificationMap.delete(groupName);
-    }
-
-    deleteModification(modification) {
-        return this.deleteByName(modification.getGroupName());
-    }
-
-    execute(thisUnit, targetUnit) {
-        const answer = [];
-        for (const key of this.modificationMap.keys()) {
-            answer.push(this.modificationMap.get(key).execute(thisUnit, targetUnit));
-        }
-        return answer;
-    }
-};
-
-GAME_CORE.ModificationMaps = class ModificationMaps {
-    constructor() {
-        this.modificationMaps = new Map();
-        this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack,
-            new GAME_CORE.ModificationMap());
-        this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge,
-            new GAME_CORE.ModificationMap());
-        this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative,
-            new GAME_CORE.ModificationMap());
-        this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish,
-            new GAME_CORE.ModificationMap())
-    }
-
-    getModificationMap(type) {
-        return this.modificationMaps.get(type);
     }
 };

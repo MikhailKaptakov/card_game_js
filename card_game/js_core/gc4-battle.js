@@ -1,5 +1,5 @@
 GAME_CORE.BATTLE = {}
-
+//todo create test
 GAME_CORE.BATTLE.Battle = class Battle {
     constructor(fightActions,viewActions) {
         this.fightActions = fightActions;
@@ -17,18 +17,18 @@ GAME_CORE.BATTLE.Battle = class Battle {
     }
 };
 
-GAME_CORE.BATTLE.AbstractFightersPool = class FightersPool {
+GAME_CORE.BATTLE.AbstractFightersPool = class AbstractFightersPool {
     constructor() {
     }
-    getIncludedCount();
-    getFightingFighters();
-    getAllFightersArray();
+    getIncludedCount() {throw Error('not override abstract method');}
+    getFightingFighters() {throw Error('not override abstract method');}
+    getAllFightersArray() {throw Error('not override abstract method');}
 }
 
 GAME_CORE.BATTLE.AbstractViewActions = class AbstractViewActions {
     constructor() {
     }
-    async runViewActions(attackResult);
+    async runViewActions(attackResult) {throw Error('not override abstract method');}
 }
 
 GAME_CORE.BATTLE.AbstractFightActions = class AbstractFightActions {
@@ -36,12 +36,12 @@ GAME_CORE.BATTLE.AbstractFightActions = class AbstractFightActions {
         this.fightersPool = fightersPool;
         this.attackProcessor = attackProcessor;
     }
-    fight();
-    isEnd();
-    getBattleResult();
-    resetBattle();
+    fight() {throw Error('not override abstract method');}
+    isEnd() {throw Error('not override abstract method');}
+    getBattleResult() {throw Error('not override abstract method');}
+    resetBattle() {throw Error('not override abstract method');}
 }
-
+//todo create test
 GAME_CORE.BATTLE.LogChatViewActions = class LogChatViewActions extends  GAME_CORE.BATTLE.AbstractViewActions{
     constructor(logChat, attackerColor="orange", defenderColor="blue", chatColor ='red', sleepTime =500) {
         super();
@@ -86,7 +86,7 @@ GAME_CORE.BATTLE.LogChatViewActions = class LogChatViewActions extends  GAME_COR
         this.defenderPresetLetter.setColor(color);
     }
 }
-
+//todo create test
 GAME_CORE.BATTLE.DuelFightActions = class DuelFightActions extends GAME_CORE.BATTLE.AbstractFightActions {
     constructor(fighterPool, attackProcessor) {
         super(fighterPool, attackProcessor);
@@ -129,7 +129,7 @@ GAME_CORE.BATTLE.DuelFightActions = class DuelFightActions extends GAME_CORE.BAT
         this.attackCounter = 0;
     }
 }
-
+//todo create test
 GAME_CORE.BATTLE.DuelFightersPool = class DuelFightersPool extends GAME_CORE.BATTLE.AbstractFightersPool {
     constructor(unit1, unit2) {
         super();
@@ -181,9 +181,9 @@ GAME_CORE.BATTLE.DuelFightersPool = class DuelFightersPool extends GAME_CORE.BAT
         this.fighter2 = new GAME_CORE.BATTLE.Fighter(unit2);
     }
 }
-
+//todo create test
 GAME_CORE.BATTLE.Fighter = class Fighter {
-    constructor(unit, command=GAME_CORE.DEFAULT_PROPS.BATTLE.NO_COMMAND, participant = true) {
+    constructor(unit, command=GAME_CORE.DEFAULT_PROPS.BATTLE.no_command, participant = true) {
         this.unit = unit;
         this.command = command;
         this.state = participant;
@@ -223,7 +223,7 @@ GAME_CORE.BATTLE.Fighter = class Fighter {
         this.unit = unit;
     }
 }
-
+//todo create test
 GAME_CORE.BATTLE.FightingFighters = class FightingFighters {
     constructor(attackerFighter, defenderFighter) {
         this.attacker = attackerFighter;
@@ -236,7 +236,7 @@ GAME_CORE.BATTLE.FightingFighters = class FightingFighters {
         return this.defender;
     }
 }
-
+//todo create test
 GAME_CORE.BATTLE.AttackResult = class AttackResult {
     constructor(fighters, type, dealingDamage =0) {
         this.fightingFighters = fighters;
@@ -258,6 +258,7 @@ GAME_CORE.BATTLE.AttackResult = class AttackResult {
         return this.fightingFighters.getDefender;
     }
 }
+//todo create test
 GAME_CORE.BATTLE.AttackProcessor = class AttackProcessor {
     constructor() {
         this.attackerUnit = undefined;
@@ -286,28 +287,25 @@ GAME_CORE.BATTLE.AttackProcessor = class AttackProcessor {
     }
 
     isSuccessAttack() {
-        return (this._getAttackerInitiative() - this._getDefenderInitiative() >= 0);
+        return (this._getInitiative(this.attackerUnit, this.defenderUnit)
+            - this._getInitiative(this.defenderUnit, this.attackerUnit) >= 0);
     }
 
-    _getAttackerInitiative() {
-        return Math.floor(Math.MAX(this._getBaseInitiative(this.attackerUnit) + this._getAttackerModInitiative(), 0));
+    _getInitiative(thisUnit, targetUnit) {
+        return Math.floor(Math.MAX(this._getBaseInitiative(thisUnit) + this._getModInitiative(thisUnit, targetUnit), 0));
     }
 
-    _getAttackerModInitiative() {
+    _getModInitiative(thisUnit, targetUnit) {
         let sum = 0;
         for (const addInitiative of
-            this.attackerUnit.getInitiativeModificationMap().execute(this.attackerUnit, this.defenderUnit)) {
+            thisUnit.getInitiativeModificationMap().execute(thisUnit, targetUnit)) {
             sum += addInitiative;
         }
         return sum;
     }
 
-    _getDefenderInitiative() {
-        return Math.floor(this._getBaseInitiative(this.defenderUnit));
-    }
-
-    _getBaseInitiative(unit) {
-        return UTIL_CORE.randomGen(unit.getLuck() + 100);
+    _getBaseInitiative(thisUnit) {
+        return UTIL_CORE.randomGen(thisUnit.getLuck() + 100);
     }
 
     isDodge() {

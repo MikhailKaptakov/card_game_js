@@ -1,4 +1,5 @@
 GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
+	//todo create test
 	constructor(id,
 				name,
 				viewParent = document.body,
@@ -174,7 +175,7 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 		this.replics = new GAME_CORE.TextEntity(id + 'SAY', '', this.getView());
 	}
 };
-
+//todo create test
 GAME_CORE.ReplicsSet = class ReplicsSet {
 	constructor(dodgeArray, attackArray, defeatArray) {
 		this.dodgeArray = dodgeArray;
@@ -196,6 +197,91 @@ GAME_CORE.ReplicsSet = class ReplicsSet {
 
 	cloneThis() {
 		return new GAME_CORE.ReplicsSet([...this.dodgeArray], [...this.attackArray], [...this.defeatArray]);
+	}
+};
+
+//todo create test
+GAME_CORE.Modification = class Modification {
+	//method execute(thisUnit, targetUnit)
+	constructor(groupName,  type, name, description, executeMethod, maxLevel = 3) {
+		this.groupName = groupName;
+		this.type = type;
+		this.name = name;
+		this.description = description;
+		this.executeMethod = executeMethod;
+		this.level = 1;
+		this.maxLevel = maxLevel;
+		this.counter = 0;
+	}
+
+	getGroupName() {return this.groupName;}
+	getType() {return this.type;}
+	getName() {return this.name;}
+	getDescription() {return this.description;}
+	getLevel() { return this.level; }
+	levelUp() {
+		this.level = Math.min(this.level +1, this.maxLevel);
+	}
+	decreaseLevel() {
+		Math.max(this.level - 1, 1);
+	}
+	execute(thisUnit, targetUnit) { this.executeMethod(thisUnit, targetUnit); }
+};
+//todo create test
+GAME_CORE.ModificationMap = class ModificationMap {
+	constructor() {
+		this.modificationMap = new Map();
+	}
+
+	getRandomModification() {
+		const index = UTIL_CORE.randomGen(this.modificationMap.size);
+		let i = 0;
+		for (const mod of this.modificationMap.keys()) {
+			if (i === index) {
+				return mod;
+			}
+			i++;
+		}
+	}
+
+	hasModification(groupName) {return this.modificationMap.has(groupName);}
+	getModification(groupName) {
+		return this.modificationMap.get(groupName);
+	};
+	setModification(mod) {return this.modificationMap.set(mod.getGroupName(), mod)};
+
+	deleteByName(groupName) {
+		return this.modificationMap.delete(groupName);
+	}
+
+	deleteModification(modification) {
+		return this.deleteByName(modification.getGroupName());
+	}
+
+	execute(thisUnit, targetUnit) {
+		const answer = [];
+		for (const key of this.modificationMap.keys()) {
+			answer.push(this.modificationMap.get(key).execute(thisUnit, targetUnit));
+		}
+		return answer;
+	}
+};
+//todo create test
+GAME_CORE.ModificationMaps = class ModificationMaps {
+	constructor() {
+		this.modificationMaps = new Map();
+		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack,
+			new GAME_CORE.ModificationMap());
+		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge,
+			new GAME_CORE.ModificationMap());
+		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative,
+			new GAME_CORE.ModificationMap());
+		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish,
+			new GAME_CORE.ModificationMap())
+	}
+
+	getModificationMap(type) {
+		return this.modificationMaps.get(type);
 	}
 };
 

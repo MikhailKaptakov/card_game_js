@@ -1,4 +1,9 @@
 GAME_CORE.DEFAULT_PROPS = {};
+GAME_CORE.DEFAULT_PROPS.STATS = {};
+GAME_CORE.DEFAULT_PROPS.STATS.health = 'health';
+GAME_CORE.DEFAULT_PROPS.STATS.damage = 'damage';
+GAME_CORE.DEFAULT_PROPS.STATS.luck = 'luck';
+GAME_CORE.DEFAULT_PROPS.STATS.dodge = 'dodge';
 
 GAME_CORE.DEFAULT_PROPS.rarityOptions = [
     // args: index, difficult, viewClassName, cardText, coloredAdjective (letter, color), price (buy,sell), statMap (health,damage,luck,dodge)
@@ -38,7 +43,7 @@ GAME_CORE.DEFAULT_PROPS.rarityOptions = [
 ];
 
 GAME_CORE.DEFAULT_PROPS.cardTypes = [
-    new GAME_CORE.CardType('head','headType'),-
+    new GAME_CORE.CardType('head','headType'),
     new GAME_CORE.CardType('arms','armsType'),
     new GAME_CORE.CardType('body','bodyType'),
     new GAME_CORE.CardType('legs','legsType'),
@@ -101,6 +106,9 @@ GAME_CORE.LOGGERS.loggerInfo.addChildLogger(GAME_CORE.LOGGERS.InfoPlayerLogger);
 GAME_CORE.LOGGERS.loggerInfo.addChildLogger(GAME_CORE.LOGGERS.InfoGameFieldLogger);
 GAME_CORE.LOGGERS.loggerInfo.addChildLogger(GAME_CORE.LOGGERS.InfoLogChatLogger);
 GAME_CORE.LOGGERS.loggerInfo.addChildLogger(GAME_CORE.LOGGERS.InfoAppenderLogger);
+
+
+
 
 GAME_CORE.DEFAULT_PROPS.MODIFICATIONS = {};
 GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES = {};
@@ -384,5 +392,10 @@ GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.dodge = "DODGE";
 GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.damaged = "DAMAGED";
 GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.defeated = "DEFEATED";
 
-GAME_CORE.DEFAULT_PROPS.BATTLE.NO_COMMAND = "none";
-
+GAME_CORE.DEFAULT_PROPS.BATTLE.no_command = "none";
+GAME_CORE.DEFAULT_PROPS.BATTLE.getBattle = function (unit1, unit2, logChat) {
+    const fightActions = new GAME_CORE.BATTLE.DuelFightActions(new GAME_CORE.BATTLE.DuelFightersPool(unit1, unit2),
+        new GAME_CORE.BATTLE.AttackProcessor());
+    const viewActions = new GAME_CORE.BATTLE.LogChatViewActions(logChat);
+    return new GAME_CORE.BATTLE.Battle(fightActions, viewActions);
+}

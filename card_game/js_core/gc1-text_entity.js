@@ -20,4 +20,4 @@ GAME_CORE.TextEntity = class TextEntity extends UTIL_CORE.ViewEntity{
 	}
 };
 
-//todo внимание во многих классах изменен порядок аргументов viewParent на второй аргумент
+//todo create test
