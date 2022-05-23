@@ -17,6 +17,25 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
         this._initViewOptions();
         this._log('Created card ', 'constructor' )
     }
+    _initRarityOptions() {
+        this.currentRarityIndex = 0;
+        this.rarityMaxIndex = this.rarityPack.getMaxIndex();
+        this.rarityOption = this.rarityPack.getByIndex(this.currentRarityIndex);
+    }
+    _initCardTypeOptions() {
+        this.currentCardTypeIndex = 0;
+        this.cardTypeMaxIndex = this.cardTypePack.getMaxIndex();
+        this.cardType = this.cardTypePack.getByIndex(this.currentCardTypeIndex);
+    }
+    _initViewOptions() {
+        this.openState = false;
+        this.activityState = true;
+        this._initViewClassName();
+        this.viewText = '';
+        this.setClass(this.viewClass);
+        this.setTextContent(this.viewText);
+        this._initDescription();
+    }
     getRarityName() {return this.rarityOption.getName();}
     getCardTypeName() {return this.cardType.getName();}
     getColoredAdjective(){return this.rarityOption.getColoredAdjective();}
@@ -34,19 +53,14 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
     getCardActivity() {return this.cardActivity;}
 
     /******CardType_Options******/
-    setRandomCardType() {this.setRarityByIndex(this.rarityPack.getRandomIndexByDifficult());}
+    setRandomCardType() {this.setCardTypeByIndex(this.rarityPack.getRandomIndexByDifficult());}
     setCardTypeByName(name) {
         this._setCardTypeIndex(this.getCardTypePack().getCardTypeIndexByName(name));
     }
     setCardTypeByIndex(index) {
-        if (index >= this.cardTypeMaxIndex || index < 0) {return;}
+        if (index >= this.cardTypeMaxIndex || index < 0) {return false;}
         this._setCardTypeIndex(index);
         this._log('set cardType: ' + this.cardType.getName());
-    }
-    _initCardTypeOptions() {
-        this.currentCardTypeIndex = 0;
-        this.cardTypeMaxIndex = this.cardTypePack.getMaxIndex();
-        this.cardType = this.cardTypePack.getByIndex(this.currentCardTypeIndex);
     }
     _setCardTypeIndex(index) {
         this.currentCardTypeIndex = index;
@@ -60,18 +74,11 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
     incrementRarity() {this.setRarityByIndex(this.currentRarityIndex + 1);}
     decrementRarity() {this.setRarityByIndex(this.currentRarityIndex - 1);}
     setRarityByIndex(index) {
-        if (index >= this.rarityMaxIndex) {return;}
-        if (index < 0) {this._setRarityIndex(0); return;}
+        if (index >= this.rarityMaxIndex) {return false;}
+        if (index < 0) {this._setRarityIndex(0); return false;}
         this._setRarityIndex(index);
         this._log('set rarity ' + this.rarityOption.getName());
     }
-
-    _initRarityOptions() {
-        this.currentRarityIndex = 0;
-        this.rarityMaxIndex = this.rarityPack.getMaxIndex();
-        this.rarityOption = this.rarityPack.getByIndex(this.currentRarityIndex);
-    }
-
     _setRarityIndex(index) {
         this.currentRarityIndex = index;
         this.rarityOption = this.rarityPack.getByIndex(index);
@@ -80,6 +87,7 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
 
 
     /******Listener******/
+    //todo listeners test
     setEventListener(eventType, action) {
         if (this.action === undefined) {
             this.getView().addEventListener(eventType, action);
@@ -178,16 +186,6 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
     setDescription(description) {
         this.description = description;
         this._setDescription();
-    }
-
-    _initViewOptions() {
-        this.openState = false;
-        this.activityState = true;
-        this._initViewClassName();
-        this.viewText = '';
-        this.setClass(this.viewClass);
-        this.setTextContent(this.viewText);
-        this._initDescription();
     }
 
     _setViewOptions() {

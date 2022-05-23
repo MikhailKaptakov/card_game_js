@@ -13,49 +13,7 @@ GAME_CORE.GameField = class GameField extends UTIL_CORE.ViewEntity{
     }
 
     isEmpty() {return this.emptyState;}
-
-    getCardByIndex(index) {
-        if (index < this.cardArray.length && index >= 0) {
-            return this.cardArray[index];
-        }
-        throw new RangeError('index ' + index + ' out of range');
-    }
-
-    doIt(cardAction) {
-        for (const card of this.cardArray) {
-            card.cardAction = cardAction;
-            card.cardAction();
-        }
-        this._log();
-    }
-
-    openCards() {
-        for (const card of this.cardArray) {
-            card.openCard();
-        }
-        this._log();
-    }
-
-    closeCards() {
-        for (const card of this.cardArray) {
-            card.closeCard();
-        }
-        this._log();
-    }
-
-    setActive() {
-        for (const card of this.cardArray) {
-            card.setActive();
-        }
-        this._log();
-    }
-
-    setInactive() {
-        for (const card of this.cardArray) {
-            card.setInactive();
-        }
-        this._log();
-    }
+    getCardsCount() {return this.cardsCount;}
 
     fill() {
         if (!this.isEmpty()) {
@@ -83,6 +41,49 @@ GAME_CORE.GameField = class GameField extends UTIL_CORE.ViewEntity{
         return true;
     }
 
+    openCards() {
+        for (const card of this.cardArray) {
+            card.openCard();
+        }
+        this._log();
+    }
+
+    closeCards() {
+        for (const card of this.cardArray) {
+            card.closeCard();
+        }
+        this._log();
+    }
+
+    getCardByIndex(index) {
+        if (index < this.cardArray.length && index >= 0) {
+            return this.cardArray[index];
+        }
+        throw new Error('index ' + index + ' out of range');
+    }
+
+    setActive() {
+        for (const card of this.cardArray) {
+            card.setActive();
+        }
+        this._log();
+    }
+
+    setInactive() {
+        for (const card of this.cardArray) {
+            card.setInactive();
+        }
+        this._log();
+    }
+
+    doIt(cardAction) {
+        for (const card of this.cardArray) {
+            card.cardAction = cardAction;
+            card.cardAction();
+        }
+        this._log();
+    }
+
     setRandomRarity() {
         this._log();
         for (const card of this.cardArray) {
@@ -95,7 +96,7 @@ GAME_CORE.GameField = class GameField extends UTIL_CORE.ViewEntity{
         this._log();
         for (const card of this.cardArray) {
             card.closeCard();
-            card.increaseRarity();
+            card.incrementRarity();
         }
     }
 
@@ -103,7 +104,7 @@ GAME_CORE.GameField = class GameField extends UTIL_CORE.ViewEntity{
         this._log();
         for (const card of this.cardArray) {
             card.closeCard();
-            card.decreaseRarity();
+            card.decrementRarity();
         }
     }
 
@@ -151,7 +152,7 @@ GAME_CORE.GameField = class GameField extends UTIL_CORE.ViewEntity{
         }
         return true;
     }
-
+    //todo add tests
     addListeners(type, action) {
         for (const card of this.cardArray) {
             const wrap = function() {
@@ -171,7 +172,7 @@ GAME_CORE.GameField = class GameField extends UTIL_CORE.ViewEntity{
 
     _initCardArray() {
         for (let i = 0; i < this.cardsCount; i++) {
-            this.cardArray.push(this.cardOptions.getCard(this.getViewId() + 'c' + i, this.getView()));
+            this.cardArray.push(this.cardOptions.getCard(this.getId() + 'c' + i, this.getView()));
         }
     }
 };

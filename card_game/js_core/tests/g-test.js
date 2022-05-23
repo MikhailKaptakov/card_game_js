@@ -9,6 +9,7 @@ GAME_CORE.TEST.runAll = function (){
     GAME_CORE.TEST.ActivityState.run();
     GAME_CORE.TEST.Card.run();
     GAME_CORE.TEST.CardOptions.run();
+    GAME_CORE.TEST.GameField.run();
 };
 GAME_CORE.TEST.Price = {};
 GAME_CORE.TEST.Price.run = function () {
@@ -325,3 +326,106 @@ GAME_CORE.TEST.CardOptions.tests = function () {
     UTIL_CORE.TEST.assert(card.getCardState(), GAME_CORE.DEFAULT_PROPS.cardState);
     UTIL_CORE.TEST.assert(card.getCardActivity(), GAME_CORE.DEFAULT_PROPS.cardActivity);
 };
+
+GAME_CORE.TEST.GameField = {};
+GAME_CORE.TEST.GameField.create = function() {
+    return new GAME_CORE.GameField('test', undefined, 5);
+};
+GAME_CORE.TEST.GameField.run = function () {
+    console.log('GameField');
+    GAME_CORE.TEST.GameField.cardManipulationTests();
+};
+GAME_CORE.TEST.GameField.cardManipulationTests = function () {
+    const gameField = GAME_CORE.TEST.GameField.create();
+    console.log('isEmpty clear  fill');
+    UTIL_CORE.TEST.assert(gameField.isEmpty(), true);
+    UTIL_CORE.TEST.assert(gameField.clear(), false);
+    UTIL_CORE.TEST.assert(gameField.fill(), true);
+    UTIL_CORE.TEST.assert(gameField.fill(), false);
+    UTIL_CORE.TEST.assert(gameField.isEmpty(), false);
+    UTIL_CORE.TEST.assert(gameField.clear(), true);
+    gameField.fill();
+    console.log('getCardsCount');
+    UTIL_CORE.TEST.assert(gameField.getCardsCount(), 5);
+    console.log('getCardByIndex');
+    UTIL_CORE.TEST.assertClassName(gameField.getCardByIndex(1), 'Card');
+    UTIL_CORE.TEST.assertErrorWithArgs(gameField.getCardByIndex,5, true);
+    console.log('openCards');
+    gameField.openCards();
+    let  res = true;
+    for (let i = 0; i < 5; i++) {
+        res = res && gameField.getCardByIndex(i).isOpen();
+    }
+    UTIL_CORE.TEST.assert(res, true);
+    console.log('closeCards');
+    gameField.closeCards();
+    res = false;
+    for (let i = 0; i < 5; i++) {
+        res = res || gameField.getCardByIndex(i).isOpen();
+    }
+    UTIL_CORE.TEST.assert(res, false);
+    console.log('setInactive');
+    gameField.setInactive();
+    res = false;
+    for (let i = 0; i < 5; i++) {
+        res = res || gameField.getCardByIndex(i).isActive();
+    }
+    UTIL_CORE.TEST.assert(res, false);
+    console.log('setActive');
+    gameField.setActive();
+    res = true;
+    for (let i = 0; i < 5; i++) {
+        res = res && gameField.getCardByIndex(i).isActive();
+    }
+    UTIL_CORE.TEST.assert(res, true);
+    console.log('doIt');
+    gameField.doIt(function() {this.setInactive();});
+    res = false;
+    for (let i = 0; i < 5; i++) {
+        res = res || gameField.getCardByIndex(i).isActive();
+    }
+    UTIL_CORE.TEST.assert(res, false);
+    console.log('increaseRarity');
+    gameField.increaseRarity();
+    res = true;
+    for (let i = 0; i < 5; i++) {
+        res = res && gameField.getCardByIndex(i).getRarityName() === 'common';
+    }
+    UTIL_CORE.TEST.assert(res, true);
+    console.log('decreaseRarity');
+    gameField.decreaseRarity();
+    res = true;
+    for (let i = 0; i < 5; i++) {
+        res = res && gameField.getCardByIndex(i).getRarityName() === 'empty';
+    }
+    UTIL_CORE.TEST.assert(res, true);
+    console.log('setRarityByIndex');
+    gameField.setRarityByIndex(1);
+    res = true;
+    for (let i = 0; i < 5; i++) {
+        res = res && gameField.getCardByIndex(i).getRarityName() === 'common';
+    }
+    UTIL_CORE.TEST.assert(res, true);
+    console.log('setZeroRarity');
+    gameField.setZeroRarity();
+    res = true;
+    for (let i = 0; i < 5; i++) {
+        res = res && gameField.getCardByIndex(i).getRarityName() === 'empty';
+    }
+    UTIL_CORE.TEST.assert(res, true);
+    console.log('setCardTypeByName');
+    gameField.setCardTypeByName('arms');
+    res = true;
+    for (let i = 0; i < 5; i++) {
+        res = res && gameField.getCardByIndex(i).getCardTypeName() === 'arms';
+    }
+    UTIL_CORE.TEST.assert(res, true);
+    console.log('setCardTypeByIndex');
+    gameField.setCardTypeByIndex(2);
+    res = true;
+    for (let i = 0; i < 5; i++) {
+        res = res && gameField.getCardByIndex(i).getCardTypeName() === 'body';
+    }
+    UTIL_CORE.TEST.assert(res, true);
+};
+
