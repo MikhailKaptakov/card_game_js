@@ -7,14 +7,16 @@ GAME_CORE.LogChat = class LogChat extends UTIL_CORE.ViewEntity{
 		this.messageCount = 0;
 		this._log('created', 'constructor');
 	}
-		
+	//асинхронность только из-за функции UTIL_CORE.sleep(milliseconds), добавлять await при вызове
+	//todo encapsulate async
 	async writeText(innerText, sleepTime = 200) {
 		const st = Math.floor(sleepTime/2);
 		await UTIL_CORE.sleep(st);
-		this._clearFromNecessary();
+		this._clearIfNecessary();
+		//todo выделить общий код в отдельный private метод
 		const p = document.createElement('p');
 		p.textContent = innerText;
-		this.viewEntity.view.appendChild(p);
+		this.view.appendChild(p);
 		this.messageCount++;	
 		await UTIL_CORE.sleep(sleepTime - st);
 		this._log();
@@ -23,8 +25,8 @@ GAME_CORE.LogChat = class LogChat extends UTIL_CORE.ViewEntity{
 	async writeMessage(message, sleepTime = 200) {
 		const st = Math.floor(sleepTime/2);
 		await UTIL_CORE.sleep(st);
-		this._clearFromNecessary()
-		message.appendClone(this.viewEntity.view);
+		this._clearIfNecessary();
+		message.appendClone(this.view);
 		this.messageCount++;
 		await UTIL_CORE.sleep(sleepTime - st);
 		this._log();
@@ -34,7 +36,7 @@ GAME_CORE.LogChat = class LogChat extends UTIL_CORE.ViewEntity{
 		await this.writeMessage(new UTIL_CORE.Message(letterArray), sleepTime);
 	}
 
-	_clearFromNecessary() {
+	_clearIfNecessary() {
 		if (this.messageCount >= this.maxMessage) {
 			this.clear();
 		}

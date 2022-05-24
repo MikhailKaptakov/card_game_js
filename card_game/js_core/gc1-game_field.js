@@ -1,4 +1,3 @@
-//todo create test
 GAME_CORE.GameField = class GameField extends UTIL_CORE.ViewEntity{
     constructor(id, viewParent = undefined, cardsCount,
                 cardOptions = GAME_CORE.DEFAULT_PROPS.cardOptions) {

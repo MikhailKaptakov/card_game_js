@@ -10,6 +10,7 @@ GAME_CORE.TEST.runAll = function (){
     GAME_CORE.TEST.Card.run();
     GAME_CORE.TEST.CardOptions.run();
     GAME_CORE.TEST.GameField.run();
+    GAME_CORE.TEST.LogChat.run();
 };
 GAME_CORE.TEST.Price = {};
 GAME_CORE.TEST.Price.run = function () {
@@ -428,4 +429,69 @@ GAME_CORE.TEST.GameField.cardManipulationTests = function () {
     }
     UTIL_CORE.TEST.assert(res, true);
 };
+//todo добавить разделение тестов в отдельные методы, более частое разделение, чтобы уменьшить количество зависимостей
+//todo добавить тесты на граничные условия (для всех классов пересмотреть все имеющиеся тесты)
+GAME_CORE.TEST.LogChat = {};
+GAME_CORE.TEST.LogChat.create = function() {
+    return new GAME_CORE.LogChat('test', undefined, 3);
+};
+GAME_CORE.TEST.LogChat.createLetter = function(text) {
+    return new UTIL_CORE.Letter(text);
+};
+GAME_CORE.TEST.LogChat.createLetters = function() {
+    const array = [];
+    for (let i = 0; i<3; i++) {
+        array.push(GAME_CORE.TEST.LogChat.createLetter('test'  + i));
+    }
+    return array;
+};
+GAME_CORE.TEST.LogChat.createMessage = function() {
+    return new UTIL_CORE.Message(GAME_CORE.TEST.LogChat.createLetters());
+};
 
+GAME_CORE.TEST.LogChat.run = async function () {
+    console.log('LogChat');
+    await GAME_CORE.TEST.LogChat.writeText();
+    await GAME_CORE.TEST.LogChat.writeMessage();
+    await GAME_CORE.TEST.LogChat.writeLetters();
+    await GAME_CORE.TEST.LogChat.clear();
+};
+GAME_CORE.TEST.LogChat.writeText = async function () {
+    console.log('writeText');
+    //todo переименовать константы созданных объектов в подобных тестах по названию класса
+    const logChat = GAME_CORE.TEST.LogChat.create();
+    await logChat.writeText('innerText');
+    UTIL_CORE.TEST.assert(logChat.getView().firstChild.textContent, 'innerText');
+};
+GAME_CORE.TEST.LogChat.writeMessage = async function () {
+    console.log('writeMessage');
+    const logChat = GAME_CORE.TEST.LogChat.create();
+    await logChat.writeMessage(GAME_CORE.TEST.LogChat.createMessage());
+    const children = logChat.getView().firstChild.children;
+    for (let i = 0; i<children.length; i++) {
+        UTIL_CORE.TEST.assert(children[i].textContent, 'test'  + i);
+    }
+};
+GAME_CORE.TEST.LogChat.writeLetters = async function () {
+    console.log('writeLetters');
+    const logChat = GAME_CORE.TEST.LogChat.create();
+    await logChat.writeLetters(GAME_CORE.TEST.LogChat.createLetters());
+    const children = logChat.getView().firstChild.children;
+    for (let i = 0; i<children.length; i++) {
+        UTIL_CORE.TEST.assert(children[i].textContent, 'test' + i);
+    }
+};
+GAME_CORE.TEST.LogChat.clear = async function () {
+    console.log('message count');
+    const logChat = GAME_CORE.TEST.LogChat.create();
+    await logChat.writeText('text');
+    await logChat.writeText('text');
+    UTIL_CORE.TEST.assert(logChat.getView().children.length, 2);
+    await logChat.writeText('text');
+    UTIL_CORE.TEST.assert(logChat.getView().children.length, 3);
+    await logChat.writeText('text');
+    UTIL_CORE.TEST.assert(logChat.getView().children.length, 1);
+    console.log('clear');
+    logChat.clear();
+    UTIL_CORE.TEST.assert(logChat.getView().children.length, 0);
+};

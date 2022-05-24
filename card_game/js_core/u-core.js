@@ -1,16 +1,8 @@
 const UTIL_CORE = {};
 UTIL_CORE.randomGen = function(num = 1){return Math.floor(Math.random()*num);};
 UTIL_CORE.sleep = async function(milliseconds) {
-	const start = Date.now();
-	do {
-		const sleeper = function(milliseconds) {
-			return new Promise(resolve => setTimeout(resolve, milliseconds));
-		};
-		await sleeper(50);
-		current = Date.now();
-	} while(current - start < milliseconds);
+	return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
-
 UTIL_CORE.Logger = class Logger {
 	constructor(title){
 		this.title = title;
