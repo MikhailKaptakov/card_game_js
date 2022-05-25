@@ -140,19 +140,46 @@ GAME_CORE.EquipmentCell = class EquipmentCell {
 	getName() {return this.name;}
 	getOwner() {return this.owner;}
 };
-//todo create test
+
 GAME_CORE.ModStatMap = class ModStatMap extends Map{
 	constructor(health=0, damage=0, luck=0, dodge=0) {
 		super();
-		this.setStat(GAME_CORE.DEFAULT_PROPS.STATS.health, () => health);
-		this.setStat(GAME_CORE.DEFAULT_PROPS.STATS.damage, () => damage);
-		this.setStat(GAME_CORE.DEFAULT_PROPS.STATS.luck, () => luck);
-		this.setStat(GAME_CORE.DEFAULT_PROPS.STATS.dodge, () => dodge);
+		this.setStat(GAME_CORE.DEFAULT_PROPS.STATS.health, health);
+		this.setStat(GAME_CORE.DEFAULT_PROPS.STATS.damage, damage);
+		this.setStat(GAME_CORE.DEFAULT_PROPS.STATS.luck, luck);
+		this.setStat(GAME_CORE.DEFAULT_PROPS.STATS.dodge, dodge);
+		this.currentFunc = undefined;
 	}
 
 	hasStat(statName) {return this.has(statName);}
 	getStat(statName) {
-		return this.get(statName);
+		if(this.hasStat(statName)) {
+			this.currentFunc = this.get(statName);
+			return this.currentFunc();
+		} else {
+			return undefined;
+		}
 	};
-	setStat(statName, functionArg) {return this.set(statName, functionArg)};
+	setStat(statName, numberOrFunction) {
+		if (this._argTypeCheck(numberOrFunction)) {
+			return this._setNumberStat(statName, numberOrFunction);
+		} else {
+			return this._setFuncStat(statName, numberOrFunction);
+		}
+	};
+	_setFuncStat(statName, functionArg) {
+		return this.set(statName, functionArg);
+	}
+	_setNumberStat(statName, numberArg) {
+		return this.set(statName, () => numberArg);
+	}
+	_argTypeCheck(arg) {
+		if (typeof arg === 'function') {
+			return false;
+		}
+		if (typeof arg === 'number') {
+			return true;
+		}
+		throw new Error('Аргумент должен быть числом илм функцией!');
+	}
 };

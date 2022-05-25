@@ -11,6 +11,8 @@ GAME_CORE.TEST.runAll = function (){
     GAME_CORE.TEST.CardOptions.run();
     GAME_CORE.TEST.GameField.run();
     GAME_CORE.TEST.LogChat.run();
+    GAME_CORE.TEST.TextEntity.run();
+    GAME_CORE.TEST.ModStatMap.run();
 };
 GAME_CORE.TEST.Price = {};
 GAME_CORE.TEST.Price.run = function () {
@@ -494,4 +496,80 @@ GAME_CORE.TEST.LogChat.clear = async function () {
     console.log('clear');
     logChat.clear();
     UTIL_CORE.TEST.assert(logChat.getView().children.length, 0);
+};
+GAME_CORE.TEST.TextEntity = {};
+GAME_CORE.TEST.TextEntity.create = function() {
+    return new GAME_CORE.TextEntity('test', undefined, 'test');
+};
+GAME_CORE.TEST.TextEntity.run = function () {
+    console.log('TextEntity');
+    GAME_CORE.TEST.TextEntity.tests();
+};
+GAME_CORE.TEST.TextEntity.tests = function () {
+    const textEntity = GAME_CORE.TEST.TextEntity.create();
+    console.log('getValue');
+    UTIL_CORE.TEST.assert(textEntity.getValue(), 'test');
+    console.log('updateValue');
+    textEntity.updateValue('new');
+    UTIL_CORE.TEST.assert(textEntity.getValue(), 'new');
+    console.log('updateView');
+    textEntity.value = 'update';
+    textEntity.updateView();
+    UTIL_CORE.TEST.assert(textEntity.getView().textContent, 'update');
+};
+GAME_CORE.TEST.ModStatMap = {};
+GAME_CORE.TEST.ModStatMap.create = function() {
+    return new GAME_CORE.ModStatMap(0,1,2.5,3);
+};
+GAME_CORE.TEST.ModStatMap.createDefault = function() {
+    return new GAME_CORE.ModStatMap();
+};
+GAME_CORE.TEST.ModStatMap.createWithFunctionDodge = function() {
+    return new GAME_CORE.ModStatMap(10, 0, 0, function (){return this.getStat(GAME_CORE.DEFAULT_PROPS.STATS.health);});
+};
+GAME_CORE.TEST.ModStatMap.run = function () {
+    console.log('ModStatMap');
+    GAME_CORE.TEST.ModStatMap.illegalCreate();
+    GAME_CORE.TEST.ModStatMap.tests();
+};
+GAME_CORE.TEST.ModStatMap.illegalCreate = function () {
+    console.log('illegalCreate');
+    UTIL_CORE.TEST.assertError(()=>{return new GAME_CORE.ModStatMap('dsad', 0, 0 ,0);}, true);
+};
+GAME_CORE.TEST.ModStatMap.tests = function () {
+    const modStatMap = GAME_CORE.TEST.ModStatMap.create();
+    const modStatMapDefault = GAME_CORE.TEST.ModStatMap.createDefault();
+    const modStatMapWithFunc = GAME_CORE.TEST.ModStatMap.createWithFunctionDodge();
+    console.log('hasStat');
+    const hasStatCheck = function (modStat, message) {
+        console.log(message);
+        UTIL_CORE.TEST.assert(modStat.hasStat(GAME_CORE.DEFAULT_PROPS.STATS.health), true);
+        UTIL_CORE.TEST.assert(modStat.hasStat(GAME_CORE.DEFAULT_PROPS.STATS.damage), true);
+        UTIL_CORE.TEST.assert(modStat.hasStat(GAME_CORE.DEFAULT_PROPS.STATS.luck), true);
+        UTIL_CORE.TEST.assert(modStat.hasStat(GAME_CORE.DEFAULT_PROPS.STATS.dodge), true);
+        UTIL_CORE.TEST.assert(modStat.hasStat('stat'), false);
+    }
+    hasStatCheck(modStatMap, 'modStatMap');
+    hasStatCheck(modStatMapDefault, 'modStatMapDefault');
+    hasStatCheck(modStatMapWithFunc, 'modStatMapWithFunc');
+    console.log('getStat');
+    console.log('   modStatMap');
+    UTIL_CORE.TEST.assert(modStatMap.getStat(GAME_CORE.DEFAULT_PROPS.STATS.health), 0);
+    UTIL_CORE.TEST.assert(modStatMap.getStat(GAME_CORE.DEFAULT_PROPS.STATS.damage), 1);
+    UTIL_CORE.TEST.assert(modStatMap.getStat(GAME_CORE.DEFAULT_PROPS.STATS.luck), 2.5);
+    UTIL_CORE.TEST.assert(modStatMap.getStat(GAME_CORE.DEFAULT_PROPS.STATS.dodge), 3);
+    UTIL_CORE.TEST.assert(modStatMap.getStat('stat'), undefined);
+    console.log('   modStatMapDefault');
+    UTIL_CORE.TEST.assert(modStatMapDefault.getStat(GAME_CORE.DEFAULT_PROPS.STATS.health), 0);
+    UTIL_CORE.TEST.assert(modStatMapDefault.getStat(GAME_CORE.DEFAULT_PROPS.STATS.damage), 0);
+    UTIL_CORE.TEST.assert(modStatMapDefault.getStat(GAME_CORE.DEFAULT_PROPS.STATS.luck), 0);
+    UTIL_CORE.TEST.assert(modStatMapDefault.getStat(GAME_CORE.DEFAULT_PROPS.STATS.dodge), 0);
+    console.log('   modStatMapWithFunc');
+    UTIL_CORE.TEST.assert(modStatMapWithFunc.getStat(GAME_CORE.DEFAULT_PROPS.STATS.dodge), 10);
+    console.log('setStat');
+    modStatMap.setStat('stat', 10);
+    UTIL_CORE.TEST.assert(modStatMap.getStat('stat'), 10);
+    modStatMap.setStat('stat2', function (){return this.getStat(GAME_CORE.DEFAULT_PROPS.STATS.damage);});
+    UTIL_CORE.TEST.assert(modStatMap.getStat('stat2'), 1);
+    UTIL_CORE.TEST.assertError(()=>{modStatMap.setStat('stat3', 'ss');}, true);
 };

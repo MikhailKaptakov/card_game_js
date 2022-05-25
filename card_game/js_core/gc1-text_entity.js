@@ -19,5 +19,3 @@ GAME_CORE.TextEntity = class TextEntity extends UTIL_CORE.ViewEntity{
 		this.updateView();
 	}
 };
-
-//todo create test
