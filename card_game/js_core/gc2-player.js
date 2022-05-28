@@ -3,15 +3,16 @@ GAME_CORE.Player = class Player extends UTIL_CORE.ViewEntity{
 	constructor(id, name, viewParent = document.body) {
 		super(id, viewParent);
 		this.setLogger(GAME_CORE.LOGGERS.InfoPlayerLogger);
-		this.name = new GAME_CORE.TextEntity(id + 'name', name, this.getView());
-		this.score = new GAME_CORE.TextEntity(id + 'score', 0, this.getView());
-		this.money = new GAME_CORE.TextEntity(id + 'money', 0, this.getView());
+		this.name = new GAME_CORE.TextEntity(id + 'name', this.getView(), name);
+		this.score = new GAME_CORE.TextEntity(id + 'score', this.getView(), 0);
+		this.money = new GAME_CORE.TextEntity(id + 'money', this.getView(), 0);
 
 		this.maxNameLength = 10;
 
 		this._log('created', 'constructor')
 	}
 
+	getName() {return this.name.getValue();}
 	setName(name) {
 		if (typeof name !== 'string') {
 			return false;
@@ -20,30 +21,6 @@ GAME_CORE.Player = class Player extends UTIL_CORE.ViewEntity{
 			return false;
 		}
 		this.name.updateValue(name);
-	}
-
-	getName() {return this.name.getValue();}
-
-	setScore(score) {
-		if (typeof score !== 'number') {
-			return false;
-		}
-		if (score < 0) {
-			return false;
-		}
-		this.score.updateValue(score);
-		return true;
-	}
-
-	addScore(score) {
-		if (typeof score !== 'number') {
-			return false;
-		}
-		const newVal = this.score.getValue() + score;
-		if (newVal < 0) {
-			return false;
-		}
-		this.score.updateValue(newVal);
 		return true;
 	}
 
@@ -51,67 +28,95 @@ GAME_CORE.Player = class Player extends UTIL_CORE.ViewEntity{
 		return this.score.getValue();
 	}
 
-	setMoney(value) {
-		if (typeof value !== 'number') {
-			return false;
+	setScore(score) {
+		if (this._isPositiveNumber(score)) {
+			this._setScore(score);
+			return true;
 		}
-		if (value < 0) {
-			return false;
-		}
-		this.money.updateValue(value);
-		return true;
+		return false;
 	}
 
-	addMoney(value) {
-		if (typeof value !== 'number') {
-			return false;
+	increaseScore(score) {
+		if (this._isPositiveNumber(score)) {
+			const newVal = this.getScore() + score;
+			this._setScore(newVal);
+			return true;
 		}
-		if (value <= 0) {
-			return false;
-		}
-		const newVal = this.money.getValue() + value;
-		this.money.updateValue(newVal);
-		return true;
+		return false;
 	}
-
-	takeMoney(value) {
-		if (typeof value !== 'number') {
-			return false;
+	decreaseScore(score) {
+		if (this._isPositiveNumber(score)) {
+			const newVal = this.getScore() - score;
+			this._setScore(Math.max(newVal, 0));
+			return true;
 		}
-		if (value <= 0) {
-			return false;
-		}
-		const newVal = Math.max(this.money.getValue() - value, 0);
-		this.money.updateValue(newVal);
-		return true;
-	}
-
-	buy(price) {
-		const newVal = this.money.getValue() - price.getSellPrice();
-		if (newVal < 0) {
-			return false;
-		}
-		this.money.updateValue(newVal);
-		return true;
-	}
-
-	sell(price) {
-		const newVal = this.money.getValue() + price.getBuyPrice();
-		if (newVal < 0) {
-			return false;
-		}
-		this.money.updateValue(newVal);
-		return true;
+		return false;
 	}
 
 	getMoney() {
 		return this.money.getValue();
 	}
-	
+
+	setMoney(money) {
+		if (this._isPositiveNumber(money)) {
+			this._setMoney(money);
+			return true;
+		}
+		return false;
+	}
+
+	addMoney(money) {
+		if (this._isPositiveNumber(money)) {
+			const newVal = this.getMoney() + money;
+			this._setMoney(newVal);
+			return true;
+		}
+		return false;
+	}
+
+	takeMoney(money) {
+		if (this._isPositiveNumber(money)) {
+			const newVal = this.getMoney() - money;
+			this._setMoney(Math.max(newVal, 0));
+			return true;
+		}
+		return false;
+	}
+
+	buy(price) {
+		this._isPrice(price);
+		const newVal = this.money.getValue() - price.getBuyPrice();
+		if (newVal < 0) {
+			return false;
+		}
+		this._setMoney(newVal);
+		return true;
+	}
+
+	sell(price) {
+		this._isPrice(price);
+		const newVal = this.money.getValue() + price.getSellPrice();
+		this._setMoney(newVal);
+		return true;
+	}
+
 	appendAll() {
 		this._log();
 		this.name.append();
 		this.score.append();
 		this.money.append();
 	}
+
+	_isPositiveNumber(value) {
+		if (typeof value !== 'number') {
+			throw new Error('not a number');
+		}
+		return value >= 0;
+	}
+	_isPrice(price) {
+		UTIL_CORE.checkObjClassName(price, 'Price');
+		//todo изменить метод на геймкорный, когда будет введен полиморфный метод
+	}
+ 	_setScore(score) {this.score.updateValue(Math.floor(score));}
+	_setMoney(money) {this.money.updateValue(Math.floor(money));}
 };

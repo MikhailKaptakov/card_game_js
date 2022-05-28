@@ -13,6 +13,9 @@ GAME_CORE.TEST.runAll = function (){
     GAME_CORE.TEST.LogChat.run();
     GAME_CORE.TEST.TextEntity.run();
     GAME_CORE.TEST.ModStatMap.run();
+    GAME_CORE.TEST.EquipmentCell.run();
+    GAME_CORE.TEST.Equipment.run();
+    GAME_CORE.TEST.Player.run();
 };
 GAME_CORE.TEST.Price = {};
 GAME_CORE.TEST.Price.run = function () {
@@ -58,6 +61,7 @@ GAME_CORE.TEST.Pack.run = function () {
     let summ = 0;
     let pack = GAME_CORE.TEST.Pack.getPack();
     console.log('getByIndex');
+    UTIL_CORE.TEST.assertError(pack.getByIndex(12), true);
     UTIL_CORE.TEST.assert(pack.getByIndex(2), 2);
     console.log('getMaxIndex');
     UTIL_CORE.TEST.assert(pack.getMaxIndex(), pack.typeArray.length - 1);
@@ -517,6 +521,7 @@ GAME_CORE.TEST.TextEntity.tests = function () {
     textEntity.updateView();
     UTIL_CORE.TEST.assert(textEntity.getView().textContent, 'update');
 };
+
 GAME_CORE.TEST.ModStatMap = {};
 GAME_CORE.TEST.ModStatMap.create = function() {
     return new GAME_CORE.ModStatMap(0,1,2.5,3);
@@ -572,4 +577,206 @@ GAME_CORE.TEST.ModStatMap.tests = function () {
     modStatMap.setStat('stat2', function (){return this.getStat(GAME_CORE.DEFAULT_PROPS.STATS.damage);});
     UTIL_CORE.TEST.assert(modStatMap.getStat('stat2'), 1);
     UTIL_CORE.TEST.assertError(()=>{modStatMap.setStat('stat3', 'ss');}, true);
+};
+
+GAME_CORE.TEST.EquipmentCell = {};
+GAME_CORE.TEST.EquipmentCell.create = function() {
+    GAME_CORE.TEST.EquipmentCell.currentCard =  new GAME_CORE.Card('test' +
+        GAME_CORE.DEFAULT_PROPS.EquipTypes.head, undefined);
+    return new GAME_CORE.EquipmentCell(undefined, GAME_CORE.DEFAULT_PROPS.EquipTypes.head,
+        GAME_CORE.TEST.EquipmentCell.currentCard ,
+        new GAME_CORE.ModStatMap(1, 0.5, 1, 0),
+        new GAME_CORE.ModStatMap(0, 0, 10, 100));
+};
+GAME_CORE.TEST.EquipmentCell.currentCard = undefined;
+GAME_CORE.TEST.EquipmentCell.run = function () {
+    console.log('EquipmentCell');
+    GAME_CORE.TEST.EquipmentCell.tests();
+};
+GAME_CORE.TEST.EquipmentCell.tests = function () {
+    const cell = GAME_CORE.TEST.EquipmentCell.create();
+    console.log('getName');
+    UTIL_CORE.TEST.assert(cell.getName(), GAME_CORE.DEFAULT_PROPS.EquipTypes.head);
+    console.log('getOwner');
+    UTIL_CORE.TEST.assert(cell.getOwner(), undefined);
+    console.log('getCard');
+    UTIL_CORE.TEST.assert(cell.getCard(), GAME_CORE.TEST.EquipmentCell.currentCard);
+    console.log('getCard');
+    UTIL_CORE.TEST.assert(cell.getCard(), GAME_CORE.TEST.EquipmentCell.currentCard);
+    console.log('getStat');
+    cell.getCard().setRarityByIndex(2);
+    UTIL_CORE.TEST.assert(cell.getStat(GAME_CORE.DEFAULT_PROPS.STATS.health), 100);
+    UTIL_CORE.TEST.assert(cell.getStat(GAME_CORE.DEFAULT_PROPS.STATS.damage), 5);
+    UTIL_CORE.TEST.assert(cell.getStat(GAME_CORE.DEFAULT_PROPS.STATS.luck), 20);
+    UTIL_CORE.TEST.assert(cell.getStat(GAME_CORE.DEFAULT_PROPS.STATS.dodge), 100);
+    console.log('setNewCard');
+    cell.setNewCard('test', undefined);
+    UTIL_CORE.TEST.assert(cell.getCard() === GAME_CORE.TEST.EquipmentCell.currentCard, false);
+    console.log('appendCard');
+    cell.appendCard();
+    UTIL_CORE.TEST.assert(cell.getCard().isAppended(), true);
+    console.log('removeCard');
+    cell.removeCard();
+    UTIL_CORE.TEST.assert(cell.getCard().isAppended(), false);
+};
+GAME_CORE.TEST.Equipment = {};
+GAME_CORE.TEST.Equipment.create = function() {
+    return new GAME_CORE.Equipment('test');
+};
+GAME_CORE.TEST.Equipment.run = function () {
+    console.log('Equipment');
+    GAME_CORE.TEST.Equipment.cardManipulation();
+    GAME_CORE.TEST.Equipment.cardBonus();
+};
+GAME_CORE.TEST.Equipment.cardManipulation = function () {
+    const equipment = GAME_CORE.TEST.Equipment.create();
+    console.log('getCellByName');
+    UTIL_CORE.TEST.assert(equipment.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.head).getName(),
+        GAME_CORE.DEFAULT_PROPS.EquipTypes.head);
+    UTIL_CORE.TEST.assert(equipment.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.arms).getName(),
+        GAME_CORE.DEFAULT_PROPS.EquipTypes.arms);
+    UTIL_CORE.TEST.assert(equipment.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.body).getName(),
+        GAME_CORE.DEFAULT_PROPS.EquipTypes.body);
+    UTIL_CORE.TEST.assert(equipment.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.legs).getName(),
+        GAME_CORE.DEFAULT_PROPS.EquipTypes.legs);
+    UTIL_CORE.TEST.assert(equipment.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.feet).getName(),
+        GAME_CORE.DEFAULT_PROPS.EquipTypes.feet);
+    UTIL_CORE.TEST.assert(equipment.getCellByName('test'), undefined);
+    console.log('getCellByIndex');
+    UTIL_CORE.TEST.assert(equipment.getCellByIndex(0).getName(),
+        GAME_CORE.DEFAULT_PROPS.EquipTypes.head);
+    UTIL_CORE.TEST.assert(equipment.getCellByIndex(1).getName(),
+        GAME_CORE.DEFAULT_PROPS.EquipTypes.arms);
+    UTIL_CORE.TEST.assert(equipment.getCellByIndex(2).getName(),
+        GAME_CORE.DEFAULT_PROPS.EquipTypes.body);
+    UTIL_CORE.TEST.assert(equipment.getCellByIndex(3).getName(),
+        GAME_CORE.DEFAULT_PROPS.EquipTypes.legs);
+    UTIL_CORE.TEST.assert(equipment.getCellByIndex(4).getName(),
+        GAME_CORE.DEFAULT_PROPS.EquipTypes.feet);
+    UTIL_CORE.TEST.assert(equipment.getCellByIndex(-1), undefined);
+    UTIL_CORE.TEST.assert(equipment.getCellByIndex(5), undefined);
+    UTIL_CORE.TEST.assertError(()=>{equipment.getCellByIndex('str');}, true);
+    console.log('appendCards');
+    equipment.appendCards();
+    let res = true;
+    for (let i = 0; i < equipment.getEquipmentSize(); i++) {
+        res = res && equipment.getCellByIndex(i).getCard().isAppended();
+    }
+    UTIL_CORE.TEST.assert(res, true);
+    console.log('openCards');
+    equipment.openCards();
+    res = true;
+    for (let i = 0; i < equipment.getEquipmentSize(); i++) {
+        res = res && equipment.getCellByIndex(i).getCard().isOpen();
+    }
+    UTIL_CORE.TEST.assert(res, true);
+    console.log('closeCards');
+    equipment.closeCards();
+    res = false;
+    for (let i = 0; i < equipment.getEquipmentSize(); i++) {
+        res = res || equipment.getCellByIndex(i).getCard().isOpen();
+    }
+    UTIL_CORE.TEST.assert(res, false);
+};
+GAME_CORE.TEST.Equipment.cardBonus = function () {
+    const equipment = GAME_CORE.TEST.Equipment.create();
+    for (let i = 0; i < 5; i++) {
+        equipment.getCellByIndex(i).getCard().setRarityByIndex(i+1);
+    };
+    console.log('getStatBonus');
+    UTIL_CORE.TEST.assert(equipment.getStatBonus(GAME_CORE.DEFAULT_PROPS.STATS.health), 250);
+    UTIL_CORE.TEST.assert(equipment.getStatBonus('test'), 0);
+    console.log('getHealthBonus');
+    UTIL_CORE.TEST.assert(equipment.getHealthBonus(), 250);
+    console.log('getDamageBonus');
+    UTIL_CORE.TEST.assert(equipment.getDamageBonus(), 22.5);
+    console.log('getLuckBonus');
+    UTIL_CORE.TEST.assert(equipment.getLuckBonus(), 5);
+    console.log('getDodgeBonus');
+    UTIL_CORE.TEST.assert(equipment.getDodgeBonus(), 9);
+    console.log('returnBonus');
+    const bonus = equipment.returnBonus();
+    UTIL_CORE.TEST.assert(bonus.getHealth(), 250);
+    UTIL_CORE.TEST.assert(bonus.getDamage(), 22.5);
+    UTIL_CORE.TEST.assert(bonus.getLuck(), 5);
+    UTIL_CORE.TEST.assert(bonus.getDodge(), 9);
+    console.log('getOwner');
+    UTIL_CORE.TEST.assert(equipment.getOwner(), undefined);
+};
+
+GAME_CORE.TEST.Player = {};
+GAME_CORE.TEST.Player.create = function() {
+    return new GAME_CORE.Player('test','testName');
+};
+GAME_CORE.TEST.Player.run = function () {
+    console.log('Player');
+    GAME_CORE.TEST.Player.tests();
+};
+GAME_CORE.TEST.Player.tests = function () {
+    const player = GAME_CORE.TEST.Player.create();
+    console.log('getName');
+    UTIL_CORE.TEST.assert(player.getName(), 'testName');
+    console.log('setName');
+    UTIL_CORE.TEST.assert(player.setName(12), false);
+    UTIL_CORE.TEST.assert(player.setName('more ten char'), false);
+    UTIL_CORE.TEST.assert(player.setName('tenCharact'), true);
+    UTIL_CORE.TEST.assert(player.getName(), 'tenCharact');
+    console.log('getScore');
+    UTIL_CORE.TEST.assert(player.getScore(), 0);
+    console.log('setScore');
+    UTIL_CORE.TEST.assertError(()=>{player.setScore('test');}, true);
+    UTIL_CORE.TEST.assert(player.setScore(-1), false);
+    UTIL_CORE.TEST.assert(player.setScore(100), true);
+    UTIL_CORE.TEST.assert(player.getScore(), 100);
+    player.setScore(50.4);
+    UTIL_CORE.TEST.assert(player.getScore(), 50);
+    player.setScore(50.8);
+    UTIL_CORE.TEST.assert(player.getScore(), 50);
+    console.log('increaseScore');
+    UTIL_CORE.TEST.assertError(()=>{player.increaseScore('test');}, true);
+    UTIL_CORE.TEST.assert(player.increaseScore(-1), false);
+    UTIL_CORE.TEST.assert(player.increaseScore(5), true);
+    UTIL_CORE.TEST.assert(player.getScore(), 55);
+    console.log('decreaseScore');
+    UTIL_CORE.TEST.assertError(()=>{player.decreaseScore('test');}, true);
+    UTIL_CORE.TEST.assert(player.decreaseScore(-1), false);
+    UTIL_CORE.TEST.assert(player.decreaseScore(5), true);
+    UTIL_CORE.TEST.assert(player.getScore(), 50);
+    UTIL_CORE.TEST.assert(player.decreaseScore(55), true);
+    UTIL_CORE.TEST.assert(player.getScore(), 0);
+    console.log('getMoney');
+    UTIL_CORE.TEST.assert(player.getMoney(), 0);
+    console.log('setMoney');
+    UTIL_CORE.TEST.assertError(()=>{player.setMoney('test');}, true);
+    UTIL_CORE.TEST.assert(player.setMoney(-1), false);
+    UTIL_CORE.TEST.assert(player.setMoney(50), true);
+    UTIL_CORE.TEST.assert(player.getMoney(), 50);
+    console.log('addMoney');
+    UTIL_CORE.TEST.assertError(()=>{player.addMoney('test');}, true);
+    UTIL_CORE.TEST.assert(player.addMoney(-1), false);
+    UTIL_CORE.TEST.assert(player.addMoney(5), true);
+    UTIL_CORE.TEST.assert(player.getMoney(), 55);
+    console.log('takeMoney');
+    UTIL_CORE.TEST.assertError(()=>{player.takeMoney('test');}, true);
+    UTIL_CORE.TEST.assert(player.takeMoney(-1), false);
+    UTIL_CORE.TEST.assert(player.takeMoney(5), true);
+    UTIL_CORE.TEST.assert(player.getMoney(), 50);
+    UTIL_CORE.TEST.assert(player.takeMoney(55), true);
+    UTIL_CORE.TEST.assert(player.getMoney(), 0);
+    console.log('buy');
+    const price = new GAME_CORE.Price(100, 10);
+    UTIL_CORE.TEST.assertError(()=>{player.buy(10);}, true);
+    UTIL_CORE.TEST.assert(player.buy(price), false);
+    player.setMoney(200);
+    UTIL_CORE.TEST.assert(player.buy(price), true);
+    UTIL_CORE.TEST.assert(player.getMoney(), 100);
+    console.log('sell');
+    UTIL_CORE.TEST.assertError(()=>{player.sell(10);}, true);
+    UTIL_CORE.TEST.assert(player.sell(price), true);
+    UTIL_CORE.TEST.assert(player.getMoney(), 110);
+    console.log('appendAll');
+    player.appendAll();
+    UTIL_CORE.TEST.assert(player.name.isAppended(), true);
+    UTIL_CORE.TEST.assert(player.score.isAppended(), true);
+    UTIL_CORE.TEST.assert(player.money.isAppended(), true);
 };

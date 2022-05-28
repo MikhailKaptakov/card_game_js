@@ -3,6 +3,15 @@ UTIL_CORE.randomGen = function(num = 1){return Math.floor(Math.random()*num);};
 UTIL_CORE.sleep = async function(milliseconds) {
 	return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
+UTIL_CORE.checkObjClassName = function(object, className) {
+	if (object.constructor.name !== className) {
+		throw new Error ('не подходящий тип объекта');
+	/*	todo сделать в GAME_CORE default_props массивы с именами полиморфных объектов и метод для проверки
+	     принадлежности к полиморфному классу принимающие массив
+	*/
+	}
+};
+
 UTIL_CORE.Logger = class Logger {
 	constructor(title){
 		this.title = title;

@@ -1,5 +1,4 @@
 GAME_CORE.Equipment = class Equipment extends UTIL_CORE.ViewEntity{
-	//todo create test
 	constructor (id, viewParent = document.body, owner,
 				 equipmentCells =undefined) {
 		super(id,viewParent);
@@ -13,96 +12,64 @@ GAME_CORE.Equipment = class Equipment extends UTIL_CORE.ViewEntity{
 		this._log('created', 'constructor');
 	}
 
+	getOwner() {return this.owner;}
+
 	/******Card_Bonus******/
 	returnBonus() {
 		return new GAME_CORE.BaseStatMap(this.getHealthBonus(), this.getDamageBonus(),
 			this.getLuckBonus(), this.getDodgeBonus());
 	}
+f
+	getStatBonus(statName) {
+		this._log();
+		let statValue = 0;
+		for (const entry of this.equipmentCells) {
+			const stat = entry[1].getStat(statName);
+			if (stat !== undefined && typeof stat === 'number') {
+				statValue += stat;
+			}
+		}
+		return statValue;
+	}
 
 	getHealthBonus() {
 		this._log();
-		let healthBonus = 0;
-		for (const cell of this.equipmentCells) {
-			healthBonus = cell.getStat(GAME_CORE.DEFAULT_PROPS.STATS.health);
-		}
-		return healthBonus;
+		return this.getStatBonus(GAME_CORE.DEFAULT_PROPS.STATS.health);
 	}
 
 	getDamageBonus() {
-		this._log();
-		let damageBonus = 0;
-		for (const cell of this.equipmentCells) {
-			damageBonus = cell.getStat(GAME_CORE.DEFAULT_PROPS.STATS.damage);
-		}
-		return damageBonus;
+		return this.getStatBonus(GAME_CORE.DEFAULT_PROPS.STATS.damage);
 	}
 
 	getLuckBonus() {
-		this._log();
-		let luckBonus = 0;
-		for (const cell of this.equipmentCells) {
-			luckBonus = cell.getStat(GAME_CORE.DEFAULT_PROPS.STATS.luck);
-		}
-		return luckBonus;
+		return this.getStatBonus(GAME_CORE.DEFAULT_PROPS.STATS.luck);
 	}
 
 	getDodgeBonus()  {
-		this._log();
-		let dodgeBonus = 0;
-		for (const cell of this.equipmentCells) {
-			dodgeBonus = cell.getStat(GAME_CORE.DEFAULT_PROPS.STATS.dodge);
-		}
-		return dodgeBonus;
-	}
-
-	getStatBonus(statName) {
-		this._log();
-		let stat = 0;
-		for (const cell of this.equipmentCells) {
-			stat = cell.getStat(statName);
-		}
-		return stat;
+		return this.getStatBonus(GAME_CORE.DEFAULT_PROPS.STATS.dodge);
 	}
 
 	/******Cards_manipulation******/
-
-	appendCards() {
-		this._log();
-		for (const cell of this.equipmentCells) {
-			cell.getCard().append();
-		}
-	}
-
-	openCards() {
-		this._log();
-		for (const cell of this.equipmentCells) {
-			cell.getCard().openCard();
-		}
-	}
-
-	closeCards() {
-		this._log();
-		for (const cell of this.equipmentCells) {
-			cell.getCard().closeCard();
-		}
-	}
 
 	getCellByName(name) {
 		return this.equipmentCells.get(name);
 	}
 
 	getCellByIndex(index) {
+		if (typeof index !== 'number') {
+			throw new Error('Index is not a number');
+		}
 		if (index < 0 || index >= this.equipmentCells.size) {
 			return undefined;
 		}
 		let i = 0;
-		for (const key of this.equipmentCells.keys) {
+		for (const key of this.equipmentCells.keys()) {
 			if (i === index) {
 				return this.equipmentCells.get(key);
 			}
 			i++;
 		}
-		throw new Error('проверить условие отсева')
+		throw new Error('ошибка в методе getCellByIndex');
 	}
 
 	getCellByRandomIndex() {
@@ -114,9 +81,28 @@ GAME_CORE.Equipment = class Equipment extends UTIL_CORE.ViewEntity{
 		return this.equipmentCells.size;
 	}
 
-	getOwner() {return this.owner;}
+	appendCards() {
+		this._log();
+		for (const entry of this.equipmentCells) {
+			entry[1].appendCard();
+		}
+	}
+
+	openCards() {
+		this._log();
+		for (const entry of this.equipmentCells) {
+			entry[1].getCard().openCard();
+		}
+	}
+
+	closeCards() {
+		this._log();
+		for (const entry of this.equipmentCells) {
+			entry[1].getCard().closeCard();
+		}
+	}
 };
-//todo create test
+
 GAME_CORE.EquipmentCell = class EquipmentCell {
 	constructor(owner, cellName, card, multipleMod, additionalMod) {
 		this.owner = owner
@@ -131,14 +117,36 @@ GAME_CORE.EquipmentCell = class EquipmentCell {
 		if (cardStat === undefined) {
 			return 0;
 		}
-		const multiple = this.multipleMod.hasStat(statName) !== undefined? this.multipleMod.getStat(statName) : () => 1;
-		const addition = this.additionalMod.hasStat(statName) !== undefined? this.additionalMod.getStat(statName) : () => 0;
-		return cardStat*multiple() + addition();
+		const multiple = this.multipleMod.hasStat(statName) !== undefined? this.multipleMod.getStat(statName) : 1;
+		const addition = this.additionalMod.hasStat(statName) !== undefined? this.additionalMod.getStat(statName) : 0;
+		return cardStat*multiple + addition;
 	}
 
 	getCard() {return this.card;}
 	getName() {return this.name;}
 	getOwner() {return this.owner;}
+	setNewCard(id, viewParent) {
+		if (this.card === undefined) {
+			this._createCard(id, viewParent);
+		} else {
+			const appendState = this.card.isAppended();
+			this.removeCard();
+			this._createCard(id, viewParent);
+			if (appendState) {
+				this.appendCard();
+			}
+		}
+	}
+	appendCard() {
+		this.card.append();
+	}
+	removeCard() {
+		this.card.remove();
+	}
+	_createCard(id, viewParent) {
+		this.card = new GAME_CORE.Card(id + this.name, viewParent);
+	}
+
 };
 
 GAME_CORE.ModStatMap = class ModStatMap extends Map{

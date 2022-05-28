@@ -4,6 +4,12 @@ GAME_CORE.DEFAULT_PROPS.STATS.health = 'health';
 GAME_CORE.DEFAULT_PROPS.STATS.damage = 'damage';
 GAME_CORE.DEFAULT_PROPS.STATS.luck = 'luck';
 GAME_CORE.DEFAULT_PROPS.STATS.dodge = 'dodge';
+GAME_CORE.DEFAULT_PROPS.EquipTypes = {};
+GAME_CORE.DEFAULT_PROPS.EquipTypes.head = 'head';
+GAME_CORE.DEFAULT_PROPS.EquipTypes.arms = 'arms';
+GAME_CORE.DEFAULT_PROPS.EquipTypes.body = 'body';
+GAME_CORE.DEFAULT_PROPS.EquipTypes.legs = 'legs';
+GAME_CORE.DEFAULT_PROPS.EquipTypes.feet = 'feet';
 
 GAME_CORE.DEFAULT_PROPS.rarityOptions = [
     // args: index, difficult, viewClassName, cardText, coloredAdjective (letter, color), price (buy,sell), statMap (health,damage,luck,dodge)
@@ -43,11 +49,11 @@ GAME_CORE.DEFAULT_PROPS.rarityOptions = [
 ];
 
 GAME_CORE.DEFAULT_PROPS.cardTypes = [
-    new GAME_CORE.CardType('head','headType'),
-    new GAME_CORE.CardType('arms','armsType'),
-    new GAME_CORE.CardType('body','bodyType'),
-    new GAME_CORE.CardType('legs','legsType'),
-    new GAME_CORE.CardType('feet','feetType')
+    new GAME_CORE.CardType(GAME_CORE.DEFAULT_PROPS.EquipTypes.head,'headType'),
+    new GAME_CORE.CardType(GAME_CORE.DEFAULT_PROPS.EquipTypes.arms,'armsType'),
+    new GAME_CORE.CardType(GAME_CORE.DEFAULT_PROPS.EquipTypes.body,'bodyType'),
+    new GAME_CORE.CardType(GAME_CORE.DEFAULT_PROPS.EquipTypes.legs,'legsType'),
+    new GAME_CORE.CardType(GAME_CORE.DEFAULT_PROPS.EquipTypes.feet,'feetType')
 ];
 
 GAME_CORE.DEFAULT_PROPS.cardTypePack = new GAME_CORE.CardTypePack(GAME_CORE.DEFAULT_PROPS.cardTypes);
@@ -67,11 +73,11 @@ GAME_CORE.DEFAULT_PROPS.equipmentCells = function (id, viewParent, owner) {
         const additional = new GAME_CORE.ModStatMap(0,0,0,0);
         cells.set(typeName, new GAME_CORE.EquipmentCell(owner, typeName, card, multiple, additional));
     }
-    createCell('head', 0, 0, 1, 0);
-    createCell('arms', 0, 1, 0, 0);
-    createCell('body', 1, 0, 0, 0);
-    createCell('legs', 0.5, 0, 0, 0.5);
-    createCell('feet', 0, 0.5, 0, 0.5);
+    createCell(GAME_CORE.DEFAULT_PROPS.EquipTypes.head, 0, 0, 1, 0);
+    createCell(GAME_CORE.DEFAULT_PROPS.EquipTypes.arms, 0, 1, 0, 0);
+    createCell(GAME_CORE.DEFAULT_PROPS.EquipTypes.body, 1, 0, 0, 0);
+    createCell(GAME_CORE.DEFAULT_PROPS.EquipTypes.legs, 0.5, 0, 0, 0.5);
+    createCell(GAME_CORE.DEFAULT_PROPS.EquipTypes.feet, 0, 0.5, 0, 0.5);
     return cells;
 }
 

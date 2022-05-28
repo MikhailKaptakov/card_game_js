@@ -1,21 +1,21 @@
 const GAME_CORE = {};
 
 GAME_CORE.Price = class Price {
-    constructor (buy =0, sell =0){
-        if (buy < 0) {
+    constructor (buyPrice =0, sellPrice =0){
+        if (buyPrice < 0) {
             throw new Error('Отрицательное значение цены');
         }
-        if (sell < 0) {
+        if (sellPrice < 0) {
             throw new Error('Отрицательное значение цены');
         }
-        if (buy<sell) {
+        if (buyPrice<sellPrice) {
             throw new Error('Цена продажи не может быть больше цены покупки');
         }
-        this.buy = buy;
-        this.sell = sell;
+        this.buyPrice = buyPrice;
+        this.sellPrice = sellPrice;
     }
-    getBuyPrice() {return this.buy;}
-    getSellPrice() {return this.sell;}
+    getBuyPrice() {return this.buyPrice;}
+    getSellPrice() {return this.sellPrice;}
 };
 
 GAME_CORE.StatMap = class StatMap extends Map{
@@ -53,7 +53,7 @@ GAME_CORE.Pack = class Pack {
         if (index <= this.getMaxIndex() && index >= 0) {
             return this.typeArray[index];
         }
-        throw new RangeError('index ' + index + ' out of range');
+        throw new Error('index ' + index + ' out of range');
     }
 
     getRandomIndex() {return UTIL_CORE.randomGen(this.typeArray.length);}
