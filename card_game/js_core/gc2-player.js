@@ -1,5 +1,4 @@
 GAME_CORE.Player = class Player extends UTIL_CORE.ViewEntity{
-	//todo create test
 	constructor(id, name, viewParent = document.body) {
 		super(id, viewParent);
 		this.setLogger(GAME_CORE.LOGGERS.InfoPlayerLogger);
@@ -115,7 +114,7 @@ GAME_CORE.Player = class Player extends UTIL_CORE.ViewEntity{
 	}
 	_isPrice(price) {
 		UTIL_CORE.checkObjClassName(price, 'Price');
-		//todo изменить метод на геймкорный, когда будет введен полиморфный метод
+		//todo проверка типов согласно todo из util-core
 	}
  	_setScore(score) {this.score.updateValue(Math.floor(score));}
 	_setMoney(money) {this.money.updateValue(Math.floor(money));}

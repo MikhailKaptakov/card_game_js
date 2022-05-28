@@ -179,7 +179,7 @@ GAME_CORE.ModStatMap = class ModStatMap extends Map{
 		return this.set(statName, functionArg);
 	}
 	_setNumberStat(statName, numberArg) {
-		return this.set(statName, () => numberArg);
+		return this.set(statName, function () {return numberArg});
 	}
 	_argTypeCheck(arg) {
 		if (typeof arg === 'function') {

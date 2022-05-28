@@ -4,8 +4,8 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 				name,
 				viewParent = document.body,
 				owner =undefined,
-				baseCharacteristics =GAME_CORE.DEFAULT_PROPS.baseCharacteristic(),
-				replicsSet =GAME_CORE.DEFAULT_PROPS.replicsSet(),
+				baseCharacteristics =GAME_CORE.DEFAULT_PROPS.getBaseCharacteristic(),
+				replicsSet =new GAME_CORE.ReplicsSet(),
 				equipment =undefined) {
 		super(id, viewParent);
 		this.setLogger(GAME_CORE.LOGGERS.InfoUnitLogger);
@@ -144,7 +144,8 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 	}
 
 	setModification(modification) {
-		this.modificationMaps.getModificationMap(modification.getType()).setModification(modification);
+		return this.modificationMaps.getModificationMap(modification.getType())
+			.setModification(modification);
 	}
 
 	deleteModification(modification) {
@@ -175,32 +176,29 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 		this.replics = new GAME_CORE.TextEntity(id + 'SAY', '', this.getView());
 	}
 };
-//todo create test
+
 GAME_CORE.ReplicsSet = class ReplicsSet {
-	constructor(dodgeArray, attackArray, defeatArray) {
-		this.dodgeArray = dodgeArray;
-		this.attackArray = attackArray;
-		this.defeatArray = defeatArray;
+	constructor(dodgeArray =GAME_CORE.DEFAULT_PROPS.getDodgeReplics(),
+				attackArray =GAME_CORE.DEFAULT_PROPS.getAttackReplics(),
+				defeatArray =GAME_CORE.DEFAULT_PROPS.getDefeatReplics()) {
+		this.dodgeReplics = dodgeArray;
+		this.attackReplics = attackArray;
+		this.defeatReplics = defeatArray;
 	}
 
 	getRandomDodgeReplic() {
-		return this.dodgeArray[UTIL_CORE.randomGen(this.dodgeArray.length)];
+		return this.dodgeReplics[UTIL_CORE.randomGen(this.dodgeReplics.length)];
 	}
 
 	getRandomAttackReplic() {
-		return this.attackArray[UTIL_CORE.randomGen(this.attackArray.length)];
+		return this.attackReplics[UTIL_CORE.randomGen(this.attackReplics.length)];
 	}
 
 	getRandomDefeatReplic() {
-		return this.defeatArray[UTIL_CORE.randomGen(this.defeatArray.length)];
-	}
-
-	cloneThis() {
-		return new GAME_CORE.ReplicsSet([...this.dodgeArray], [...this.attackArray], [...this.defeatArray]);
+		return this.defeatReplics[UTIL_CORE.randomGen(this.defeatReplics.length)];
 	}
 };
 
-//todo create test
 GAME_CORE.Modification = class Modification {
 	//method execute(thisUnit, targetUnit)
 	constructor(groupName,  type, name, description, executeMethod, maxLevel = 3) {
@@ -218,20 +216,27 @@ GAME_CORE.Modification = class Modification {
 	getType() {return this.type;}
 	getName() {return this.name;}
 	getDescription() {return this.description;}
-	getLevel() { return this.level; }
+	getLevel() {return this.level; }
+	getMaxLevel() {return this.maxLevel}
 	levelUp() {
-		this.level = Math.min(this.level +1, this.maxLevel);
+		this.level = Math.min(this.level +1, this.getMaxLevel());
 	}
 	decreaseLevel() {
-		Math.max(this.level - 1, 1);
+		this.level = Math.max(this.level - 1, 1);
 	}
-	execute(thisUnit, targetUnit) { this.executeMethod(thisUnit, targetUnit); }
+	execute(thisUnit, targetUnit) {return this.executeMethod(thisUnit, targetUnit); }
 };
-//todo create test
+
 GAME_CORE.ModificationMap = class ModificationMap {
-	constructor() {
+	constructor(typeName) {
 		this.modificationMap = new Map();
+		this.typeName = typeName;
 	}
+	getTypeName() {return this.typeName;}
+	hasModification(groupName) {return this.modificationMap.has(groupName);}
+	getModification(groupName) {
+		return this.modificationMap.get(groupName);
+	};
 
 	getRandomModification() {
 		const index = UTIL_CORE.randomGen(this.modificationMap.size);
@@ -243,19 +248,23 @@ GAME_CORE.ModificationMap = class ModificationMap {
 			i++;
 		}
 	}
-
-	hasModification(groupName) {return this.modificationMap.has(groupName);}
-	getModification(groupName) {
-		return this.modificationMap.get(groupName);
+	setModification(mod) {
+		if (mod.getType() === this.typeName) {
+			this.modificationMap.set(mod.getGroupName(), mod)
+			return true;
+		}
+		return false;
 	};
-	setModification(mod) {return this.modificationMap.set(mod.getGroupName(), mod)};
 
 	deleteByName(groupName) {
 		return this.modificationMap.delete(groupName);
 	}
 
 	deleteModification(modification) {
-		return this.deleteByName(modification.getGroupName());
+		if (modification.getType() === this.typeName) {
+			return this.deleteByName(modification.getGroupName());
+		}
+		return false;
 	}
 
 	execute(thisUnit, targetUnit) {
@@ -266,18 +275,18 @@ GAME_CORE.ModificationMap = class ModificationMap {
 		return answer;
 	}
 };
-//todo create test
+
 GAME_CORE.ModificationMaps = class ModificationMaps {
 	constructor() {
 		this.modificationMaps = new Map();
 		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack,
-			new GAME_CORE.ModificationMap());
+			new GAME_CORE.ModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack));
 		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge,
-			new GAME_CORE.ModificationMap());
+			new GAME_CORE.ModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge));
 		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative,
-			new GAME_CORE.ModificationMap());
+			new GAME_CORE.ModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative));
 		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish,
-			new GAME_CORE.ModificationMap())
+			new GAME_CORE.ModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish))
 	}
 
 	getModificationMap(type) {

@@ -16,6 +16,10 @@ GAME_CORE.TEST.runAll = function (){
     GAME_CORE.TEST.EquipmentCell.run();
     GAME_CORE.TEST.Equipment.run();
     GAME_CORE.TEST.Player.run();
+    GAME_CORE.TEST.ReplicsSet.run();
+    GAME_CORE.TEST.Modification.run();
+    GAME_CORE.TEST.ModificationMap.run();
+    GAME_CORE.TEST.ModificationMaps.run();
 };
 GAME_CORE.TEST.Price = {};
 GAME_CORE.TEST.Price.run = function () {
@@ -780,3 +784,125 @@ GAME_CORE.TEST.Player.tests = function () {
     UTIL_CORE.TEST.assert(player.score.isAppended(), true);
     UTIL_CORE.TEST.assert(player.money.isAppended(), true);
 };
+
+GAME_CORE.TEST.ReplicsSet = {};
+GAME_CORE.TEST.ReplicsSet.run = function () {
+    console.log('ReplicsSet');
+    console.log('constructor');
+    const set = new GAME_CORE.ReplicsSet();
+    UTIL_CORE.TEST.assert(set.dodgeReplics.toString(), GAME_CORE.DEFAULT_PROPS.dodgeReplics.toString());
+    UTIL_CORE.TEST.assert(set.attackReplics.toString(), GAME_CORE.DEFAULT_PROPS.attackReplics.toString());
+    UTIL_CORE.TEST.assert(set.defeatReplics.toString(), GAME_CORE.DEFAULT_PROPS.defeatReplics.toString());
+};
+
+GAME_CORE.TEST.Modification = {};
+GAME_CORE.TEST.Modification.create = function() {
+    return new GAME_CORE.Modification('test',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack, 'testName',
+        'test description',
+        function (thisUnit, targetUnit) {
+            return this.getLevel();
+        }, 2);
+};
+GAME_CORE.TEST.Modification.run = function () {
+    console.log('Modification');
+    GAME_CORE.TEST.Modification.tests();
+};
+GAME_CORE.TEST.Modification.tests = function () {
+    const mod = GAME_CORE.TEST.Modification.create();
+    console.log('getGroupName');
+    UTIL_CORE.TEST.assert(mod.getGroupName(), 'test');
+    console.log('getType');
+    UTIL_CORE.TEST.assert(mod.getType(), GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack);
+    console.log('getName');
+    UTIL_CORE.TEST.assert(mod.getName(), 'testName');
+    console.log('getDescription');
+    UTIL_CORE.TEST.assert(mod.getDescription(), 'test description');
+    console.log('getLevel');
+    UTIL_CORE.TEST.assert(mod.getLevel(), 1);
+    console.log('getMaxLevel');
+    UTIL_CORE.TEST.assert(mod.getMaxLevel(), 2);
+    console.log('levelUp');
+    mod.levelUp();
+    UTIL_CORE.TEST.assert(mod.getLevel(), 2);
+    mod.levelUp();
+    UTIL_CORE.TEST.assert(mod.getLevel(), 2);
+    console.log('decreaseLevel');
+    mod.decreaseLevel();
+    UTIL_CORE.TEST.assert(mod.getLevel(), 1);
+    mod.decreaseLevel();
+    UTIL_CORE.TEST.assert(mod.getLevel(), 1);
+    console.log('execute');
+    UTIL_CORE.TEST.assert(mod.execute(), 1);
+    mod.levelUp();
+    UTIL_CORE.TEST.assert(mod.execute(), 2);
+};
+GAME_CORE.TEST.ModificationMap = {};
+GAME_CORE.TEST.ModificationMap.create = function() {
+    return new GAME_CORE.ModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack);
+};
+GAME_CORE.TEST.ModificationMap.createMod = function(groupName,
+                                                     type =GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack,
+                                                    name ='testName') {
+    return new GAME_CORE.Modification(groupName,
+        type, name,
+        'test description',
+        function (thisUnit, targetUnit) {
+            return this.getLevel();
+        }, 2);
+};
+GAME_CORE.TEST.ModificationMap.run = function () {
+    console.log('ModificationMap');
+    GAME_CORE.TEST.ModificationMap.tests();
+};
+GAME_CORE.TEST.ModificationMap.tests = function () {
+    const modMap = GAME_CORE.TEST.ModificationMap.create();
+    console.log('getTypeName');
+    UTIL_CORE.TEST.assert(modMap.getTypeName(), GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack);
+    console.log('hasModification');
+    UTIL_CORE.TEST.assert(modMap.hasModification(), false);
+    console.log('setModification');
+    UTIL_CORE.TEST.assert(modMap.setModification(GAME_CORE.TEST.ModificationMap.createMod('test1',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge )), false);
+    UTIL_CORE.TEST.assert(modMap.setModification(GAME_CORE.TEST.ModificationMap.createMod('test1')), true);
+    console.log('getModification');
+    UTIL_CORE.TEST.assert(modMap.getModification('test1').getName(), 'testName');
+    UTIL_CORE.TEST.assert(modMap.getModification('test2'), undefined);
+    modMap.setModification(GAME_CORE.TEST.ModificationMap.createMod('test1', undefined, 'anotherName'));
+    UTIL_CORE.TEST.assert(modMap.getModification('test1').getName(), 'anotherName');
+    modMap.setModification(GAME_CORE.TEST.ModificationMap.createMod('test2'));
+    UTIL_CORE.TEST.assert(modMap.getModification('test2').getName(), 'testName');
+    console.log('execute');
+    UTIL_CORE.TEST.assert(modMap.execute().toString(), [1,1].toString());
+    console.log('deleteByName');
+    UTIL_CORE.TEST.assert(modMap.deleteByName('test3'), false);
+    UTIL_CORE.TEST.assert(modMap.deleteByName('test2'), true);
+    UTIL_CORE.TEST.assert(modMap.getModification('test2'), undefined);
+    UTIL_CORE.TEST.assert(modMap.deleteByName('test2'), false);
+    console.log('deleteModification');
+    UTIL_CORE.TEST.assert(modMap.deleteModification(GAME_CORE.TEST.ModificationMap.createMod('test2')), false);
+    UTIL_CORE.TEST.assert(modMap.deleteModification(GAME_CORE.TEST.ModificationMap.createMod('test1',
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge)), false);
+    UTIL_CORE.TEST.assert(modMap.deleteModification(GAME_CORE.TEST.ModificationMap.createMod('test1')), true);
+};
+
+GAME_CORE.TEST.ModificationMaps = {};
+GAME_CORE.TEST.ModificationMaps.create = function() {
+    return new GAME_CORE.ModificationMaps();
+};
+GAME_CORE.TEST.ModificationMaps.run = function () {
+    console.log('ModificationMap');
+    const maps = GAME_CORE.TEST.ModificationMaps.create();
+    console.log('getModificationMap');
+    UTIL_CORE.TEST.assert(maps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack).getTypeName(),
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack);
+    UTIL_CORE.TEST.assert(maps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge).getTypeName(),
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge);
+    UTIL_CORE.TEST.assert(maps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative).getTypeName(),
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative);
+    UTIL_CORE.TEST.assert(maps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish).getTypeName(),
+        GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish);
+    UTIL_CORE.TEST.assert(maps.getModificationMap('notExist'),
+        undefined);
+};
+//todo create tests to all default modifications после написание тестов всех классов

@@ -37,6 +37,7 @@ UTIL_CORE.TEST.assertClassName = function(object, className) {
     const result = object.constructor.name === className;
     console.log(result);
     return result;
+    //todo проверка типов согласно todo из util-core
 };
 
 UTIL_CORE.TEST.assertArrayElementMethodsResult = function(objectsArray, arrowFuncToObjArg, expected) {

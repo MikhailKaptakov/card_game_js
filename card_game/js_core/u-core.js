@@ -6,8 +6,9 @@ UTIL_CORE.sleep = async function(milliseconds) {
 UTIL_CORE.checkObjClassName = function(object, className) {
 	if (object.constructor.name !== className) {
 		throw new Error ('не подходящий тип объекта');
-	/*	todo сделать в GAME_CORE default_props массивы с именами полиморфных объектов и метод для проверки
-	     принадлежности к полиморфному классу принимающие массив
+	/*	todo сделать метод для проверки типов на основе:
+	     реализовать проверку через наследование всех классов от класса с методом extends -
+	     https://stackoverflow.com/questions/34572580/get-superclass-name-in-es6
 	*/
 	}
 };
