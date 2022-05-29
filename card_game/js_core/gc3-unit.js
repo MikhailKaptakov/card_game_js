@@ -1,5 +1,4 @@
 GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
-	//todo create test
 	constructor(id,
 				name,
 				viewParent = document.body,
@@ -12,7 +11,7 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 		this.owner = owner;
 		this.replicsSet = replicsSet;
 		this.baseCharacteristics = baseCharacteristics;
-		this._initViewObj();
+		this._initViewObj(name);
 		this.modificationMaps = new GAME_CORE.ModificationMaps();
 		if (equipment !== undefined) {
 			this.equipment = equipment;
@@ -27,11 +26,12 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 	getMaxHealth() { return this.maxHealth.getValue();}
 	getHealth() {return this.currentHealth.getValue();}
 	getDamage() {return this.damage.getValue();}
-	getOwner() {return this.owner;}
 	getLuck() {return this.luck.getValue();}
 	getDodge() {return this.dodge.getValue();}
+	getOwner() {return this.owner;}
 	getWins() {return this.wins.getValue();}
-	incrementWins() {return this.wins.updateValue(this.getWins());}
+	getEquipment() {return this.equipment;}
+	incrementWins() {return this.wins.updateValue(this.getWins()+1);}
 	setZeroWins() {return this.wins.updateValue(0);}
 
 	updateAllParam() {
@@ -43,22 +43,22 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 	}
 
 	updateMaxHealth() {
-		this.maxHealth.updateValue(Math.round(this.baseCharacteristics.getHealth() + this.equipment.getHealthBonus()));
+		this.maxHealth.updateValue(Math.floor(this.baseCharacteristics.getHealth() + this.equipment.getHealthBonus()));
 		this._log(this.maxHealth.value);
 	}
 
 	updateDamage() {
-		this.damage.updateValue(Math.round(this.baseCharacteristics.getDamage() + this.equipment.getDamageBonus()));
+		this.damage.updateValue(Math.floor(this.baseCharacteristics.getDamage() + this.equipment.getDamageBonus()));
 		this._log(this.damage.value);
 	}
 
 	updateLuck() {
-		this.luck.updateValue(Math.round(this.baseCharacteristics.getLuck() + this.equipment.getLuckBonus()));
+		this.luck.updateValue(Math.floor(this.baseCharacteristics.getLuck() + this.equipment.getLuckBonus()));
 		this._log(this.luck.value);
 	}
 
 	updateDodge() {
-		this.dodge.updateValue(Math.round(this.baseCharacteristics.getDodge() + this.equipment.getDodgeBonus()));
+		this.dodge.updateValue(Math.floor(this.baseCharacteristics.getDodge() + this.equipment.getDodgeBonus()));
 		this._log(this.dodge.value);
 	}
 
@@ -66,7 +66,7 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 		this.currentHealth.updateValue(this.getMaxHealth());
 		this._log(this.getHealth());
 	}
-
+//todo реорганизовать проверки
 	beHealed(value) {
 		if (value < 0) {
 			throw new Error('Отрицательное значение лечения');
@@ -112,9 +112,11 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 
 	}
 
-	sayToGameView(message) {}
-	setSayToGameView(arrowFunctionMessageArg) {
-		this.sayToGameView = arrowFunctionMessageArg;
+	sayToGameView(message) {
+		console.log('not set functionMessageArg, use setSayToGameView(functionMessageArg)')
+	}
+	setSayToGameView(functionMessageArg) {
+		this.sayToGameView = functionMessageArg;
 	}
 
 
@@ -149,7 +151,7 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 	}
 
 	deleteModification(modification) {
-		this.modificationMaps.getModificationMap(modification.getType()).deleteModification(modification);
+		return this.modificationMaps.getModificationMap(modification.getType()).deleteModification(modification);
 	}
 
 	getInitiativeModificationMap() {
@@ -165,15 +167,15 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 		return this.modificationMaps.getModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish);
 	}
 
-	_initViewObj() {
-		this.name = new GAME_CORE.TextEntity(id + 'NAME', name, this.getView());
-		this.maxHealth = new GAME_CORE.TextEntity(id + 'MAXHP', this.baseCharacteristics.getHealth(), this.getView());
-		this.currentHealth =  new GAME_CORE.TextEntity(id + 'HP', this.baseCharacteristics.getHealth(), this.getView());
-		this.damage = new GAME_CORE.TextEntity(id + 'DMG', this.baseCharacteristics.getDamage(), this.getView());
-		this.luck = new GAME_CORE.TextEntity(id + 'LUCK', this.baseCharacteristics.getLuck(), this.getView());
-		this.dodge = new GAME_CORE.TextEntity(id + 'DODGE', this.baseCharacteristics.getDodge(), this.getView());
-		this.wins = new GAME_CORE.TextEntity(id + 'WINS',0, this.getView());
-		this.replics = new GAME_CORE.TextEntity(id + 'SAY', '', this.getView());
+	_initViewObj(name) {
+		this.name = new GAME_CORE.TextEntity(this.getId() + 'NAME', this.getView(), name);
+		this.maxHealth = new GAME_CORE.TextEntity(this.getId() + 'MAXHP', this.getView(), this.baseCharacteristics.getHealth());
+		this.currentHealth =  new GAME_CORE.TextEntity(this.getId() + 'HP', this.getView(), this.baseCharacteristics.getHealth());
+		this.damage = new GAME_CORE.TextEntity(this.getId() + 'DMG', this.getView(), this.baseCharacteristics.getDamage());
+		this.luck = new GAME_CORE.TextEntity(this.getId() + 'LUCK', this.getView(), this.baseCharacteristics.getLuck());
+		this.dodge = new GAME_CORE.TextEntity(this.getId() + 'DODGE', this.getView(), this.baseCharacteristics.getDodge());
+		this.wins = new GAME_CORE.TextEntity(this.getId() + 'WINS', this.getView(),0);
+		this.replics = new GAME_CORE.TextEntity(this.getId() + 'SAY', this.getView(), '');
 	}
 };
 
@@ -199,32 +201,22 @@ GAME_CORE.ReplicsSet = class ReplicsSet {
 	}
 };
 
-GAME_CORE.Modification = class Modification {
-	//method execute(thisUnit, targetUnit)
-	constructor(groupName,  type, name, description, executeMethod, maxLevel = 3) {
-		this.groupName = groupName;
-		this.type = type;
-		this.name = name;
-		this.description = description;
-		this.executeMethod = executeMethod;
-		this.level = 1;
-		this.maxLevel = maxLevel;
-		this.counter = 0;
+GAME_CORE.ModificationMaps = class ModificationMaps {
+	constructor() {
+		this.modificationMaps = new Map();
+		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack,
+			new GAME_CORE.ModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack));
+		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge,
+			new GAME_CORE.ModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge));
+		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative,
+			new GAME_CORE.ModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative));
+		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish,
+			new GAME_CORE.ModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish))
 	}
 
-	getGroupName() {return this.groupName;}
-	getType() {return this.type;}
-	getName() {return this.name;}
-	getDescription() {return this.description;}
-	getLevel() {return this.level; }
-	getMaxLevel() {return this.maxLevel}
-	levelUp() {
-		this.level = Math.min(this.level +1, this.getMaxLevel());
+	getModificationMap(type) {
+		return this.modificationMaps.get(type);
 	}
-	decreaseLevel() {
-		this.level = Math.max(this.level - 1, 1);
-	}
-	execute(thisUnit, targetUnit) {return this.executeMethod(thisUnit, targetUnit); }
 };
 
 GAME_CORE.ModificationMap = class ModificationMap {
@@ -276,21 +268,31 @@ GAME_CORE.ModificationMap = class ModificationMap {
 	}
 };
 
-GAME_CORE.ModificationMaps = class ModificationMaps {
-	constructor() {
-		this.modificationMaps = new Map();
-		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack,
-			new GAME_CORE.ModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.attack));
-		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge,
-			new GAME_CORE.ModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.dodge));
-		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative,
-			new GAME_CORE.ModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.initiative));
-		this.modificationMaps.set(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish,
-			new GAME_CORE.ModificationMap(GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES.punish))
+GAME_CORE.Modification = class Modification {
+	//method execute(thisUnit, targetUnit)
+	constructor(groupName,  type, name, description, executeMethod, maxLevel = 3) {
+		this.groupName = groupName;
+		this.type = type;
+		this.name = name;
+		this.description = description;
+		this.executeMethod = executeMethod;
+		this.level = 1;
+		this.maxLevel = maxLevel;
+		this.counter = 0;
 	}
 
-	getModificationMap(type) {
-		return this.modificationMaps.get(type);
+	getGroupName() {return this.groupName;}
+	getType() {return this.type;}
+	getName() {return this.name;}
+	getDescription() {return this.description;}
+	getLevel() {return this.level; }
+	getMaxLevel() {return this.maxLevel}
+	levelUp() {
+		this.level = Math.min(this.level +1, this.getMaxLevel());
 	}
+	decreaseLevel() {
+		this.level = Math.max(this.level - 1, 1);
+	}
+	execute(thisUnit, targetUnit) {return this.executeMethod(thisUnit, targetUnit); }
 };
 

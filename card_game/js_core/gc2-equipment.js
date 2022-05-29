@@ -5,7 +5,7 @@ GAME_CORE.Equipment = class Equipment extends UTIL_CORE.ViewEntity{
 		this.setLogger(GAME_CORE.LOGGERS.InfoEquipmentLogger);
 		this.owner = owner;
 		if (equipmentCells === undefined) {
-			this.equipmentCells = GAME_CORE.DEFAULT_PROPS.equipmentCells(this.id, this.viewParent, this);
+			this.equipmentCells = GAME_CORE.DEFAULT_PROPS.getEquipmentCells(this.getId(), this.viewParent, this);
 		} else {
 			this.equipmentCells = equipmentCells;
 		}

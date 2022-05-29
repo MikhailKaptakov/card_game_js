@@ -107,10 +107,7 @@ GAME_CORE.Player = class Player extends UTIL_CORE.ViewEntity{
 	}
 
 	_isPositiveNumber(value) {
-		if (typeof value !== 'number') {
-			throw new Error('not a number');
-		}
-		return value >= 0;
+		return UTIL_CORE.isPositiveNumber(value);
 	}
 	_isPrice(price) {
 		UTIL_CORE.checkObjClassName(price, 'Price');

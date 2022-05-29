@@ -13,14 +13,18 @@ UTIL_CORE.TEST.assertError = function (action, expected =true) {
     }
     console.log(false === expected);
 };
-UTIL_CORE.TEST.assertErrorWithArgs = function (action, actionArgs , expected =true) {
+UTIL_CORE.TEST.assertErrorWithArgs = function (action, expected =true, ...actionArgs) {
+    let res;
     try {
-        action(...actionArgs);
+        action(actionArgs);
     } catch (e) {
-        console.log(true === expected);
-        return;
+        res = true === expected
+        console.log(res);
+        return res;
     }
-    console.log(false === expected);
+    res = false === expected
+    console.log(res);
+    return res;
 };
 UTIL_CORE.TEST.assertArray = function (actualArray, expectedArray) {
     if (actualArray.length !== expectedArray.length) {

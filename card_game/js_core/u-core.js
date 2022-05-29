@@ -2,15 +2,30 @@ const UTIL_CORE = {};
 UTIL_CORE.randomGen = function(num = 1){return Math.floor(Math.random()*num);};
 UTIL_CORE.sleep = async function(milliseconds) {
 	return new Promise(resolve => setTimeout(resolve, milliseconds));
-}
+};
+
 UTIL_CORE.checkObjClassName = function(object, className) {
 	if (object.constructor.name !== className) {
 		throw new Error ('не подходящий тип объекта');
-	/*	todo сделать метод для проверки типов на основе:
-	     реализовать проверку через наследование всех классов от класса с методом extends -
-	     https://stackoverflow.com/questions/34572580/get-superclass-name-in-es6
-	*/
+		/*	todo сделать метод для проверки типов на основе:
+             реализовать проверку через наследование всех классов от класса с методом extends -
+             https://stackoverflow.com/questions/34572580/get-superclass-name-in-es6
+        */
 	}
+};
+UTIL_CORE.isObjExtendsClass = function(object, className) {
+	return object.constructor.name === className;
+	/*	todo сделать метод для проверки типов на основе:
+         реализовать проверку через наследование всех классов от класса с методом extends -
+         https://stackoverflow.com/questions/34572580/get-superclass-name-in-es6
+    */
+};
+
+UTIL_CORE.isPositiveNumber = function(value) {
+	if (typeof value !== 'number') {
+		throw new Error('not a number');
+	}
+	return value >= 0;
 };
 
 UTIL_CORE.Logger = class Logger {

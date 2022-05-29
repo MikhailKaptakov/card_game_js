@@ -20,6 +20,12 @@ GAME_CORE.TEST.runAll = function (){
     GAME_CORE.TEST.Modification.run();
     GAME_CORE.TEST.ModificationMap.run();
     GAME_CORE.TEST.ModificationMaps.run();
+    GAME_CORE.TEST.Unit.run();
+    GAME_CORE.TEST.Fighter.run();
+    GAME_CORE.TEST.FightingFighters.run();
+    GAME_CORE.TEST.DuelFightersPool.run();
+    GAME_CORE.TEST.AttackResult.run();
+    GAME_CORE.TEST.AttackProcessor.run();
 };
 GAME_CORE.TEST.Price = {};
 GAME_CORE.TEST.Price.run = function () {
@@ -906,3 +912,258 @@ GAME_CORE.TEST.ModificationMaps.run = function () {
         undefined);
 };
 //todo create tests to all default modifications после написание тестов всех классов
+
+GAME_CORE.TEST.Unit = {};
+GAME_CORE.TEST.Unit.create = function() {
+    return new GAME_CORE.Unit('test','testName');
+};
+GAME_CORE.TEST.Unit.run = function () {
+    console.log('Unit');
+    GAME_CORE.TEST.Unit.tests();
+};
+GAME_CORE.TEST.Unit.tests = function () {
+    const unit = GAME_CORE.TEST.Unit.create();
+    console.log('getName');
+    UTIL_CORE.TEST.assert(unit.getName(),'testName');
+    console.log('getMaxHealth');
+    UTIL_CORE.TEST.assert(unit.getMaxHealth(),300);
+    console.log('getHealth');
+    UTIL_CORE.TEST.assert(unit.getHealth(),300);
+    console.log('getDamage');
+    UTIL_CORE.TEST.assert(unit.getDamage(),25);
+    console.log('getLuck');
+    UTIL_CORE.TEST.assert(unit.getLuck(),0);
+    console.log('getDodge');
+    UTIL_CORE.TEST.assert(unit.getDodge(),5);
+    console.log('getOwner');
+    UTIL_CORE.TEST.assert(unit.getOwner(),undefined);
+    console.log('getWins');
+    UTIL_CORE.TEST.assert(unit.getWins(),0);
+    console.log('getEquipment');
+    UTIL_CORE.TEST.assert(unit.getEquipment().getId(),'testSET');
+    console.log('incrementWins');
+    unit.incrementWins();
+    UTIL_CORE.TEST.assert(unit.getWins(),1);
+    console.log('setZeroWins');
+    unit.setZeroWins();
+    UTIL_CORE.TEST.assert(unit.getWins(),0);
+    const equip = unit.getEquipment();
+    equip.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.head).getCard().setRarityByIndex(3);
+    equip.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.arms).getCard().setRarityByIndex(3);
+    equip.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.body).getCard().setRarityByIndex(3);
+    equip.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.legs).getCard().setRarityByIndex(3);
+    equip.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.feet).getCard().setRarityByIndex(3);
+    //todo новые методы обновления редкости карты напрямую из юнита, с параллельным обновлением всех параметров;
+    console.log('updateMaxHealth');
+    unit.updateMaxHealth();
+    UTIL_CORE.TEST.assert(unit.getMaxHealth(),525);
+    console.log('updateDamage');
+    unit.updateDamage();
+    UTIL_CORE.TEST.assert(unit.getDamage(),47);
+    console.log('updateLuck');
+    unit.updateLuck();
+    UTIL_CORE.TEST.assert(unit.getLuck(),15);
+    console.log('updateDodge');
+    unit.updateDodge();
+    UTIL_CORE.TEST.assert(unit.getDodge(),11);
+    equip.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.head).getCard().setRarityByIndex(0);
+    equip.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.arms).getCard().setRarityByIndex(0);
+    equip.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.body).getCard().setRarityByIndex(0);
+    equip.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.legs).getCard().setRarityByIndex(0);
+    equip.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.feet).getCard().setRarityByIndex(0);
+    console.log('updateAllParam');
+    unit.updateAllParam();
+    UTIL_CORE.TEST.assert(unit.getMaxHealth(),300);
+    UTIL_CORE.TEST.assert(unit.getDamage(),25);
+    UTIL_CORE.TEST.assert(unit.getLuck(),0);
+    UTIL_CORE.TEST.assert(unit.getDodge(),5);
+    equip.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.body).getCard().setRarityByIndex(5);
+    unit.updateMaxHealth();
+    console.log('beHealed');
+    unit.beHealed(100);
+    UTIL_CORE.TEST.assert(unit.getHealth(),400);
+    console.log('beFullHealed');
+    unit.beFullHealed(100);
+    UTIL_CORE.TEST.assert(unit.getHealth(),550);
+    console.log('decreaseHealth');
+    unit.decreaseHealth(200);
+    UTIL_CORE.TEST.assert(unit.getHealth(),350);
+    unit.decreaseHealth(350);
+    UTIL_CORE.TEST.assert(unit.getHealth(),1);
+    console.log('beDamaged');
+    unit.beDamaged(200);
+    UTIL_CORE.TEST.assert(unit.getHealth(),0);
+    console.log('say');
+    unit.say('test');
+    UTIL_CORE.TEST.assert(unit.replics.getValue(),'test');
+    console.log('appendAll');
+    unit.appendAll();
+    UTIL_CORE.TEST.assert(unit.maxHealth.isAppended(),true);
+    UTIL_CORE.TEST.assert(unit.currentHealth.isAppended(),true);
+    UTIL_CORE.TEST.assert(unit.damage.isAppended(),true);
+    UTIL_CORE.TEST.assert(unit.luck.isAppended(),true);
+    UTIL_CORE.TEST.assert(unit.dodge.isAppended(),true);
+    UTIL_CORE.TEST.assert(unit.wins.isAppended(),true);
+    UTIL_CORE.TEST.assert(unit.equipment.isAppended(),true);
+    UTIL_CORE.TEST.assert(unit.replics.isAppended(),true);
+    console.log('removeAll');
+    unit.removeAll();
+    UTIL_CORE.TEST.assert(unit.maxHealth.isAppended(),false);
+    UTIL_CORE.TEST.assert(unit.currentHealth.isAppended(),false);
+    UTIL_CORE.TEST.assert(unit.damage.isAppended(),false);
+    UTIL_CORE.TEST.assert(unit.luck.isAppended(),false);
+    UTIL_CORE.TEST.assert(unit.dodge.isAppended(),false);
+    UTIL_CORE.TEST.assert(unit.wins.isAppended(),false);
+    UTIL_CORE.TEST.assert(unit.equipment.isAppended(),false);
+    UTIL_CORE.TEST.assert(unit.replics.isAppended(),false);
+};
+
+GAME_CORE.TEST.Fighter = {};
+GAME_CORE.TEST.Fighter.create = function() {
+    return new GAME_CORE.BATTLE.Fighter(new GAME_CORE.Unit('test','testName'));
+};
+
+GAME_CORE.TEST.Fighter.run = function () {
+    console.log('Fighter');
+    GAME_CORE.TEST.Fighter.tests();
+};
+
+GAME_CORE.TEST.Fighter.tests = function () {
+    const fighter = GAME_CORE.TEST.Fighter.create();
+    console.log('isExcluded');
+    UTIL_CORE.TEST.assert(fighter.isExcluded(),false);
+    console.log('isIncluded');
+    UTIL_CORE.TEST.assert(fighter.isIncluded(),true);
+    console.log('exclude');
+    fighter.exclude();
+    UTIL_CORE.TEST.assert(fighter.isExcluded(),true);
+    UTIL_CORE.TEST.assert(fighter.isIncluded(),false);
+    console.log('include');
+    fighter.include();
+    UTIL_CORE.TEST.assert(fighter.isExcluded(),false);
+    UTIL_CORE.TEST.assert(fighter.isIncluded(),true);
+    console.log('getCommand');
+    UTIL_CORE.TEST.assert(fighter.getCommand(),GAME_CORE.DEFAULT_PROPS.BATTLE.no_command);
+    console.log('setCommand');
+    fighter.setCommand('new')
+    UTIL_CORE.TEST.assert(fighter.getCommand(),'new');
+    console.log('getUnit');
+    UTIL_CORE.TEST.assert(fighter.getUnit().getName(),'testName');
+    console.log('setUnit');
+    fighter.setUnit(new GAME_CORE.Unit('test2', 'testName2'))
+    UTIL_CORE.TEST.assert(fighter.getUnit().getName(),'testName2');
+    UTIL_CORE.TEST.assertError(()=>{fighter.setUnit('sss');},true);
+};
+
+GAME_CORE.TEST.FightingFighters = {};
+GAME_CORE.TEST.FightingFighters.create = function() {
+    return new GAME_CORE.BATTLE.FightingFighters(new GAME_CORE.BATTLE.Fighter(new GAME_CORE.Unit('test1','testName1')),
+        new GAME_CORE.BATTLE.Fighter(new GAME_CORE.Unit('test2','testName2')));
+};
+
+GAME_CORE.TEST.FightingFighters.run = function () {
+    console.log('FightingFighters');
+    const fighters = GAME_CORE.TEST.FightingFighters.create();
+    console.log('getAttacker');
+    UTIL_CORE.TEST.assert(fighters.getAttacker().getUnit().getName(),'testName1');
+    console.log('getDefender');
+    UTIL_CORE.TEST.assert(fighters.getDefender().getUnit().getName(),'testName2');
+};
+
+GAME_CORE.TEST.DuelFightersPool = {};
+GAME_CORE.TEST.DuelFightersPool.create = function() {
+    return new GAME_CORE.BATTLE.DuelFightersPool(new GAME_CORE.Unit('test1','testName1'),
+        new GAME_CORE.Unit('test2','testName2'));
+};
+
+GAME_CORE.TEST.DuelFightersPool.run = function () {
+    console.log('DuelFightersPool');
+    const pool = GAME_CORE.TEST.DuelFightersPool.create();
+    console.log('getIncludedCount');
+    UTIL_CORE.TEST.assert(pool.getIncludedCount(),2);
+    console.log('getAllFightersArray');
+    let fighters = pool.getAllFightersArray();
+    UTIL_CORE.TEST.assert(fighters.length,2);
+    UTIL_CORE.TEST.assert(fighters[0].getUnit().getName(),'testName1');
+    UTIL_CORE.TEST.assert(fighters[1].getUnit().getName(),'testName2');
+    console.log('getFightingFighters');
+    fighters = pool.getFightingFighters();
+    UTIL_CORE.TEST.assert(fighters.getAttacker().getUnit().getName(),'testName1');
+    UTIL_CORE.TEST.assert(fighters.getDefender().getUnit().getName(),'testName2');
+    fighters = pool.getFightingFighters();
+    UTIL_CORE.TEST.assert(fighters.getAttacker().getUnit().getName(),'testName2');
+    UTIL_CORE.TEST.assert(fighters.getDefender().getUnit().getName(),'testName1');
+    fighters = pool.getFightingFighters();
+    UTIL_CORE.TEST.assert(fighters.getAttacker().getUnit().getName(),'testName1');
+    UTIL_CORE.TEST.assert(fighters.getDefender().getUnit().getName(),'testName2');
+    console.log('changeFighters');
+    pool.changeFighters(new GAME_CORE.Unit('test3','testName3'),
+        new GAME_CORE.BATTLE.Fighter(new GAME_CORE.Unit('test4','testName4')));
+    fighters = pool.getFightingFighters();
+    UTIL_CORE.TEST.assert(fighters.getAttacker().getUnit().getName(),'testName3');
+    UTIL_CORE.TEST.assert(fighters.getDefender().getUnit().getName(),'testName4');
+    UTIL_CORE.TEST.assertError(()=>{pool.changeFighters('ssad', 'sd');},true);
+};
+
+GAME_CORE.TEST.AttackResult = {};
+GAME_CORE.TEST.AttackResult.createFightingFighters = function() {
+    return new GAME_CORE.BATTLE.FightingFighters(new GAME_CORE.BATTLE.Fighter(new GAME_CORE.Unit('test1','testName1')),
+        new GAME_CORE.BATTLE.Fighter(new GAME_CORE.Unit('test2','testName2')));
+};
+
+GAME_CORE.TEST.AttackResult.run = function () {
+    console.log('AttackResult');
+    const fighters = GAME_CORE.TEST.AttackResult.createFightingFighters();
+    let result = new GAME_CORE.BATTLE.AttackResult(fighters, GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.failAttack);
+    console.log('getType');
+    UTIL_CORE.TEST.assert(result.getType(),GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.failAttack);
+    console.log('getDamage');
+    UTIL_CORE.TEST.assert(result.getDamage(),0);
+    console.log('getAttacker');
+    UTIL_CORE.TEST.assert(result.getAttacker().getUnit().getName(),'testName1');
+    console.log('getDefender');
+    UTIL_CORE.TEST.assert(result.getDefender().getUnit().getName(),'testName2');
+};
+
+GAME_CORE.TEST.AttackProcessor = {};
+GAME_CORE.TEST.AttackProcessor.create = function() {
+    return new GAME_CORE.BATTLE.AttackProcessor();
+};
+GAME_CORE.TEST.AttackResult.createFightingFighters = function() {
+    return new GAME_CORE.BATTLE.FightingFighters(new GAME_CORE.BATTLE.Fighter(new GAME_CORE.Unit('test1','testName1')),
+        new GAME_CORE.BATTLE.Fighter(new GAME_CORE.Unit('test2','testName2')));
+};
+GAME_CORE.TEST.AttackProcessor.run = function () {
+    console.log('AttackProcessor');
+    const attackProcess = GAME_CORE.TEST.AttackProcessor.create();
+    const fighters = GAME_CORE.TEST.AttackResult.createFightingFighters();
+    console.log('attack');
+    let result = {};
+    do {
+        const res = UTIL_CORE.TEST.assertErrorWithArgs(
+            (arg)=> {arg[0].value = attackProcess.attack(fighters);}, false, result);
+        if (res === false) {
+            return;
+        }
+    } while (result.value.getType() !== GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.defeated)
+};
+
+GAME_CORE.TEST.AttackProcessor.debug = function () {
+    const attackProcess = GAME_CORE.TEST.AttackProcessor.create();
+    const fighters = GAME_CORE.TEST.AttackResult.createFightingFighters();
+    console.log('attack');
+    for (let i = 0; i < 100; i++) {
+        attackProcess.attack(fighters);
+    }
+};
+
+/*
+GAME_CORE.TEST.DuelFightActions = {};
+GAME_CORE.TEST.DuelFightActions.create = function() {
+    return new GAME_CORE.BATTLE.DuelFightActions();
+};
+GAME_CORE.TEST.DuelFightActions.run = function () {
+    console.log('DuelFightActions');
+
+};
+*/

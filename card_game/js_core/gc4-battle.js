@@ -129,136 +129,7 @@ GAME_CORE.BATTLE.DuelFightActions = class DuelFightActions extends GAME_CORE.BAT
         this.attackCounter = 0;
     }
 }
-//todo create test
-GAME_CORE.BATTLE.DuelFightersPool = class DuelFightersPool extends GAME_CORE.BATTLE.AbstractFightersPool {
-    constructor(unit1, unit2) {
-        super();
-        this._initFighters(unit1, unit2);
-        this.fighter1Attacker = true;
-    }
 
-    getIncludedCount() {
-        return this._isIncludeInt(this.fighter1) + this._isIncludeInt(this.fighter2);
-    }
-    _isIncludeInt(fighter) { return fighter.isIncluded()?1:0; }
-    getFightingFighters() {
-        if (!this._fightersIsDefined()) {
-            throw Error('one or more fighters is undefined');
-        }
-        if (this.fighter1Attacker) {
-            this._flipAttackerCondition();
-            return new FightingFighters(this.fighter1, this.fighter2);
-        } else {
-            this._flipAttackerCondition();
-            return new FightingFighters(this.fighter2, this.fighter1);
-        }
-    }
-    _flipAttackerCondition() {
-        this.fighter1Attacker = !this.fighter1Attacker;
-    }
-
-    getAllFightersArray() {
-        return [this.fighter1, this.fighter2];
-    }
-
-    clear() {
-        this.fighter1 = undefined;
-        this.fighter2 = undefined;
-    }
-
-    addFighters(fightersArray) {
-        if (fightersArray.length > 0) {
-            this._initFighters(fightersArray[0], fightersArray[1]);
-        }
-    }
-
-    _fightersIsDefined() {
-        return this.fighter1 !== undefined && this.fighter2 !== undefined;
-    }
-
-    _initFighters(unit1, unit2) {
-        this.fighter1 = new GAME_CORE.BATTLE.Fighter(unit1);
-        this.fighter2 = new GAME_CORE.BATTLE.Fighter(unit2);
-    }
-}
-//todo create test
-GAME_CORE.BATTLE.Fighter = class Fighter {
-    constructor(unit, command=GAME_CORE.DEFAULT_PROPS.BATTLE.no_command, participant = true) {
-        this.unit = unit;
-        this.command = command;
-        this.state = participant;
-    }
-
-    isExcluded() {
-        return !this.state;
-    }
-
-    isIncluded() {
-        return this.state;
-    }
-
-    exclude() {
-        this.state = false;
-    }
-
-    include() {
-        this.state = true;
-    }
-
-    getCommand() {
-        return this.command;
-    }
-
-    setCommand(commandName) {
-        if (typeof commandName === 'string') {
-            this.command = commandName;
-        }
-    }
-
-    getUnit() {
-        return this.unit;
-    }
-
-    setUnit(unit) {
-        this.unit = unit;
-    }
-}
-//todo create test
-GAME_CORE.BATTLE.FightingFighters = class FightingFighters {
-    constructor(attackerFighter, defenderFighter) {
-        this.attacker = attackerFighter;
-        this.defender = defenderFighter;
-    }
-    getAttacker() {
-        return this.attacker;
-    }
-    getDefender() {
-        return this.defender;
-    }
-}
-//todo create test
-GAME_CORE.BATTLE.AttackResult = class AttackResult {
-    constructor(fighters, type, dealingDamage =0) {
-        this.fightingFighters = fighters;
-        this.type = type;
-        this.damage = dealingDamage;
-    }
-    getType() {
-        return this.type;
-    }
-    getDamage() {
-        return this.damage;
-    }
-
-    getAttacker() {
-        return this.fightingFighters.getAttacker();
-    }
-
-    getDefender() {
-        return this.fightingFighters.getDefender;
-    }
-}
-//todo create test
 GAME_CORE.BATTLE.AttackProcessor = class AttackProcessor {
     constructor() {
         this.attackerUnit = undefined;
@@ -267,32 +138,38 @@ GAME_CORE.BATTLE.AttackProcessor = class AttackProcessor {
 
     attack(fightingFighters) {
         this._setUnits(fightingFighters);
-        if (!this.isSuccessAttack()) {
+        if (!this._isAlive()) {
+            throw Error('один из бойцов мёртв!');
+        }
+        if (!this._isSuccessAttack()) {
             return new GAME_CORE.BATTLE.AttackResult(fightingFighters, GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.failAttack);
         }
-        if (this.isDodge()) {
+        if (this._isDodge()) {
             return  new GAME_CORE.BATTLE.AttackResult(fightingFighters, GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.dodge);
         }
-        const damage = this.dealDamage();
-        if (this.isDie()) {
-            this.defeat();
+        const damage = this._dealDamage();
+        if (this._isDie()) {
+            this._defeat();
             return new GAME_CORE.BATTLE.AttackResult(fightingFighters, GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.defeated, damage);
         }
         return  new GAME_CORE.BATTLE.AttackResult(fightingFighters, GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.damaged, damage);
     }
 
+    _isAlive() {
+        return this.attackerUnit.getHealth() > 0 && this.defenderUnit.getHealth() > 0;
+    }
     _setUnits(fightingFighters) {
         this.attackerUnit = fightingFighters.getAttacker().getUnit();
         this.defenderUnit = fightingFighters.getDefender().getUnit();
     }
 
-    isSuccessAttack() {
+    _isSuccessAttack() {
         return (this._getInitiative(this.attackerUnit, this.defenderUnit)
             - this._getInitiative(this.defenderUnit, this.attackerUnit) >= 0);
     }
 
     _getInitiative(thisUnit, targetUnit) {
-        return Math.floor(Math.MAX(this._getBaseInitiative(thisUnit) + this._getModInitiative(thisUnit, targetUnit), 0));
+        return Math.floor(Math.max(this._getBaseInitiative(thisUnit) + this._getModInitiative(thisUnit, targetUnit), 0));
     }
 
     _getModInitiative(thisUnit, targetUnit) {
@@ -304,11 +181,9 @@ GAME_CORE.BATTLE.AttackProcessor = class AttackProcessor {
         return sum;
     }
 
-    _getBaseInitiative(thisUnit) {
-        return UTIL_CORE.randomGen(thisUnit.getLuck() + 100);
-    }
+    _getBaseInitiative(thisUnit) {return UTIL_CORE.randomGen(thisUnit.getLuck() + 100);}
 
-    isDodge() {
+    _isDodge() {
         const cond = (this._baseDodge() || this._modeDodgeCondition());
         if (cond) {
             this.defenderUnit.sayDodgeReplic();
@@ -316,9 +191,7 @@ GAME_CORE.BATTLE.AttackProcessor = class AttackProcessor {
         return cond;
     }
 
-    _baseDodge() {
-        return Math.floor(Math.random()*100) <= this.defenderUnit.getDodge();
-    }
+    _baseDodge() {return Math.floor(Math.random()*100) <= this.defenderUnit.getDodge();}
 
     _modeDodgeCondition() {
         let sumResult = false;
@@ -329,7 +202,7 @@ GAME_CORE.BATTLE.AttackProcessor = class AttackProcessor {
         return sumResult;
     }
 
-    dealDamage() {
+    _dealDamage() {
         const dmg = Math.max(Math.floor(this.attackerUnit.getDamage() + this._modeDamage()), 0);
         this.attackerUnit.sayAttackReplic();
         return this.defenderUnit.getHealth() - this.defenderUnit.beDamaged(dmg);
@@ -344,20 +217,114 @@ GAME_CORE.BATTLE.AttackProcessor = class AttackProcessor {
         return sum;
     }
 
-    isDie() {
-        return this.defenderUnit.getHealth() <= 0;
-    }
+    _isDie() {return this.defenderUnit.getHealth() <= 0;}
 
-    defeat() {
+    _defeat() {
         this._doPunish();
         this.defenderUnit.sayDefeatReplic();
         this.attackerUnit.updateAllParam();
         this.defenderUnit.updateAllParam();
         this.defenderUnit.setZeroWins();
-        this.attackerUnit.wins.incrementWins();
+        this.attackerUnit.incrementWins();
+        this.attackerUnit.beFullHealed();
+        this.defenderUnit.beFullHealed();
     }
 
     _doPunish() {
         this.attackerUnit.getPunishModificationMap().execute(this.attackerUnit, this.defenderUnit);
     }
+};
+
+//todo create test
+GAME_CORE.BATTLE.AttackResult = class AttackResult {
+    constructor(fightingFighters, type, dealingDamage =0) {
+        //todo добавить проверку на совпадение класса
+        this.fightingFighters = fightingFighters;
+        this.type = type;
+        this.damage = dealingDamage;
+    }
+    getType() {return this.type;}
+    getDamage() {return this.damage;}
+    getAttacker() {return this.fightingFighters.getAttacker();}
+    getDefender() {return this.fightingFighters.getDefender();}
 }
+
+GAME_CORE.BATTLE.DuelFightersPool = class DuelFightersPool extends GAME_CORE.BATTLE.AbstractFightersPool {
+    constructor(unitOrFighter1, unitOrFighter2) {
+        super();
+        this._initFighters(unitOrFighter1, unitOrFighter2);
+        this.fighter1AttackCondition = true;
+    }
+    getIncludedCount() {
+        if (this._fightersIsDefined()) {
+            return 2;
+        } else {
+            return 0;
+        }
+    }
+    getAllFightersArray() {return [this.fighter1, this.fighter2];}
+    getFightingFighters() {
+        if (!this._fightersIsDefined()) {
+            throw Error('one or more fighters is undefined');
+        }
+        if (this.fighter1AttackCondition) {
+            this._changeAttackerCondition();
+            return new GAME_CORE.BATTLE.FightingFighters(this.fighter1, this.fighter2);
+        } else {
+            this._changeAttackerCondition();
+            return new GAME_CORE.BATTLE.FightingFighters(this.fighter2, this.fighter1);
+        }
+    }
+    changeFighters(unitOrFighter1, unitOrFighter2) {
+        this.fighter1AttackCondition = true;
+        this._initFighters(unitOrFighter1, unitOrFighter2);
+    }
+    _isIncludeInt(fighter) { return fighter.isIncluded()?1:0; }
+    _changeAttackerCondition() {this.fighter1AttackCondition = !this.fighter1AttackCondition;}
+    _fightersIsDefined() {return this.fighter1 !== undefined && this.fighter2 !== undefined;}
+    _initFighters(unitOrFighter1, unitOrFighter2) {
+        this.fighter1 = this._returnFighter(unitOrFighter1);
+        this.fighter2 = this._returnFighter(unitOrFighter2);
+    }
+    _returnFighter(unitOrFighter) {
+        if (UTIL_CORE.isObjExtendsClass(unitOrFighter, 'Unit')) {
+            return new GAME_CORE.BATTLE.Fighter(unitOrFighter);
+        }
+        if (UTIL_CORE.isObjExtendsClass(unitOrFighter, 'Fighter')) {
+            return unitOrFighter;
+        }
+        throw Error('не подходящий тип объекта');
+    }
+};
+
+GAME_CORE.BATTLE.FightingFighters = class FightingFighters {
+    constructor(attackerFighter, defenderFighter) {
+        this.attacker = attackerFighter;
+        this.defender = defenderFighter;
+    }
+    getAttacker() {return this.attacker;}
+    getDefender() {return this.defender;}
+};
+
+GAME_CORE.BATTLE.Fighter = class Fighter {
+    constructor(unit, command=GAME_CORE.DEFAULT_PROPS.BATTLE.no_command, active = true) {
+        this.unit = unit;
+        this.command = command;
+        this.state = active;
+    }
+    isExcluded() {return !this.state;}
+    isIncluded() {return this.state;}
+    exclude() {this.state = false;}
+    include() {this.state = true;}
+    getCommand() {return this.command;}
+    setCommand(commandName) {
+        if (typeof commandName === 'string') {
+            this.command = commandName;
+        }
+    }
+    getUnit() {return this.unit;}
+    setUnit(unit) {
+        UTIL_CORE.checkObjClassName(unit,'Unit');
+        this.unit = unit;
+    }
+};

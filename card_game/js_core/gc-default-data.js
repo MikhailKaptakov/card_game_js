@@ -71,7 +71,7 @@ GAME_CORE.DEFAULT_PROPS.getBaseCharacteristic = function() {
     GAME_CORE.DEFAULT_PROPS.BaseCharacteristic[3]);
 };
 
-GAME_CORE.DEFAULT_PROPS.equipmentCells = function (id, viewParent, owner) {
+GAME_CORE.DEFAULT_PROPS.getEquipmentCells = function (id, viewParent, owner) {
     const cells = new Map();
     const createCell = (typeName, health, damage, luck, dodge) => {
         const card = new GAME_CORE.Card(id + typeName, viewParent);
