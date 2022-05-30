@@ -88,30 +88,52 @@ GAME_CORE.BATTLE.LogChatViewActions = class LogChatViewActions extends  GAME_COR
 }
 //todo create test
 GAME_CORE.BATTLE.DuelFightActions = class DuelFightActions extends GAME_CORE.BATTLE.AbstractFightActions {
-    constructor(fighterPool, attackProcessor) {
+    constructor(fighterPool, attackProcessor, battleType =undefined) {
         super(fighterPool, attackProcessor);
         this.attackResult = undefined;
         this.attackCounter = 0;
+        this.winner = undefined;
+        this.isDefeat = false;
+        if (battleType === undefined) {
+            this.battleType = this.constructor.name;
+        } else {
+            this.battleType = battleType;
+        }
     }
 
     fight() {
-        this._incrementAttackCounter();
-        this.attackResult = this.attackProcessor.attack(this.fightersPool.getFightingFighters());
-        return this.attackResult;
+        if (!this.isEnd()) {
+            this._incrementAttackCounter();
+            this.attackResult = this.attackProcessor.attack(this.fightersPool.getFightingFighters());
+            return this.attackResult;
+        } else {
+            throw Error('Битва уже закончилась');
+        }
     }
 
     isEnd() {
         if (this.attackResult !== undefined) {
-            return this.attackResult.getType() === GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.defeated;
+            this.isDefeat  = this.attackResult.getType() === GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.defeated;
+            this.winner = this.attackResult.getAttacker();
+            return this.isDefeat;
         }
+        return false;
     }
 
     getBattleResult() {
-        return this.attackCounter;
+        if (this.isDefeat) {
+            return new GAME_CORE.BATTLE.BattleResult(this.winner, this.attackCounter, this.battleType);
+        } else {
+            return new GAME_CORE.BATTLE.BattleResult(undefined, this.attackCounter,
+                GAME_CORE.DEFAULT_PROPS.BATTLE.earlyBattleResultBattleType);
+        }
     }
 
     resetBattle() {
-        this._resetAttackCounter();
+        this.attackCounter = 0;
+        this.winner = undefined;
+        this.isDefeat = false;
+        this.attackResult = undefined;
     }
 
     setFightersPool(fighterPool) {
@@ -125,10 +147,28 @@ GAME_CORE.BATTLE.DuelFightActions = class DuelFightActions extends GAME_CORE.BAT
     _incrementAttackCounter() {
         this.attackCounter++;
     }
-    _resetAttackCounter() {
-        this.attackCounter = 0;
+};
+
+GAME_CORE.BATTLE.BattleResult = class BattleResult {
+    constructor(winnerFighter, attackRoundCounter, battleType) {
+        //todo добавить проверку параметров, первый тип файтер второй - положительное число, третий - строка
+        this.winnerFighter = winnerFighter;
+        this.attackRoundCounter = attackRoundCounter;
+        this.battleType = battleType;
     }
-}
+
+    getWinner() {
+        return this.winnerFighter;
+    }
+
+    getAttackRoundCounter() {
+        return this.attackRoundCounter;
+    }
+
+    getBattleType() {
+        return this.battleType;
+    }
+};
 
 GAME_CORE.BATTLE.AttackProcessor = class AttackProcessor {
     constructor() {

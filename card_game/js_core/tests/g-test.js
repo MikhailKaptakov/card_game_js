@@ -1,5 +1,5 @@
 GAME_CORE.TEST = {};
-GAME_CORE.TEST.runAll = function (){
+GAME_CORE.TEST.runAll = async function (){
     GAME_CORE.TEST.Price.run();
     GAME_CORE.TEST.BaseStatMap.run();
     GAME_CORE.TEST.Pack.run();
@@ -10,7 +10,7 @@ GAME_CORE.TEST.runAll = function (){
     GAME_CORE.TEST.Card.run();
     GAME_CORE.TEST.CardOptions.run();
     GAME_CORE.TEST.GameField.run();
-    GAME_CORE.TEST.LogChat.run();
+    await GAME_CORE.TEST.LogChat.run();
     GAME_CORE.TEST.TextEntity.run();
     GAME_CORE.TEST.ModStatMap.run();
     GAME_CORE.TEST.EquipmentCell.run();
@@ -26,6 +26,8 @@ GAME_CORE.TEST.runAll = function (){
     GAME_CORE.TEST.DuelFightersPool.run();
     GAME_CORE.TEST.AttackResult.run();
     GAME_CORE.TEST.AttackProcessor.run();
+    GAME_CORE.TEST.BattleResult.run();
+    GAME_CORE.TEST.DuelFightActions.run();
 };
 GAME_CORE.TEST.Price = {};
 GAME_CORE.TEST.Price.run = function () {
@@ -71,7 +73,7 @@ GAME_CORE.TEST.Pack.run = function () {
     let summ = 0;
     let pack = GAME_CORE.TEST.Pack.getPack();
     console.log('getByIndex');
-    UTIL_CORE.TEST.assertError(pack.getByIndex(12), true);
+    UTIL_CORE.TEST.assertError(()=>{pack.getByIndex(12);}, true);
     UTIL_CORE.TEST.assert(pack.getByIndex(2), 2);
     console.log('getMaxIndex');
     UTIL_CORE.TEST.assert(pack.getMaxIndex(), pack.typeArray.length - 1);
@@ -253,7 +255,7 @@ GAME_CORE.TEST.Card.getters = function () {
     console.log('getRarityPack');
     UTIL_CORE.TEST.assert(card.getRarityPack(), GAME_CORE.DEFAULT_PROPS.rarityPack);
     console.log('getCardTypePack');
-    UTIL_CORE.TEST.assert(card.getCardTypePack(), GAME_CORE.DEFAULT_PROPS.rarityPack);
+    UTIL_CORE.TEST.assert(card.getCardTypePack(), GAME_CORE.DEFAULT_PROPS.cardTypePack);
     console.log('getCardState');
     UTIL_CORE.TEST.assert(card.getCardState(), GAME_CORE.DEFAULT_PROPS.cardState);
     console.log('getCardActivity');
@@ -366,7 +368,7 @@ GAME_CORE.TEST.GameField.cardManipulationTests = function () {
     UTIL_CORE.TEST.assert(gameField.getCardsCount(), 5);
     console.log('getCardByIndex');
     UTIL_CORE.TEST.assertClassName(gameField.getCardByIndex(1), 'Card');
-    UTIL_CORE.TEST.assertErrorWithArgs(gameField.getCardByIndex,5, true);
+    UTIL_CORE.TEST.assertErrorWithArgs((arg)=>{gameField.getCardByIndex(arg[0]);},true, 5);
     console.log('openCards');
     gameField.openCards();
     let  res = true;
@@ -1129,14 +1131,14 @@ GAME_CORE.TEST.AttackProcessor = {};
 GAME_CORE.TEST.AttackProcessor.create = function() {
     return new GAME_CORE.BATTLE.AttackProcessor();
 };
-GAME_CORE.TEST.AttackResult.createFightingFighters = function() {
+GAME_CORE.TEST.AttackProcessor.createFightingFighters = function() {
     return new GAME_CORE.BATTLE.FightingFighters(new GAME_CORE.BATTLE.Fighter(new GAME_CORE.Unit('test1','testName1')),
         new GAME_CORE.BATTLE.Fighter(new GAME_CORE.Unit('test2','testName2')));
 };
 GAME_CORE.TEST.AttackProcessor.run = function () {
     console.log('AttackProcessor');
     const attackProcess = GAME_CORE.TEST.AttackProcessor.create();
-    const fighters = GAME_CORE.TEST.AttackResult.createFightingFighters();
+    const fighters = GAME_CORE.TEST.AttackProcessor.createFightingFighters();
     console.log('attack');
     let result = {};
     do {
@@ -1157,13 +1159,53 @@ GAME_CORE.TEST.AttackProcessor.debug = function () {
     }
 };
 
-/*
+GAME_CORE.TEST.BattleResult = {};
+GAME_CORE.TEST.BattleResult.create = function() {
+    return new GAME_CORE.BATTLE.BattleResult(new GAME_CORE.BATTLE.Fighter(new GAME_CORE.Unit('test1','testName1')), 10, 'DuelFightActions');
+};
+GAME_CORE.TEST.BattleResult.run = function () {
+    console.log('BattleResult');
+    const battleResult = GAME_CORE.TEST.BattleResult.create();
+    console.log('getWinner');
+    UTIL_CORE.TEST.assert(battleResult.getWinner().getUnit().getName(),'testName1');
+    console.log('getAttackRoundCounter');
+    UTIL_CORE.TEST.assert(battleResult.getAttackRoundCounter(),10);
+    console.log('getBattleType');
+    UTIL_CORE.TEST.assert(battleResult.getBattleType(),'DuelFightActions');
+};
+
+
 GAME_CORE.TEST.DuelFightActions = {};
+GAME_CORE.TEST.DuelFightActions.createFighterPool = function() {
+    return new GAME_CORE.BATTLE.DuelFightersPool(new GAME_CORE.Unit('test1','testName1'),
+        new GAME_CORE.Unit('test2','testName2'));
+};
+GAME_CORE.TEST.DuelFightActions.createAttackProcessor = function() {
+    return new GAME_CORE.BATTLE.AttackProcessor();
+};
 GAME_CORE.TEST.DuelFightActions.create = function() {
-    return new GAME_CORE.BATTLE.DuelFightActions();
+    return new GAME_CORE.BATTLE.DuelFightActions(GAME_CORE.TEST.DuelFightActions.createFighterPool(),
+        GAME_CORE.TEST.DuelFightActions.createAttackProcessor());
 };
 GAME_CORE.TEST.DuelFightActions.run = function () {
     console.log('DuelFightActions');
-
+    const fightActions = GAME_CORE.TEST.DuelFightActions.create();
+    console.log('fight');
+    UTIL_CORE.TEST.assertError(()=>{fightActions.fight();},false);
+    fightActions.isDefeat = false;
+    console.log('isEnd');
+    UTIL_CORE.TEST.assert(fightActions.isEnd(),
+        false);
+    console.log('getBattleResult');
+    UTIL_CORE.TEST.assert(fightActions.getBattleResult().getBattleType(),
+        GAME_CORE.DEFAULT_PROPS.BATTLE.earlyBattleResultBattleType );
+    console.log('resetBattle');
+    fightActions.resetBattle();
+    UTIL_CORE.TEST.assert(fightActions.attackResult, undefined);
+    UTIL_CORE.TEST.assert(fightActions.attackCounter, 0);
+    UTIL_CORE.TEST.assert(fightActions.winner, undefined);
+    UTIL_CORE.TEST.assert(fightActions.isDefeat, false);
 };
-*/
+
+
+
