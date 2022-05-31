@@ -28,6 +28,7 @@ GAME_CORE.TEST.runAll = async function (){
     GAME_CORE.TEST.AttackProcessor.run();
     GAME_CORE.TEST.BattleResult.run();
     GAME_CORE.TEST.DuelFightActions.run();
+    await GAME_CORE.TEST.Battle.run();
 };
 GAME_CORE.TEST.Price = {};
 GAME_CORE.TEST.Price.run = function () {
@@ -1207,5 +1208,31 @@ GAME_CORE.TEST.DuelFightActions.run = function () {
     UTIL_CORE.TEST.assert(fightActions.isDefeat, false);
 };
 
+GAME_CORE.TEST.Battle = {};
+GAME_CORE.TEST.Battle.createFighterPool = function() {
+    return new GAME_CORE.BATTLE.DuelFightersPool(new GAME_CORE.Unit('test1','testName1'),
+        new GAME_CORE.Unit('test2','testName2'));
+};
+GAME_CORE.TEST.Battle.createAttackProcessor = function() {
+    return new GAME_CORE.BATTLE.AttackProcessor();
+};
+GAME_CORE.TEST.Battle.createFightActions = function() {
+    return new GAME_CORE.BATTLE.DuelFightActions(GAME_CORE.TEST.DuelFightActions.createFighterPool(),
+        GAME_CORE.TEST.DuelFightActions.createAttackProcessor());
+};
+GAME_CORE.TEST.Battle.createLogChat = function() {
+    return new GAME_CORE.LogChat('test',  undefined, 5);
+};
+GAME_CORE.TEST.Battle.createViewActions = function() {
+    return new GAME_CORE.BATTLE.LogChatViewActions(GAME_CORE.TEST.Battle.createLogChat());
+};
 
+GAME_CORE.TEST.Battle.run = async function () {
+    console.log('Battle');
+    const battle = new GAME_CORE.BATTLE.Battle(GAME_CORE.TEST.Battle.createFightActions(),
+        GAME_CORE.TEST.Battle.createViewActions());
+    UTIL_CORE.TEST.assertError(async () => {
+        await battle.fight();
+    }, false);
+};
 

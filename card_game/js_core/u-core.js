@@ -221,11 +221,11 @@ UTIL_CORE.PresetLetter = class PresetLetter {
 	}
 
 	getLetter(text) {
-		return new Letter(text, this.color, this.backgroundColor);
+		return new UTIL_CORE.Letter(text, this.color, this.backgroundColor);
 	}
 
 	getNoColoredLetter(text) {
-		return new Letter(text);
+		return new UTIL_CORE.Letter(text);
 	}
 
 	getColor() {
