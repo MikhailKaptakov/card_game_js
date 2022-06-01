@@ -47,7 +47,8 @@ GAME_CORE.BaseStatMap = class BaseStatMap extends GAME_CORE.StatMap {
 
 GAME_CORE.Pack = class Pack {
     constructor(typeArray) {
-        this.typeArray = typeArray;
+        this._init(typeArray);
+        //this.typeArray = typeArray;
     }
     getByIndex(index) {
         if (index <= this.getMaxIndex() && index >= 0) {
@@ -65,9 +66,11 @@ GAME_CORE.Pack = class Pack {
         }
     }
 
-    add(type) {this.typeArray.push(type);}
-    addToPosition(typeElement, index) {this.typeArray.splice(index,0,typeElement);}
-    replaceToPosition(typeElement, index) {this.typeArray[index] = typeElement;}
+    add(typeElement) {this.typeArray.push(this._takeProxy(typeElement, this.typeArray.length));}
+    addToPosition(typeElement, index) {this.typeArray.splice(index,0,
+        this._takeProxy(typeElement, index));
+    }
+    replaceToPosition(typeElement, index) {this.typeArray[index] = this._takeProxy(typeElement, index);}
     deleteByIndex(index) {
         if (index <= this.getMaxIndex() && index >= 0) {
             this.typeArray.splice(index, 1);
@@ -75,7 +78,29 @@ GAME_CORE.Pack = class Pack {
         }
         return false;
     }
-}
+
+    _init(typeArray) {
+        const array = [];
+        for (let i = 0; i < typeArray.length; i++) {
+            array.push(this._takeProxy(typeArray[i], i));
+        }
+        this.typeArray = array;
+    }
+    _takeProxy(typeElement, index) {
+        return new Proxy(typeElement, this._setHandler(index))
+    }
+    _setHandler(index) {
+        return {
+            get(target, prop) {
+                if (prop === 'getPackIndex') {
+                    return ()=>{return index;};
+                } else {
+                    return target[prop];
+                }
+            }
+        };
+    }
+};
 
 GAME_CORE.RarityOption = class RarityOption {
     constructor (name, difficult, viewClass, cardText, coloredAdjective, price, bonus,
@@ -104,6 +129,10 @@ GAME_CORE.RarityOption = class RarityOption {
     getPrice() {return this.price;}
     getStatMap() {return this.statMap;}
     getDescription() {return this.description;}
+    setDifficult(difficult) {
+        UTIL_CORE.isPositiveNumber(difficult);
+        this.difficult = difficult;
+    }
 };
 
 GAME_CORE.RarityPack = class RarityPack extends GAME_CORE.Pack{

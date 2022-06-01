@@ -91,13 +91,13 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
     //todo add actions map, and class - action, action fields: type, action, name - name - it's map key
     setEventListener(eventType, action) {
         if (this.action === undefined) {
-            this.getView().addEventListener(eventType, action);
+            this.getView().addEventListener(eventType, action, false);
             this.action = action;
             this.eventType = eventType;
             this._log(eventType);
             return;
         }
-        this._log("Can't set second listener");
+        this._log("Can't set second listeners");
     }
 
     removeEventListener(eventType) {

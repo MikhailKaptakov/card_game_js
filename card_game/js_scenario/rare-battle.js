@@ -1,211 +1,131 @@
-const rareBattle = {};
-GAME_CORE.LOGGERS.loggerInfo.turnOf();
-rareBattle.maxLootRounds = 3;
-rareBattle.timeout = 350;
-rareBattle.lootRounds = rareBattle.maxLootRounds;
-rareBattle.roundsBeforeWar = 1;
-rareBattle.activePlayer = null;
-rareBattle.activeUnit = null;
-rareBattle.isStoped = false;
-GAME_CORE.CARDS_PROP.rarityTable = [90000,90000,90000,90000,90000,90000,90000,90000,90000,90000];
-GAME_CORE.CARDS_PROP.rarityDecrease = [1000,1000,1000,500,500,500,250,250,125,125];
-GAME_CORE.CARDS_PROP.rarityMin = [15000,20000,25000,30000,32500,35000,35000,35000,50000,50000];
-GAME_CORE.UNITS_PROP.punish = function(){
-		const num = UTIL_CORE.randomGenPLusOne(5) - 1;
-		const card = this.equipment.getEquipByNumber(num);
-		const rar = (card.rarity - 1)>=0?card.rarity - 1:0;
-		card.setRarity(rar);
-		card.updateCard();
-		this.updateAllParam();
-		GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + 'is run', 'punish');
-	}
-
-
-GAME_CORE.Unit.prototype.updateLuck = function(){
-	this.luck.updateValue(Math.round((this.baseLuck + this.equipment.returnLuckBonus() + 50)*GAME_CORE.UNITS_PROP.randomRange));
-	GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + ' value: ' + this.luck.value, 'updateLuck');
+const RARE_BATTLE = {};
+RARE_BATTLE.fullInit = function () {
+	GAME_CORE.LOGGERS.loggerInfo.turnOf();
+	RARE_BATTLE._initRarity();
+	RARE_BATTLE._dataInit();
+	RARE_BATTLE._viewObjectInit();
 }
-GAME_CORE.Unit.prototype.getInitiative = function(){
-	const ini = UTIL_CORE.randomGenPLusOne(this.luck.value);
-	GAME_CORE.LOGGERS.InfoUnitLogger.logMethod(this.view.id + 'initiative =' + ini, 'getInitiative');
-	return  ini;
-}
-rareBattle.gameFieldHead = new GAME_CORE.GameField('game-field-head', 5);
-rareBattle.gameFieldArms = new GAME_CORE.GameField('game-field-arms', 5);
-rareBattle.gameFieldBody = new GAME_CORE.GameField('game-field-body', 5);
-rareBattle.gameFieldsLegs = new GAME_CORE.GameField('game-field-legs',5);
-rareBattle.gameFieldsFeets = new GAME_CORE.GameField('game-field-feets', 5);	
-rareBattle.gameFields = [rareBattle.gameFieldHead, rareBattle.gameFieldArms, rareBattle.gameFieldBody, rareBattle.gameFieldsLegs, rareBattle.gameFieldsFeets];
-rareBattle.gameFieldsActivity = [false,false,false,false,false];
-rareBattle.gameLog = new GAME_CORE.LogChat('log-field', 6);
-rareBattle.player1 = new GAME_CORE.Player('pl1','Player1');
-rareBattle.player2 = new GAME_CORE.Player('pl2','Player2');
-rareBattle.player1.color = "rgb(255,165,0,1)";
-rareBattle.player2.color = "rgb(0,191,255,1)";
-rareBattle.damageColor = 'FireBrick';
-rareBattle.infoColor = "yellow";
-rareBattle.HPColor = 'tomato';
-rareBattle.unit1 = new GAME_CORE.Unit('u1','Unit1');
-rareBattle.unit2 = new GAME_CORE.Unit('u2','Unit2');
-rareBattle.unit1.color = rareBattle.player1.color;
-rareBattle.unit2.color = rareBattle.player2.color;
-rareBattle.listener = [];
-rareBattle.equipNames = ['шлем', 'меч', 'латы', 'штаны', 'ботинки'];
-rareBattle.price = [0,25,50,125,250,375,500,1000,2000,3000,4000];
-rareBattle.rarityNames = ['ничего', 'обычный','необычный','редкий','эпический','легендарный','мифический','божественный', 'древний', 'адский', 'звездный'];
-rareBattle.rarityColor = [undefined,'grey','blue','yellow','blueviolet','orange','pink', 'aqua', 'rgb(255,191,0,1)', 'rgb(255,0,0,1)', 'rgb(255,255,0,1)'];
+RARE_BATTLE._initRarity = function () {
+	RARE_BATTLE.maxRarityIndex = GAME_CORE.DEFAULT_PROPS.rarityPack.getMaxIndex();
+	RARE_BATTLE.currentIndex = 0;
+	GAME_CORE.DEFAULT_PROPS.rarityPack.doThisToEveryElement(RARE_BATTLE._rarityPackInit);
+	RARE_BATTLE.rarityMin = RARE_BATTLE._setRarityMinArray();
 
-rareBattle.pageInit = function(){
-	for (let i = 0; i<5; i++) {
-		rareBattle.gameFields[i].fill();
-	}
-	rareBattle.unit1.owner = rareBattle.player1;
-	rareBattle.unit2.owner = rareBattle.player2;
-	rareBattle.unit1.equipment.appendCards();
-	rareBattle.unit1.equipment.openCards();
-	rareBattle.unit2.equipment.appendCards();
-	rareBattle.unit2.equipment.openCards();
-	rareBattle.listenerInit();
-	rareBattle.setActivePlayerUnit();
-	rareBattle.player1.name.view.addEventListener('click', renameA = function() {
-		const newName = prompt("Введите ваше имя", rareBattle.player1.name.value);
-		rareBattle.player1.name.updateValue(newName);
-	});
-	rareBattle.player2.name.view.addEventListener('click', renameA = function() {
-		const newName = prompt("Введите ваше имя", rareBattle.player2.name.value);
-		rareBattle.player2.name.updateValue(newName);
-	});
-	rareBattle.unit1.name.view.addEventListener('click', renameA = function() {
-		const newName = prompt("Введите имя вашего бойца", rareBattle.unit1.name.value);
-		rareBattle.unit1.name.updateValue(newName);
-	});
-	rareBattle.unit2.name.view.addEventListener('click', renameA = function() {
-		const newName = prompt("Введите имя вашего бойца", rareBattle.unit2.name.value);
-		rareBattle.unit2.name.updateValue(newName);
-	});
-}
-
-rareBattle.setActivePlayerUnit = function() {
-	if (rareBattle.activePlayer === null) {
-		rareBattle.activePlayer = rareBattle.player1;
-		rareBattle.activeUnit = rareBattle.unit1;
-	} else if (rareBattle.activePlayer === rareBattle.player1) {
-		rareBattle.activePlayer = rareBattle.player2;
-		rareBattle.activeUnit = rareBattle.unit2;
-	} else if (rareBattle.activePlayer === rareBattle.player2) {
-		rareBattle.activePlayer = rareBattle.player1;
-		rareBattle.activeUnit = rareBattle.unit1;
-	}	
-}
-
-rareBattle.startGame = async function(){
-	while (!rareBattle.isStoped) {
-		for (let j = 0; j < GAME_CORE.CARDS_PROP.rarityTable.length; j++) {
-			if (GAME_CORE.CARDS_PROP.rarityTable[j] > GAME_CORE.CARDS_PROP.rarityMin[j] + GAME_CORE.CARDS_PROP.rarityDecrease[j] ) {
-				GAME_CORE.CARDS_PROP.rarityTable[j] -= GAME_CORE.CARDS_PROP.rarityDecrease[j];
-			}
-		}
-		for (let i = 0; i < rareBattle.maxLootRounds*2*rareBattle.roundsBeforeWar; i++) {
-			await rareBattle.lootChestBundles();
-		}
-		rareBattle.gameLog.clear();
-		await rareBattle.battle();
-	}
-}
-
-rareBattle.lootChestBundles = async function() {
-	if (rareBattle.lootRounds <= 0 ) {
-		rareBattle.setActivePlayerUnit();
-		rareBattle.lootRounds = rareBattle.maxLootRounds;
-	}
-	if (rareBattle.lootRounds === rareBattle.maxLootRounds) {
-		rareBattle.gameLog.writeColoredMessage([{letter : rareBattle.activePlayer.name.value, color : rareBattle.activePlayer.color}, 
-		{letter : " обнаружил "}, {letter : rareBattle.maxLootRounds, color : rareBattle.infoColor}, {letter : " сундука."}]);
-	}
-	rareBattle.gameLog.writeColoredMessage([{letter : rareBattle.activePlayer.name.value, color : rareBattle.activePlayer.color},
-	{letter : " открывает  "}, {letter : rareBattle.lootRounds, color : rareBattle.infoColor}, {letter : " сундук:"}])
-	rareBattle.lootAction(); //setTheFields setRarity addListener
-	while(true) {
-		if (!rareBattle.gameFieldsActivity[0] &&
-			!rareBattle.gameFieldsActivity[1] &&
-			!rareBattle.gameFieldsActivity[2] &&
-			!rareBattle.gameFieldsActivity[3] &&
-			!rareBattle.gameFieldsActivity[4]) 
-		{break;}
-		await UTIL_CORE.sleep(500);
-	}
-	await UTIL_CORE.sleep(200);
-	rareBattle.lootRounds--;
-}
-
-rareBattle.lootAction = function() {
-	for (let i = 0; i<5; i++) {
-		rareBattle.gameFields[i].openCards();
-		rareBattle.gameFields[i].closeCards();
-		let condition = false;
-		if (rareBattle.activeUnit.equipment.getEquipByNumber(i).rarity < GAME_CORE.CARDS_PROP.cardClasses.length - 1) {
-			rareBattle.gameFields[i].setRandomRarity();
-			for (let j = 0; j<rareBattle.gameFields[i].cardArray.length; j++) {
-				condition = condition || (rareBattle.gameFields[i].cardArray[j].rarity > rareBattle.activeUnit.equipment.getEquipByNumber(i).rarity);
-			}
-		}
-		if (condition) {
-			rareBattle.gameFieldsActivity[i] = true;
-			rareBattle.gameFields[i].addListeners('click', rareBattle.listener[i]);
+};
+RARE_BATTLE._rarityPackInit = function (rarityOption) {
+	rarityOption.setDifficult(90000);
+};
+RARE_BATTLE._setRarityMinArray = function () {
+	const minArray = [0, 15000,20000,25000,30000,32500,35000,35000,35000,50000,50000];
+	for (let i = 0; i<1;) {
+		if (minArray.length < RARE_BATTLE.maxRarityIndex + 1) {
+			minArray.push(50000);
 		} else {
-			const f = function() {this.setInactive();}
-			rareBattle.gameFields[i].doIt(f);
-			//rareBattle.gameLog.writeMessage('Но в секции где должен был быть ' + rareBattle.equipNames[i] + ' лишь всякий мусор.')
+			i++;
 		}
 	}
-}
-
-rareBattle.listenerInit = function() {
-	rareBattle.listener[0] = function(obj){
-		rareBattle.supportListen(obj, 0);
-	};
-	rareBattle.listener[1] = function(obj){
-		rareBattle.supportListen(obj, 1);
-		rareBattle.gameFields[0].removeListeners('click', rareBattle.listener[1]);
-	};
-	rareBattle.listener[2] = function(obj){
-		rareBattle.supportListen(obj, 2);
-		rareBattle.gameFields[0].removeListeners('click', rareBattle.listener[2]);
-	};	
-	rareBattle.listener[3] = function(obj){
-		rareBattle.supportListen(obj, 3);
-		rareBattle.gameFields[0].removeListeners('click', rareBattle.listener[3]);
-	};
-	rareBattle.listener[4] = function(obj){
-		rareBattle.supportListen(obj, 4);
-		rareBattle.gameFields[0].removeListeners('click', rareBattle.listener[4]);
-	};	
+	return minArray;
 };
 
-rareBattle.supportListen = function(obj, num) {
+RARE_BATTLE._dataInit = function () {
+	RARE_BATTLE.maxLootRounds = 3;
+	RARE_BATTLE.timeout = 350;
+	RARE_BATTLE.lootRounds = RARE_BATTLE.maxLootRounds;
+	RARE_BATTLE.roundsBeforeWar = 1;
+	RARE_BATTLE.activePlayer = null;
+	RARE_BATTLE.activeUnit = null;
+	RARE_BATTLE.isStoped = false;
+	RARE_BATTLE.gameFieldHead = new GAME_CORE.GameField('game-field-head', undefined, 5);
+	RARE_BATTLE.gameFieldArms = new GAME_CORE.GameField('game-field-arms', undefined, 5);
+	RARE_BATTLE.gameFieldBody = new GAME_CORE.GameField('game-field-body', undefined, 5);
+	RARE_BATTLE.gameFieldsLegs = new GAME_CORE.GameField('game-field-legs', undefined, 5);
+	RARE_BATTLE.gameFieldsFeets = new GAME_CORE.GameField('game-field-feet', undefined, 5);
+	RARE_BATTLE.gameFields = [RARE_BATTLE.gameFieldHead, RARE_BATTLE.gameFieldArms, RARE_BATTLE.gameFieldBody,
+		RARE_BATTLE.gameFieldsLegs, RARE_BATTLE.gameFieldsFeets];
+	RARE_BATTLE.gameFieldsActivity = [false, false, false, false, false];
+	RARE_BATTLE.gameChat = new GAME_CORE.LogChat('log-field', undefined, 6);
+	RARE_BATTLE.player1 = new GAME_CORE.Player('pl1', 'Player1');
+	RARE_BATTLE.player2 = new GAME_CORE.Player('pl2', 'Player2');
+	RARE_BATTLE.player1.color = "rgb(255,165,0,1)";
+	RARE_BATTLE.player2.color = "rgb(0,191,255,1)";
+	RARE_BATTLE.damageColor = 'FireBrick';
+	RARE_BATTLE.infoColor = "yellow";
+	RARE_BATTLE.HPColor = 'tomato';
+	RARE_BATTLE.unit1 = new GAME_CORE.Unit('u1', 'Unit1');
+	RARE_BATTLE.unit2 = new GAME_CORE.Unit('u2', 'Unit2');
+	RARE_BATTLE.unit1.color = RARE_BATTLE.player1.color;
+	RARE_BATTLE.unit2.color = RARE_BATTLE.player2.color;
+	RARE_BATTLE.listeners = [];
+	GAME_CORE.DEFAULT_PROPS.EquipTypes.head = 'шлем';
+	GAME_CORE.DEFAULT_PROPS.EquipTypes.arms = 'меч';
+	GAME_CORE.DEFAULT_PROPS.EquipTypes.body = 'латы';
+	GAME_CORE.DEFAULT_PROPS.EquipTypes.legs = 'штаны';
+	GAME_CORE.DEFAULT_PROPS.EquipTypes.feet = 'ботинки';
+}
+RARE_BATTLE._viewObjectInit = function(){
+	for (let i = 0; i<5; i++) {
+		RARE_BATTLE.gameFields[i].fill();
+	}
+	RARE_BATTLE.unit1.owner = RARE_BATTLE.player1;
+	RARE_BATTLE.unit2.owner = RARE_BATTLE.player2;
+	RARE_BATTLE.unit1.equipment.appendCards();
+	RARE_BATTLE.unit1.equipment.openCards();
+	RARE_BATTLE.unit2.equipment.appendCards();
+	RARE_BATTLE.unit2.equipment.openCards();
+	RARE_BATTLE._listenerInit();
+	RARE_BATTLE._setActivePlayerUnit();
+
+};
+RARE_BATTLE._listenerInit = function() {
+	RARE_BATTLE._renameListenerInit();
+	//todo переписать в соответствии с новыми правилами
+	//todo предварительно протестировать слушатели
+	RARE_BATTLE._initGameFieldCardsListeners();
+	RARE_BATTLE.listeners[0] = function(obj){
+		RARE_BATTLE._supportListen(obj, 0);
+	};
+	RARE_BATTLE.listeners[1] = function(obj){
+		RARE_BATTLE._supportListen(obj, 1);
+		RARE_BATTLE.gameFields[0].removeListeners('click', RARE_BATTLE.listeners[1]);
+	};
+	RARE_BATTLE.listeners[2] = function(obj){
+		RARE_BATTLE._supportListen(obj, 2);
+		RARE_BATTLE.gameFields[0].removeListeners('click', RARE_BATTLE.listeners[2]);
+	};
+	RARE_BATTLE.listeners[3] = function(obj){
+		RARE_BATTLE._supportListen(obj, 3);
+		RARE_BATTLE.gameFields[0].removeListeners('click', RARE_BATTLE.listeners[3]);
+	};
+	RARE_BATTLE.listeners[4] = function(obj){
+		RARE_BATTLE._supportListen(obj, 4);
+		RARE_BATTLE.gameFields[0].removeListeners('click', RARE_BATTLE.listeners[4]);
+	};
+};
+
+RARE_BATTLE._supportListen = function(obj, num) {
 	let answer = [];
 	if (obj.rarity !== 0) {
-		answer.push({letter : rareBattle.rarityNames[obj.rarity], color: rareBattle.rarityColor[obj.rarity]});
+		answer.push({letter : RARE_BATTLE.rarityNames[obj.rarity], color: RARE_BATTLE.rarityColor[obj.rarity]});
 		answer.push({letter : " "});
-		answer.push({letter : rareBattle.equipNames[num], color: rareBattle.rarityColor[obj.rarity]});
-		if (obj.rarity > rareBattle.activeUnit.equipment.getEquipByNumber(num).rarity) {
-			rareBattle.activePlayer.money.updateValue(rareBattle.activePlayer.money.value + 
-					rareBattle.price[rareBattle.activeUnit.equipment.getEquipByNumber(num).rarity]);
+		answer.push({letter : RARE_BATTLE.equipNames[num], color: RARE_BATTLE.rarityColor[obj.rarity]});
+		if (obj.rarity > RARE_BATTLE.activeUnit.equipment.getEquipByNumber(num).rarity) {
+			RARE_BATTLE.activePlayer.money.updateValue(RARE_BATTLE.activePlayer.money.value +
+				RARE_BATTLE.price[RARE_BATTLE.activeUnit.equipment.getEquipByNumber(num).rarity]);
 			answer.push({letter : ' - то что нужно! А старую продам.'});
-			rareBattle.activeUnit.equipment.getEquipByNumber(num).setRarity(obj.rarity);
-			rareBattle.activeUnit.equipment.getEquipByNumber(num).updateCard();
-			rareBattle.activeUnit.updateAllParam();
-			rareBattle.activeUnit.beAllHealed();
+			RARE_BATTLE.activeUnit.equipment.getEquipByNumber(num).setRarity(obj.rarity);
+			RARE_BATTLE.activeUnit.equipment.getEquipByNumber(num).updateCard();
+			RARE_BATTLE.activeUnit.updateAllParam();
+			RARE_BATTLE.activeUnit.beAllHealed();
 		} else {
-			answer.push({letter : ' - продам на барахолке за '}) 
-			answer.push({letter : rareBattle.price[obj.rarity], color : rareBattle.infoColor})
+			answer.push({letter : ' - продам на барахолке за '})
+			answer.push({letter : RARE_BATTLE.price[obj.rarity], color : RARE_BATTLE.infoColor})
 			answer.push({letter : ' монет'});
-			rareBattle.activePlayer.money.updateValue(rareBattle.activePlayer.money.value + rareBattle.price[obj.rarity]);
+			RARE_BATTLE.activePlayer.money.updateValue(RARE_BATTLE.activePlayer.money.value + RARE_BATTLE.price[obj.rarity]);
 		}
 	} else {
-		answer.push({letter : 'Эх!,' + rareBattle.rarityNames[0]});
+		answer.push({letter : 'Эх!,' + RARE_BATTLE.rarityNames[0]});
 	}
-	rareBattle.gameLog.writeColoredMessage(answer);
+	RARE_BATTLE.gameChat.writeColoredMessage(answer);
 	obj.openCard();
 	const f = function() {
 		if (!this.state) {
@@ -213,64 +133,150 @@ rareBattle.supportListen = function(obj, num) {
 		}
 		this.resetView();
 	};
-	rareBattle.gameFields[num].doIt(f);
-	rareBattle.gameFieldsActivity[num] = false;
+	RARE_BATTLE.gameFields[num].doIt(f);
+	RARE_BATTLE.gameFieldsActivity[num] = false;
+};
+
+RARE_BATTLE._initGameFieldCardsListeners = function () {
+	for (let i = 0; i < 5; i++) {
+		RARE_BATTLE.listeners[i] = function (card) {
+			RARE_BATTLE._gameFieldCardListenerActions(card, i);
+			RARE_BATTLE._setGameFieldActions(i);
+		};
+	}
+};
+RARE_BATTLE._setGameFieldActions = function (gameFieldIndex) {
+	RARE_BATTLE.gameFields[gameFieldIndex].removeListeners('click', RARE_BATTLE.listeners[gameFieldIndex]);
+	RARE_BATTLE.gameFields[gameFieldIndex].setInactive();
+};
+
+RARE_BATTLE._gameFieldCardListenerActions = function (card, i) {
+		card.openCard();
+	//todo продолжить здесь	if ()
+};
+
+RARE_BATTLE._setActivePlayerUnit = function() {
+	if (RARE_BATTLE.activePlayer === null) {
+		RARE_BATTLE.activePlayer = RARE_BATTLE.player1;
+		RARE_BATTLE.activeUnit = RARE_BATTLE.unit1;
+	} else if (RARE_BATTLE.activePlayer === RARE_BATTLE.player1) {
+		RARE_BATTLE.activePlayer = RARE_BATTLE.player2;
+		RARE_BATTLE.activeUnit = RARE_BATTLE.unit2;
+	} else if (RARE_BATTLE.activePlayer === RARE_BATTLE.player2) {
+		RARE_BATTLE.activePlayer = RARE_BATTLE.player1;
+		RARE_BATTLE.activeUnit = RARE_BATTLE.unit1;
+	}
+};
+
+RARE_BATTLE._renameListenerInit = function () {
+	RARE_BATTLE._rename = function (playerOrUnit) {
+		const newName = prompt("Введите ваше имя", playerOrUnit.getName());
+		playerOrUnit.setName(newName);
+	}
+	RARE_BATTLE.player1.name.view.addEventListener('click', function() {
+		RARE_BATTLE._rename(RARE_BATTLE.player1);
+	});
+	RARE_BATTLE.player2.name.view.addEventListener('click', function() {
+		RARE_BATTLE._rename(RARE_BATTLE.player2);
+	});
+	RARE_BATTLE.unit1.name.view.addEventListener('click', function() {
+		RARE_BATTLE._rename(RARE_BATTLE.unit1);
+	});
+	RARE_BATTLE.unit2.name.view.addEventListener('click', function() {
+		RARE_BATTLE._rename(RARE_BATTLE.unit2);
+	});
 }
 
-rareBattle.battle = async function() {
-	let rez = false
-	do{
-		const ans = rareBattle.whoDealDamage();
-		const atacker = ans.atacker;
-		const defender = ans.defender;
-		if (atacker === null && defender === null) {
-			await rareBattle.gameLog.writeColoredMessage([{letter : rareBattle.unit1.name.value, color : rareBattle.player1.color},
-			{letter : " и "}, {letter : rareBattle.unit2.name.value, color : rareBattle.player2.color},
-			{letter : " трижды скинулись в камень ножницы бумага, но каждый раз была ничья!"}], rareBattle.timeout);
-		} else {
-			const defColoredName = {letter : defender.name.value, color : defender.color };
-			const atColoredName = {letter : atacker.name.value, color : atacker.color};
-			const res = atacker.atack(defender);
-			if (res.type === -1) {
-				await rareBattle.gameLog.writeColoredMessage([defColoredName, {letter : " ловко уходит от атаки противника "},
-				atColoredName, {letter : " крайне недоволен"}], rareBattle.timeout);
-			} else if (res.type === 0) {
-				await rareBattle.gameLog.writeColoredMessage([atColoredName, {letter : " атакует противника и наносит "},
-				{letter : res.dmg, color : rareBattle.damageColor}, {letter : " урона. У "}, defColoredName,
-				{letter : " остаётся "}, {letter : defender.currentHealth.value, color : rareBattle.HPColor},
-				{letter : " здоровья "}], rareBattle.timeout);
-			} else if (res.type === 1) {
-				await rareBattle.gameLog.writeColoredMessage([atColoredName, {letter : " атакует противника уроном "}, 
-				{letter : res.dmg, color : rareBattle.damageColor}, {letter : " и повергает его!"}], rareBattle.timeout);
-				atacker.owner.score.updateValue(atacker.owner.score.value + 1);
-				await rareBattle.gameLog.writeColoredMessage([{letter : " В битве побеждает "}, atColoredName, {letter : "!"}], 2000)
-				rareBattle.unit1.beFullHealed();
-				atacker.wins.updateValue(atacker.wins.value + 1);
-				defender.wins.updateValue(0);
-				rareBattle.unit2.beFullHealed();
-				rez = true;
+RARE_BATTLE.rarityPackDecrease = function () {
+	GAME_CORE.DEFAULT_PROPS.rarityPack.doThisToEveryElement(RARE_BATTLE._difficultDecreaseFunction);
+}
+RARE_BATTLE._difficultDecreaseFunction = function (rarityOption) {
+	if (rarityOption.getDifficult() > RARE_BATTLE.rarityMin[RARE_BATTLE.currentIndex]) {
+		rarityOption.setDifficult(Math.max(90000 - RARE_BATTLE._difficultDecreaseValue(), 0));
+	}
+	RARE_BATTLE._increaseCurrentIndex();
+};
+RARE_BATTLE._difficultDecreaseValue = function () {
+	return 100*(RARE_BATTLE.maxRarityIndex + 1 - RARE_BATTLE.currentIndex);
+};
+RARE_BATTLE._increaseCurrentIndex = function () {
+	if (RARE_BATTLE.currentIndex < RARE_BATTLE.maxRarityIndex) {
+		RARE_BATTLE.currentIndex++;
+	} else {
+		RARE_BATTLE.currentIndex = 0;
+	}
+};
+
+
+
+//todo ниже полная переработка
+RARE_BATTLE.startGame = async function(){
+	while (!RARE_BATTLE.isStoped) {
+		for (let j = 0; j < GAME_CORE.CARDS_PROP.rarityTable.length; j++) {
+			if (GAME_CORE.CARDS_PROP.rarityTable[j] > GAME_CORE.CARDS_PROP.rarityMin[j] + GAME_CORE.CARDS_PROP.rarityDecrease[j] ) {
+				GAME_CORE.CARDS_PROP.rarityTable[j] -= GAME_CORE.CARDS_PROP.rarityDecrease[j];
 			}
 		}
-	} while(!rez)
-}
-
-rareBattle.whoDealDamage = function(){
-	const check = rareBattle.unit1.getInitiative() - rareBattle.unit2.getInitiative();
-	const ans = {};
-	if (check > 0) {
-		ans.atacker = rareBattle.unit1;
-		ans.defender = rareBattle.unit2;
-	} else if (check < 0) {
-		ans.atacker = rareBattle.unit2;
-		ans.defender = rareBattle.unit1;
-	} else {
-		ans.atacker = null;
-		ans.defender = null;
+		for (let i = 0; i < RARE_BATTLE.maxLootRounds*2*RARE_BATTLE.roundsBeforeWar; i++) {
+			await RARE_BATTLE.lootChestBundles();
+		}
+		RARE_BATTLE.gameChat.clear();
+		await RARE_BATTLE.battle();
 	}
-	return ans;
 }
 
-rareBattle.pageInit();
-rareBattle.startGame();
+RARE_BATTLE.lootChestBundles = async function() {
+	if (RARE_BATTLE.lootRounds <= 0 ) {
+		RARE_BATTLE.setActivePlayerUnit();
+		RARE_BATTLE.lootRounds = RARE_BATTLE.maxLootRounds;
+	}
+	if (RARE_BATTLE.lootRounds === RARE_BATTLE.maxLootRounds) {
+		RARE_BATTLE.gameChat.writeColoredMessage([{letter : RARE_BATTLE.activePlayer.name.value, color : RARE_BATTLE.activePlayer.color},
+		{letter : " обнаружил "}, {letter : RARE_BATTLE.maxLootRounds, color : RARE_BATTLE.infoColor}, {letter : " сундука."}]);
+	}
+	RARE_BATTLE.gameChat.writeColoredMessage([{letter : RARE_BATTLE.activePlayer.name.value, color : RARE_BATTLE.activePlayer.color},
+	{letter : " открывает  "}, {letter : RARE_BATTLE.lootRounds, color : RARE_BATTLE.infoColor}, {letter : " сундук:"}])
+	RARE_BATTLE.lootAction(); //setTheFields setRarity addListener
+	while(true) {
+		if (!RARE_BATTLE.gameFieldsActivity[0] &&
+			!RARE_BATTLE.gameFieldsActivity[1] &&
+			!RARE_BATTLE.gameFieldsActivity[2] &&
+			!RARE_BATTLE.gameFieldsActivity[3] &&
+			!RARE_BATTLE.gameFieldsActivity[4])
+		{break;}
+		await UTIL_CORE.sleep(500);
+	}
+	await UTIL_CORE.sleep(200);
+	RARE_BATTLE.lootRounds--;
+}
+
+RARE_BATTLE.lootAction = function() {
+	for (let i = 0; i<5; i++) {
+		RARE_BATTLE.gameFields[i].openCards();
+		RARE_BATTLE.gameFields[i].closeCards();
+		let condition = false;
+		if (RARE_BATTLE.activeUnit.equipment.getEquipByNumber(i).rarity < GAME_CORE.CARDS_PROP.cardClasses.length - 1) {
+			RARE_BATTLE.gameFields[i].setRandomRarity();
+			for (let j = 0; j<RARE_BATTLE.gameFields[i].cardArray.length; j++) {
+				condition = condition || (RARE_BATTLE.gameFields[i].cardArray[j].rarity > RARE_BATTLE.activeUnit.equipment.getEquipByNumber(i).rarity);
+			}
+		}
+		if (condition) {
+			RARE_BATTLE.gameFieldsActivity[i] = true;
+			RARE_BATTLE.gameFields[i].addListeners('click', RARE_BATTLE.listeners[i]);
+		} else {
+			const f = function() {this.setInactive();}
+			RARE_BATTLE.gameFields[i].doIt(f);
+			//RARE_BATTLE.gameChat.writeMessage('Но в секции где должен был быть ' + RARE_BATTLE.equipNames[i] + ' лишь всякий мусор.')
+		}
+	}
+}
+
+
+
+
+
+RARE_BATTLE.fullInit();
+await RARE_BATTLE.startGame();
 
 

@@ -68,32 +68,35 @@ GAME_CORE.TEST.BaseStatMap.create = function () {
     return res;
 };
 GAME_CORE.TEST.Pack = {}
-GAME_CORE.TEST.Pack.getPack = function () {return new GAME_CORE.Pack([0,1,2,3,4,5,6,7,8,9])}
+GAME_CORE.TEST.Pack.getPack = function () {return new GAME_CORE.Pack([{i : 0},{i : 1},{i : 2},{i : 3},{i : 4},
+    {i : 5},{i : 6},{i : 7},{i : 8},{i : 9}])}
 GAME_CORE.TEST.Pack.run = function () {
     console.log('Pack');
     let summ = 0;
     let pack = GAME_CORE.TEST.Pack.getPack();
     console.log('getByIndex');
     UTIL_CORE.TEST.assertError(()=>{pack.getByIndex(12);}, true);
-    UTIL_CORE.TEST.assert(pack.getByIndex(2), 2);
+    UTIL_CORE.TEST.assert(pack.getByIndex(2).i, 2);
     console.log('getMaxIndex');
     UTIL_CORE.TEST.assert(pack.getMaxIndex(), pack.typeArray.length - 1);
     console.log('doThisToEveryElement');
-    pack.doThisToEveryElement((arg)=> (summ+=arg))
+    pack.doThisToEveryElement((arg)=> (summ+=arg.i))
     UTIL_CORE.TEST.assert(summ, 45);
     console.log('add');
-    pack.add(10)
-    UTIL_CORE.TEST.assert(pack.getByIndex(10), 10);
+    pack.add({i : 10})
+    UTIL_CORE.TEST.assert(pack.getByIndex(10).i, 10);
     console.log('addToPosition');
-    pack.addToPosition(11, 1)
-    UTIL_CORE.TEST.assert(pack.getByIndex(1), 11);
+    pack.addToPosition({i : 11}, 1)
+    UTIL_CORE.TEST.assert(pack.getByIndex(1).i, 11);
+    console.log('getPackIndex');
+    UTIL_CORE.TEST.assert(pack.getByIndex(1).getPackIndex(), 1);
     console.log('replaceToPosition');
-    pack.replaceToPosition(12, 2);
-    UTIL_CORE.TEST.assert(pack.getByIndex(2), 12);
+    pack.replaceToPosition({i : 12}, 2);
+    UTIL_CORE.TEST.assert(pack.getByIndex(2).i, 12);
     console.log('deleteByIndex');
     pack = GAME_CORE.TEST.Pack.getPack();
-    pack.deleteByIndex(2)
-    UTIL_CORE.TEST.assert(pack.getByIndex(2),3);
+    pack.deleteByIndex(2);
+    UTIL_CORE.TEST.assert(pack.getByIndex(2).i,3);
 };
 
 GAME_CORE.TEST.RarityOption = {}

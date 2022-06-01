@@ -5,7 +5,6 @@ GAME_CORE.Player = class Player extends UTIL_CORE.ViewEntity{
 		this.name = new GAME_CORE.TextEntity(id + 'name', this.getView(), name);
 		this.score = new GAME_CORE.TextEntity(id + 'score', this.getView(), 0);
 		this.money = new GAME_CORE.TextEntity(id + 'money', this.getView(), 0);
-
 		this.maxNameLength = 10;
 
 		this._log('created', 'constructor')

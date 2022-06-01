@@ -18,6 +18,7 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 		} else {
 			this.equipment = GAME_CORE.DEFAULT_PROPS.getEquipment(this.getId() + 'SET',  this.getView(), this);
 		}
+		this.maxNameLength = 10;
 		this.updateAllParam();
 		this._log('created', 'constructor');
 	}
@@ -33,7 +34,16 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 	getEquipment() {return this.equipment;}
 	incrementWins() {return this.wins.updateValue(this.getWins()+1);}
 	setZeroWins() {return this.wins.updateValue(0);}
-
+	setName(name) {
+		if (typeof name !== 'string') {
+			return false;
+		}
+		if (name.length > this.maxNameLength) {
+			return false;
+		}
+		this.name.updateValue(name);
+		return true;
+	}
 	updateAllParam() {
 		this.updateMaxHealth();
 		this.updateDamage();
