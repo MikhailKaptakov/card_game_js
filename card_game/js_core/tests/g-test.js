@@ -67,36 +67,55 @@ GAME_CORE.TEST.BaseStatMap.create = function () {
     res.setStat('newStat', 10);
     return res;
 };
-GAME_CORE.TEST.Pack = {}
-GAME_CORE.TEST.Pack.getPack = function () {return new GAME_CORE.Pack([{i : 0},{i : 1},{i : 2},{i : 3},{i : 4},
-    {i : 5},{i : 6},{i : 7},{i : 8},{i : 9}])}
+GAME_CORE.TEST.Pack = {};
+GAME_CORE.TEST.Pack.obj = {i : 10};
+GAME_CORE.TEST.Pack.getPack = function () {return new GAME_CORE.Pack([0,1,2,3,4,5,6,7,8,9, GAME_CORE.TEST.Pack.obj])};
 GAME_CORE.TEST.Pack.run = function () {
     console.log('Pack');
     let summ = 0;
     let pack = GAME_CORE.TEST.Pack.getPack();
     console.log('getByIndex');
     UTIL_CORE.TEST.assertError(()=>{pack.getByIndex(12);}, true);
-    UTIL_CORE.TEST.assert(pack.getByIndex(2).i, 2);
+    UTIL_CORE.TEST.assert(pack.getByIndex(2), 2);
     console.log('getMaxIndex');
     UTIL_CORE.TEST.assert(pack.getMaxIndex(), pack.typeArray.length - 1);
     console.log('doThisToEveryElement');
-    pack.doThisToEveryElement((arg)=> (summ+=arg.i))
+    pack.doThisToEveryElement((arg)=> {if (typeof arg === 'number') {summ+=arg}});
     UTIL_CORE.TEST.assert(summ, 45);
+    console.log('isElement');
+    UTIL_CORE.TEST.assert(pack.isElement(5),true);
+    UTIL_CORE.TEST.assert(pack.isElement(GAME_CORE.TEST.Pack.obj),true);
+    UTIL_CORE.TEST.assert(pack.isElement({i : 10}),false);
+    UTIL_CORE.TEST.assert(pack.isElement(20),false);
+    console.log('getElementIndex');
+    UTIL_CORE.TEST.assert(pack.getElementIndex(0),0);
+    UTIL_CORE.TEST.assert(pack.getElementIndex(1),1);
+    console.log('compareElements');
+    UTIL_CORE.TEST.assert(pack.compareElements(2, 0),2);
     console.log('add');
-    pack.add({i : 10})
-    UTIL_CORE.TEST.assert(pack.getByIndex(10).i, 10);
+    pack.add(10);
+    UTIL_CORE.TEST.assert(pack.getByIndex(11), 10);
+    UTIL_CORE.TEST.assert(pack.isElement(10),true);
     console.log('addToPosition');
-    pack.addToPosition({i : 11}, 1)
-    UTIL_CORE.TEST.assert(pack.getByIndex(1).i, 11);
-    console.log('getPackIndex');
-    UTIL_CORE.TEST.assert(pack.getByIndex(1).getPackIndex(), 1);
+    pack.addToPosition(11, 1)
+    UTIL_CORE.TEST.assert(pack.getByIndex(1), 11);
+    UTIL_CORE.TEST.assert(pack.isElement(11),true);
     console.log('replaceToPosition');
-    pack.replaceToPosition({i : 12}, 2);
-    UTIL_CORE.TEST.assert(pack.getByIndex(2).i, 12);
+    pack.replaceToPosition(12, 2);
+    UTIL_CORE.TEST.assert(pack.getByIndex(2), 12);
+    UTIL_CORE.TEST.assert(pack.isElement(12),true);
     console.log('deleteByIndex');
     pack = GAME_CORE.TEST.Pack.getPack();
-    pack.deleteByIndex(2);
-    UTIL_CORE.TEST.assert(pack.getByIndex(2).i,3);
+    UTIL_CORE.TEST.assert(pack.getByIndex(2),2);
+    UTIL_CORE.TEST.assert(pack.deleteByIndex(2),true);
+    UTIL_CORE.TEST.assert(pack.deleteByIndex(50),false);
+    UTIL_CORE.TEST.assert(pack.getByIndex(2),3);
+    UTIL_CORE.TEST.assertError(()=>{pack.getByIndex(50)},true);
+    console.log('deleteElement');
+    UTIL_CORE.TEST.assert(pack.getByIndex(9),GAME_CORE.TEST.Pack.obj);
+    UTIL_CORE.TEST.assert(pack.deleteElement(GAME_CORE.TEST.Pack.obj),true);
+    UTIL_CORE.TEST.assertError(()=>{pack.getByIndex(9)},true);
+    UTIL_CORE.TEST.assert(pack.deleteElement({i : 10}),false);
 };
 
 GAME_CORE.TEST.RarityOption = {}

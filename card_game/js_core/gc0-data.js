@@ -47,59 +47,80 @@ GAME_CORE.BaseStatMap = class BaseStatMap extends GAME_CORE.StatMap {
 
 GAME_CORE.Pack = class Pack {
     constructor(typeArray) {
-        this._init(typeArray);
-        //this.typeArray = typeArray;
-    }
+        this.typeArray = typeArray;
+    };
     getByIndex(index) {
         if (index <= this.getMaxIndex() && index >= 0) {
             return this.typeArray[index];
         }
         throw new Error('index ' + index + ' out of range');
-    }
+    };
 
-    getRandomIndex() {return UTIL_CORE.randomGen(this.typeArray.length);}
-    getMaxIndex() {return this.typeArray.length - 1;}
+    getRandomIndex() {return UTIL_CORE.randomGen(this.typeArray.length);};
+    getMaxIndex() {return this.typeArray.length - 1;};
 
     doThisToEveryElement(actionWithArgumentElement) {
         for (let i = 0; i <= this.getMaxIndex(); i++) {
             actionWithArgumentElement(this.typeArray[i]);
         }
-    }
+    };
 
-    add(typeElement) {this.typeArray.push(this._takeProxy(typeElement, this.typeArray.length));}
-    addToPosition(typeElement, index) {this.typeArray.splice(index,0,
-        this._takeProxy(typeElement, index));
+    isElement(typeElement) {
+        for (let i = 0; i <= this.getMaxIndex(); i++) {
+            if (typeElement === this.typeArray[i]) {
+                return true;
+            }
+        }
+        return false;
+    };
+    compareElements(typeElement1, typeElement2) {
+        return this.getElementIndex(typeElement1) - this.getElementIndex(typeElement2) ;
+    };
+    getElementIndex(typeElement) {
+        for (let i = 0; i <= this.getMaxIndex(); i++) {
+            if (typeElement === this.typeArray[i]) {
+                return i;
+            }
+        }
+        throw Error( typeElement + "element not included to this pack");
+    };
+
+    add(typeElement) {
+        if (!this.isElement(typeElement)) {
+            this.typeArray.push(typeElement);
+            return true;
+        }
+        return false;
     }
-    replaceToPosition(typeElement, index) {this.typeArray[index] = this._takeProxy(typeElement, index);}
+    addToPosition(typeElement, index) {
+        if (!this.isElement(typeElement)) {
+            this.typeArray.splice(index, 0, typeElement);
+            return true;
+        }
+        return false;
+    }
+    replaceToPosition(typeElement, index) {
+        if (!this.isElement(typeElement)) {
+            this.typeArray[index] = typeElement;
+            return true;
+        }
+        return false;
+    }
     deleteByIndex(index) {
         if (index <= this.getMaxIndex() && index >= 0) {
             this.typeArray.splice(index, 1);
             return true;
         }
         return false;
-    }
+    };
 
-    _init(typeArray) {
-        const array = [];
-        for (let i = 0; i < typeArray.length; i++) {
-            array.push(this._takeProxy(typeArray[i], i));
+    deleteElement(typeElement) {
+        if (this.isElement(typeElement)) {
+            this.typeArray.splice(this.getElementIndex(typeElement), 1);
+            return true;
         }
-        this.typeArray = array;
-    }
-    _takeProxy(typeElement, index) {
-        return new Proxy(typeElement, this._setHandler(index))
-    }
-    _setHandler(index) {
-        return {
-            get(target, prop) {
-                if (prop === 'getPackIndex') {
-                    return ()=>{return index;};
-                } else {
-                    return target[prop];
-                }
-            }
-        };
-    }
+        return false;
+    };
 };
 
 GAME_CORE.RarityOption = class RarityOption {
