@@ -128,7 +128,7 @@ UTIL_CORE.Logger = class Logger {
 UTIL_CORE.ViewEntity = class ViewEntity {
 	constructor(id, viewParent = document.body, elemType = 'div') {
 		const elem = document.getElementById(id);
-		if (elem == null) {
+		if (elem === undefined ||  elem ===  null) {
 			this.view = document.createElement(elemType);
 			this.view.id = id;
 			this.viewParent = viewParent;
@@ -182,12 +182,12 @@ UTIL_CORE.ViewEntity = class ViewEntity {
 	isAppended() {return this.appendState;}
 	getViewParent() {return this.viewParent;}
 	getView() {return this.view;}
-	getClass() {return this.view.class;}
+	getClass() {return this.view.className;}
 	getTextContent() {return this.view.textContent;}
 	getTitle() {return this.view.title;}
 	getId() {return this.view.id;}
 
-	setClass(viewClassName) {this.view.class = viewClassName;}
+	setClass(viewClassName) {this.view.className = viewClassName;}
 	setTextContent(viewTextContent) {this.view.textContent = viewTextContent;}
 	setTitle(viewTitle) {this.view.title = viewTitle;}
 	setLogger(logger) {
@@ -220,19 +220,32 @@ UTIL_CORE.PresetLetter = class PresetLetter {
 		this.backgroundColor = backgroundColor;
 	}
 
-	getLetter(text) {
-		return new UTIL_CORE.Letter(text, this.color, this.backgroundColor);
+	getLetter(text, color = undefined, backgroundColor = undefined) {
+		return new UTIL_CORE.Letter(text, this.getColor(color), this.getBackgroundColor(backgroundColor));
+	}
+
+	getColoredLetter(text,  color=undefined, backgroundColor = undefined) {
+		return new UTIL_CORE.Letter(text, color, backgroundColor);
 	}
 
 	getNoColoredLetter(text) {
 		return new UTIL_CORE.Letter(text);
 	}
 
-	getColor() {
-		return this.color;
+	getColor(color  =undefined) {
+		if (color === undefined) {
+			return this.color;
+		} else {
+			return color;
+		}
 	}
-	getBackgroundColor() {
-		return this.backgroundColor;
+	getBackgroundColor(backgroundColor) {
+		if (backgroundColor === undefined) {
+			return this.backgroundColor;
+		} else {
+			return backgroundColor;
+		}
+
 	}
 	setColor(color) {
 		this.color = color;

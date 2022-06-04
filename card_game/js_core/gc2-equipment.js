@@ -71,10 +71,13 @@ f
 		}
 		throw new Error('ошибка в методе getCellByIndex');
 	}
+	getCardByIndex(index) {
+		return this.getCellByIndex(index).getCard();
+	}
 
 	getCellByRandomIndex() {
-		const index = UTIL_CORE.randomGen(this.equipmentCells.size);
-		return this.getCardByIndex(index);
+		const index = UTIL_CORE.randomGen(this.getEquipmentSize());
+		return this.getCellByIndex(index);
 	}
 
 	getEquipmentSize() {
@@ -100,6 +103,11 @@ f
 		for (const entry of this.equipmentCells) {
 			entry[1].getCard().closeCard();
 		}
+	}
+
+	append() {
+		super.append();
+		this.appendCards();
 	}
 };
 

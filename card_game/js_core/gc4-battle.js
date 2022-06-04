@@ -10,7 +10,7 @@ GAME_CORE.BATTLE.Battle = class Battle {
         do {
             const attackResult = this.fightActions.fight();
             await this.viewActions.runViewActions(attackResult);
-        } while (this.fightActions.isEnd());
+        } while (!this.fightActions.isEnd());
         const result = this.fightActions.getBattleResult();
         this.fightActions.resetBattle();
         return result;
@@ -53,8 +53,10 @@ GAME_CORE.BATTLE.LogChatViewActions = class LogChatViewActions extends  GAME_COR
     }
 
     async runViewActions(attackResult) {
-        const attackerName = this.attackerPresetLetter.getLetter(attackResult.getAttacker().getUnit().getName());
-        const defenderName = this.defenderPresetLetter.getLetter(attackResult.getDefender().getUnit().getName());
+        const attackerName = this.attackerPresetLetter.getLetter(attackResult.getAttacker().getUnit().getName(),
+            attackResult.getAttacker().color, attackResult.getAttacker().backgroundColor);
+        const defenderName = this.defenderPresetLetter.getLetter(attackResult.getDefender().getUnit().getName(),
+            attackResult.getDefender().color, attackResult.getDefender().backgroundColor);
         if (attackResult.getType() === GAME_CORE.DEFAULT_PROPS.BATTLE.ATTACK_RESULT.failAttack) {
             await this.logChat.writeLetters([attackerName,
                 this.chatPresetLetter.getNoColoredLetter(' так и не решился на атаку')], this.sleepTime );
@@ -347,10 +349,13 @@ GAME_CORE.BATTLE.FightingFighters = class FightingFighters {
 };
 
 GAME_CORE.BATTLE.Fighter = class Fighter {
-    constructor(unit, command=GAME_CORE.DEFAULT_PROPS.BATTLE.no_command, active = true) {
+    constructor(unit, command=GAME_CORE.DEFAULT_PROPS.BATTLE.no_command, active = true,
+                color =undefined, backgroundColor =undefined) {
         this.unit = unit;
         this.command = command;
         this.state = active;
+        this.color = color;
+        this.backgroundColor = backgroundColor;
     }
     isExcluded() {return !this.state;}
     isIncluded() {return this.state;}

@@ -13,7 +13,6 @@ GAME_CORE.GameField = class GameField extends UTIL_CORE.ViewEntity{
 
     isEmpty() {return this.emptyState;}
     getCardsCount() {return this.cardsCount;}
-
     fill() {
         if (!this.isEmpty()) {
             this._log(' not empty ');

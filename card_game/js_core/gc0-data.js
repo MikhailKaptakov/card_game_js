@@ -74,7 +74,7 @@ GAME_CORE.Pack = class Pack {
         return false;
     };
     compareElements(typeElement1, typeElement2) {
-        return this.getElementIndex(typeElement1) - this.getElementIndex(typeElement2) ;
+        return this.getElementIndex(typeElement1) - this.getElementIndex(typeElement2);
     };
     getElementIndex(typeElement) {
         for (let i = 0; i <= this.getMaxIndex(); i++) {
@@ -82,7 +82,7 @@ GAME_CORE.Pack = class Pack {
                 return i;
             }
         }
-        throw Error( typeElement + "element not included to this pack");
+        throw Error( typeElement + " element not included to this pack");
     };
 
     add(typeElement) {
@@ -124,15 +124,16 @@ GAME_CORE.Pack = class Pack {
 };
 
 GAME_CORE.RarityOption = class RarityOption {
-    constructor (name, difficult, viewClass, cardText, coloredAdjective, price, bonus,
+    constructor (name, difficult, viewClass, cardText, adjective, color, price, statMap,
                  description =undefined) {
         this.name = name;
         this.difficult = difficult;
         this.viewClass = viewClass;
         this.cardText = cardText;
-        this.coloredAdjective = coloredAdjective;
+        this.adjective = adjective;
+        this.color = color;
         this.price = price;
-        this.statMap = bonus;
+        this.statMap = statMap;
         if (description !== undefined) {
             this.description = description;
         } else {
@@ -146,7 +147,8 @@ GAME_CORE.RarityOption = class RarityOption {
     getDifficult() {return this.difficult;}
     getViewClass() {return this.viewClass;}
     getCardText() {return this.cardText;}
-    getColoredAdjective() {return this.coloredAdjective;}
+    getColoredAdjective() {return new UTIL_CORE.Letter(this.adjective, this.color);}
+    getColor() {return this.color;}
     getPrice() {return this.price;}
     getStatMap() {return this.statMap;}
     getDescription() {return this.description;}
@@ -164,10 +166,11 @@ GAME_CORE.RarityPack = class RarityPack extends GAME_CORE.Pack{
 
     getRandomIndexByDifficult() {
         for (let i = 0; i <= this.getMaxIndex(); i++) {
-            if (UTIL_CORE.randomGen(this.randomRange) <= this.typeArray[i].difficult) {
+            if (UTIL_CORE.randomGen(this.randomRange) <= this.typeArray[i].getDifficult()) {
                 return Math.max(i-1,0);
             }
         }
+        return 0;
     }
 }
 

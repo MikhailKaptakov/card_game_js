@@ -90,6 +90,7 @@ GAME_CORE.TEST.Pack.run = function () {
     console.log('getElementIndex');
     UTIL_CORE.TEST.assert(pack.getElementIndex(0),0);
     UTIL_CORE.TEST.assert(pack.getElementIndex(1),1);
+    UTIL_CORE.TEST.assertError(()=>{pack.getElementIndex(100)},true);
     console.log('compareElements');
     UTIL_CORE.TEST.assert(pack.compareElements(2, 0),2);
     console.log('add');
@@ -120,11 +121,11 @@ GAME_CORE.TEST.Pack.run = function () {
 
 GAME_CORE.TEST.RarityOption = {}
 GAME_CORE.TEST.RarityOption.getRarityOptionWithParameters = function() {
-    const options = ['name', 10000, 'emptyCard','text', new UTIL_CORE.Letter('обычный', 'grey'), new GAME_CORE.Price(100,25), new GAME_CORE.BaseStatMap(50,5,5,2)];
-    const description = options[0] + ' ' + 'Health: ' + options[6].getHealth() + ' Damage: ' + options[6].getDamage() +
-        ' Luck: ' + options[6].getLuck() + '  Dodge: ' + options[6].getDodge() + '  Sell: '
-        + options[5].sell + '  Buy: ' + options[5].buy;
-    const rarityOption = new GAME_CORE.RarityOption(options[0], options[1], options[2], options[3], options[4], options[5], options[6]);
+    const options = ['name', 10000, 'emptyCard','text', 'обычный', 'grey', new GAME_CORE.Price(100,25), new GAME_CORE.BaseStatMap(50,5,5,2)];
+    const description = options[0] + ' ' + 'Health: ' + options[7].getHealth() + ' Damage: ' + options[7].getDamage() +
+        ' Luck: ' + options[7].getLuck() + '  Dodge: ' + options[7].getDodge() + '  Sell: '
+        + options[6].sell + '  Buy: ' + options[6].buy;
+    const rarityOption = new GAME_CORE.RarityOption(options[0], options[1], options[2], options[3], options[4], options[5], options[6], options[7]);
     return {optionArray : options, rarity : rarityOption, descript : description};
 };
 GAME_CORE.TEST.RarityOption.run = function () {
@@ -161,17 +162,17 @@ GAME_CORE.TEST.RarityOption.getCardText = function () {
 GAME_CORE.TEST.RarityOption.getColoredAdjective = function () {
     console.log('getColoredAdjective');
     const rarityWithParameters = GAME_CORE.TEST.RarityOption.getRarityOptionWithParameters();
-    UTIL_CORE.TEST.assert(rarityWithParameters.rarity.getColoredAdjective(), rarityWithParameters.optionArray[4]);
+    UTIL_CORE.TEST.assert(rarityWithParameters.rarity.getColoredAdjective().getText(), rarityWithParameters.optionArray[4]);
 };
 GAME_CORE.TEST.RarityOption.getPrice = function () {
     console.log('getPrice');
     const rarityWithParameters = GAME_CORE.TEST.RarityOption.getRarityOptionWithParameters();
-    UTIL_CORE.TEST.assert(rarityWithParameters.rarity.getPrice(), rarityWithParameters.optionArray[5]);
+    UTIL_CORE.TEST.assert(rarityWithParameters.rarity.getPrice(), rarityWithParameters.optionArray[6]);
 };
 GAME_CORE.TEST.RarityOption.getStatMap = function () {
     console.log('getStatMap');
     const rarityWithParameters = GAME_CORE.TEST.RarityOption.getRarityOptionWithParameters();
-    UTIL_CORE.TEST.assert(rarityWithParameters.rarity.getStatMap(), rarityWithParameters.optionArray[6]);
+    UTIL_CORE.TEST.assert(rarityWithParameters.rarity.getStatMap(), rarityWithParameters.optionArray[7]);
 };
 GAME_CORE.TEST.RarityOption.getDescription = function () {
     console.log('getDescription');

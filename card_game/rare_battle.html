@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+	<meta charset="utf-8">
+	<title>Rare_battle_3</title>
+	<link rel="stylesheet" href="css/main.css">
+	<link rel="stylesheet" href="css/grid.css">
+	<link rel="stylesheet" href="css/cards.css">
+	<link rel="stylesheet" href="css/navigation.css">
+	<script defer src="js_core/u-core.js"></script>
+	<script defer src="js_core/gc0-data.js"></script>
+	<script defer src="js_core/gc1-card.js"></script>
+	<script defer src="js_core/gc1-log_chat.js"></script>
+	<script defer src="js_core/gc1-game_field.js"></script>
+	<script defer src="js_core/gc1-text_entity.js"></script>
+	<script defer src="js_core/gc2-player.js"></script>
+	<script defer src="js_core/gc2-equipment.js"></script>
+	<script defer src="js_core/gc3-unit.js"></script>
+	<script defer src="js_core/gc4-battle.js"></script>
+	<script defer src="js_core/gc-default-data.js"></script>
+	<script defer src="js_scenario/rare-battle.js"></script>
+</head>
+<body>
+	<nav class="nav">
+		<a href=test.html class="nav-element this-page">Rare Battle 3</a>
+		<!--<a href=pattern.html class="nav-element">шаблон2</a>
+		<a href=pattern.html class="nav-element">шаблон3</a>
+		<a href=pattern.html class="nav-element">шаблон4</a>
+		<a href=pattern.html class="nav-element">шаблон5</a>-->
+	</nav>
+	<header class = "header-grid">
+		<div>
+			<p><var id="pl1name" class="games-value-big">Player1</var> &nbsp; : <var id="pl1score" class="games-value-big">10</var></p>
+		</div>
+		<div>
+			<p>Money: <var id = "pl1money" class="games-value-big">0</var></p>
+		</div>
+		<div>
+			<p><var id="pl2name" class="games-value-big">Player2</var> &nbsp; : <var id="pl2score" class="games-value-big">0</var></p>
+		</div>
+		<div>
+			<p>Money: <var id = "pl2money" class="games-value-big">0</var></p>
+		</div>
+	</header>
+	<main>
+		<div class = "main-grid" id="main-grid">
+			<div id = "game-field-head" class = "game-field game-field-sp"></div>
+			<div id = "log-field" class = "log-field log-field-sp"> &emsp; Game Log: </div>
+			<div id = "game-field-arms" class = "game-field game-field-sp"></div>
+			<div id = "game-field-body" class = "game-field game-field-sp"></div>
+			<div id = "game-field-legs" class = "game-field game-field-sp"></div>
+			<div id = "game-field-feet" class = "game-field game-field-sp"></div>
+			<div id = "u1-wins" class ="first-player-style">
+				<p>&nbsp;Побед: <var id = 'u1WINS' class="games-value">11</var></p>
+			</div>
+			<div id = "u1-replics" class ="first-player-style replic-sp">
+				<p><var id ="u1NAME" class="games-value-unit-name">Unit1</var> : <var id = 'u1SAY' class="games-value-say">Hello!</var></p>
+			</div>
+			<div id = "u2-wins" class ="second-player-style">
+				<p>&nbsp;Побед: <var id = 'u2WINS' class="games-value">1</var></p>
+			</div>
+			<div id = "u2-replics" class ="second-player-style replic-sp">
+				<p><var id ="u2NAME" class="games-value-unit-name">Unit2</var> : <var id = 'u2SAY' class="games-value-say">Bye</var></p>
+			</div>
+			<div class ="first-player-style"><var>&nbsp; Шлем</var></div>
+			<div class ="first-player-style"><var>&nbsp; Меч</var></div>
+			<div class ="first-player-style"><var>&nbsp; Латы</var></div>
+			<div class ="first-player-style"><var>&nbsp; Штаны</var></div>
+			<div class ="first-player-style"><var>&nbsp; Ботинки</var></div>
+			<div class ="second-player-style"><var>&nbsp; Шлем</var></div>
+			<div class ="second-player-style"><var>&nbsp; Меч</var></div>
+			<div class ="second-player-style"><var>&nbsp; Латы</var></div>
+			<div class ="second-player-style"><var>&nbsp; Штаны</var></div>
+			<div class ="second-player-style"><var>&nbsp; Ботинки</var></div>
+			<div id = "u1SET" class = "equipment-grid">
+				<div class="first-player-style"><div id = "u1SEThead"></div></div>
+				<div class="first-player-style"><div id = "u1SETarms"></div></div>
+				<div class="first-player-style"><div id = "u1SETbody"></div></div>
+				<div class="first-player-style"><div id = "u1SETlegs"></div></div>
+				<div class="first-player-style"><div id = "u1SETfeet"></div></div>
+			</div>
+			<div id = "u2SET" class = "equipment-grid">
+				<div class="second-player-style"><div id = "u2SEThead"></div></div>
+				<div class="second-player-style"><div id = "u2SETarms"></div></div>
+				<div class="second-player-style"><div id = "u2SETbody"></div></div>
+				<div class="second-player-style"><div id = "u2SETlegs"></div></div>
+				<div class="second-player-style"><div id = "u2SETfeet"></div></div>
+			</div>
+			<div id = "u1-description" class ="first-player-style description-sp">
+				<p>&emsp; Здоровье: <var id= "u1HP" class="games-value">0</var>&nbsp; из <var id= "u1MAXHP" class="games-value">100</var></p>
+				<p>&emsp; Урон: <var id= "u1DMG" class="games-value">10</var>&nbsp; ед.</p>
+				<p>&emsp; Инициатива: <var id= "u1LUCK" class="games-value">0</var></p>
+				<p>&emsp; Уклонение: <var id= "u1DODGE" class="games-value">0</var></p> 
+			</div>
+			<div id = "u2-description" class ="second-player-style description-sp">
+				<p>&emsp; Здоровье: <var id= "u2HP" class="games-value">0</var>&nbsp; из <var id= "u2MAXHP" class="games-value">100</var></p>
+				<p>&emsp; Урон: <var id= "u2DMG" class="games-value">10</var>&nbsp; ед.</p>
+				<p>&emsp; Инициатива: <var id= "u2LUCK" class="games-value">0</var></p>
+				<p>&emsp; Уклонение: <var id= "u2DODGE" class="games-value">0</var></p>
+			</div>
+		</div>
+	</main>
+	<footer>
+		<p>Тестовый параграф</p>
+	</footer>	
+</body>
+</html>

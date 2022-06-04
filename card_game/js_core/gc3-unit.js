@@ -73,6 +73,7 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 	}
 
 	beFullHealed() {
+		this.updateMaxHealth();
 		this.currentHealth.updateValue(this.getMaxHealth());
 		this._log(this.getHealth());
 	}
@@ -81,6 +82,7 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 		if (value < 0) {
 			throw new Error('Отрицательное значение лечения');
 		}
+		this.updateMaxHealth();
 		this.currentHealth.updateValue(Math.floor(Math.min(this.currentHealth.value + value, this.maxHealth.value)));
 		this._log(this.getHealth());
 		return this.getHealth();
@@ -304,5 +306,8 @@ GAME_CORE.Modification = class Modification {
 		this.level = Math.max(this.level - 1, 1);
 	}
 	execute(thisUnit, targetUnit) {return this.executeMethod(thisUnit, targetUnit); }
+	setMaxLevel() {
+		this.level = this.getMaxLevel();
+	}
 };
 

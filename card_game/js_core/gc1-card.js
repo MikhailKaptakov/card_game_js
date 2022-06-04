@@ -19,7 +19,6 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
     }
     _initRarityOptions() {
         this.currentRarityIndex = 0;
-        this.rarityMaxIndex = this.rarityPack.getMaxIndex();
         this.rarityOption = this.rarityPack.getByIndex(this.currentRarityIndex);
     }
     _initCardTypeOptions() {
@@ -37,8 +36,10 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
         this._initDescription();
     }
     getRarityName() {return this.rarityOption.getName();}
+    getRarityColor() {return this.rarityOption.getColor();}
     getCardTypeName() {return this.cardType.getName();}
     getColoredAdjective(){return this.rarityOption.getColoredAdjective();}
+    getPrice() {return this.rarityOption.getPrice();}
     getBuyPrice() {return this.rarityOption.getPrice().getBuyPrice();}
     getSellPrice() {return this.rarityOption.getPrice().getSellPrice();}
     getStatMap() {return this.rarityOption.getStatMap();}
@@ -47,12 +48,12 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
     getLuckBonus() {return this.getStatMap().getLuck();}
     getDodgeBonus() {return this.getStatMap().getDodge();}
     getDescription() {return this.description;}
-    getCardTypePack() {return this.cardTypePack;}
-    getRarityPack() {return this.rarityPack;}
     getCardState() {return this.cardState;}
     getCardActivity() {return this.cardActivity;}
 
     /******CardType_Options******/
+    getCardTypePack() {return this.cardTypePack;}
+    getCardType() {return this.cardType;}
     setRandomCardType() {this.setCardTypeByIndex(this.rarityPack.getRandomIndexByDifficult());}
     setCardTypeByName(name) {
         this._setCardTypeIndex(this.getCardTypePack().getCardTypeIndexByName(name));
@@ -70,11 +71,16 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
 
 
     /******Rarity_Options******/
+    getRarityPack() {return this.rarityPack;}
+    getRarityOption() {return this.rarityOption;}
+    getRarityIndex() {return this.currentRarityIndex};
+    getMaxRarityIndex() {return this.getRarityPack().getMaxIndex();};
+    isMaxRarityIndex() {return this.getRarityIndex() >= this.getMaxRarityIndex();};
     setRandomRarity() {this.setRarityByIndex(this.rarityPack.getRandomIndexByDifficult());}
     incrementRarity() {this.setRarityByIndex(this.currentRarityIndex + 1);}
     decrementRarity() {this.setRarityByIndex(this.currentRarityIndex - 1);}
     setRarityByIndex(index) {
-        if (index >= this.rarityMaxIndex) {return false;}
+        if (index >= this.getMaxRarityIndex()) {return false;}
         if (index < 0) {this._setRarityIndex(0); return false;}
         this._setRarityIndex(index);
         this._log('set rarity ' + this.rarityOption.getName());
@@ -90,14 +96,10 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
     //todo listeners test
     //todo add actions map, and class - action, action fields: type, action, name - name - it's map key
     setEventListener(eventType, action) {
-        if (this.action === undefined) {
-            this.getView().addEventListener(eventType, action, false);
-            this.action = action;
-            this.eventType = eventType;
-            this._log(eventType);
-            return;
-        }
-        this._log("Can't set second listeners");
+        this.getView().addEventListener(eventType, action, false);
+        this.action = action;
+        this.eventType = eventType;
+        this._log(eventType);
     }
 
     removeEventListener(eventType) {
