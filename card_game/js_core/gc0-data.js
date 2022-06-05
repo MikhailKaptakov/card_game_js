@@ -170,7 +170,7 @@ GAME_CORE.RarityPack = class RarityPack extends GAME_CORE.Pack{
                 return Math.max(i-1,0);
             }
         }
-        return 0;
+        return this.getMaxIndex();
     }
 }
 

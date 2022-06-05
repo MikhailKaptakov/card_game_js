@@ -110,7 +110,6 @@ GAME_CORE.Player = class Player extends UTIL_CORE.ViewEntity{
 	}
 	_isPrice(price) {
 		UTIL_CORE.checkObjClassName(price, 'Price');
-		//todo проверка типов согласно todo из util-core
 	}
  	_setScore(score) {this.score.updateValue(Math.floor(score));}
 	_setMoney(money) {this.money.updateValue(Math.floor(money));}

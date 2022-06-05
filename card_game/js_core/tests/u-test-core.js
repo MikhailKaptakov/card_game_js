@@ -40,8 +40,7 @@ UTIL_CORE.TEST.assertArray = function (actualArray, expectedArray) {
 UTIL_CORE.TEST.assertClassName = function(object, className) {
     const result = object.constructor.name === className;
     console.log(result);
-    return result;
-    //todo проверка типов согласно todo из util-core
+    return result
 };
 
 UTIL_CORE.TEST.assertArrayElementMethodsResult = function(objectsArray, arrowFuncToObjArg, expected) {
@@ -51,9 +50,6 @@ UTIL_CORE.TEST.assertArrayElementMethodsResult = function(objectsArray, arrowFun
     }
     UTIL_CORE.TEST.assert(res, true);
 };
-//todo написать класс для тестов
-//todo написать тесты для классов и функций UTIL_CORE
-
 
 
 

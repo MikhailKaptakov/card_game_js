@@ -1,335 +1,372 @@
-const GAME_SCENARIO =  {}
-GAME_SCENARIO.initialization = function ()  {
+const SCENARIO =  {}
+SCENARIO.initialization = function ()  {
     GAME_CORE.LOGGERS.loggerInfo.turnOf();
-    GAME_SCENARIO.dataInit();
-    GAME_SCENARIO.objInit();
-    GAME_SCENARIO.viewInit();
-    GAME_SCENARIO.listenersInit();
-    GAME_SCENARIO.startGame();
+    SCENARIO.dataInit();
+    SCENARIO.objInit();
+    SCENARIO.viewInit();
+    SCENARIO.listenersInit();
+    SCENARIO.startGame();
 }
 
-GAME_SCENARIO.dataInit = function () {
-    GAME_SCENARIO.maxOpenChestRounds = 3;
-    GAME_SCENARIO.openChestRounds = GAME_SCENARIO.maxOpenChestRounds;
-    GAME_SCENARIO.roundsBeforeBattleStart = 1;
-    GAME_SCENARIO.timeout = 350;
-    GAME_SCENARIO.activePlayer = null;
-    GAME_SCENARIO.activeUnit = null;
-    GAME_SCENARIO.gameStop = false;
-    GAME_SCENARIO.cardListeners = [];
-    GAME_SCENARIO.typesArray = ['шлем', 'меч', 'латы', 'штаны', 'ботинки']
-    GAME_SCENARIO.setStartRarity(90000);
-    GAME_SCENARIO.minRarityArray = GAME_SCENARIO.fillRarityArrayDefault([0, 15000,20000,25000,30000,32500,35000,35000,35000,50000,50000], 50000);
-    GAME_SCENARIO.decreaseRarityArray = GAME_SCENARIO.fillRarityArrayDefault([0, 2500,2250,2000,1500,1000,750,500,375,250,100], 100);
+SCENARIO.dataInit = function () {
+    SCENARIO.maxOpenChestRounds = 3;
+    SCENARIO.openChestRounds = SCENARIO.maxOpenChestRounds;
+    SCENARIO.roundsBeforeBattleStart = 1;
+    SCENARIO.timeout = 350;
+    SCENARIO.activePlayer = null;
+    SCENARIO.activeUnit = null;
+    SCENARIO.gameStop = false;
+    SCENARIO.cardListeners = [];
+    SCENARIO.typesArray = ['шлем', 'меч', 'латы', 'штаны', 'ботинки']
+    SCENARIO.setStartRarity(90000);
+    SCENARIO.minRarityArray = SCENARIO.fillRarityArrayDefault([0, 15000,20000,25000,30000,32500,35000,35000,35000,50000,50000], 50000);
+    SCENARIO.decreaseRarityArray = SCENARIO.fillRarityArrayDefault([0, 2500,2250,2000,1500,1000,750,500,375,250,100], 100);
 }
 
-GAME_SCENARIO.setStartRarity = function (rarity) {
-    GAME_SCENARIO.maxRarityIndex = GAME_CORE.DEFAULT_PROPS.rarityPack.getMaxIndex();
-    GAME_SCENARIO.currentIndex = 0;
+SCENARIO.setStartRarity = function (rarity) {
+    SCENARIO.maxRarityIndex = GAME_CORE.DEFAULT_PROPS.rarityPack.getMaxIndex();
+    SCENARIO.currentIndex = 0;
     GAME_CORE.DEFAULT_PROPS.rarityPack.doThisToEveryElement(function (rarityOption) {
         rarityOption.setDifficult(rarity);
     });
     GAME_CORE.DEFAULT_PROPS.rarityPack.getByIndex(0).setDifficult(0);
 }
 
-GAME_SCENARIO.fillRarityArrayDefault = function (array, defaultValue) {
-    while (array.length < GAME_SCENARIO.maxRarityIndex + 1) {
+SCENARIO.fillRarityArrayDefault = function (array, defaultValue) {
+    while (array.length < SCENARIO.maxRarityIndex + 1) {
         array.push(defaultValue);
     }
     return array;
 }
 
-GAME_SCENARIO.objInit = function ()  {
+SCENARIO.objInit = function ()  {
     /*** GAME_FIELDS ***/
-    GAME_SCENARIO.gameFieldHead = new GAME_CORE.GameField('game-field-head', undefined, 5);
-    GAME_SCENARIO.gameFieldArms = new GAME_CORE.GameField('game-field-arms', undefined, 5);
-    GAME_SCENARIO.gameFieldBody = new GAME_CORE.GameField('game-field-body', undefined, 5);
-    GAME_SCENARIO.gameFieldsLegs = new GAME_CORE.GameField('game-field-legs', undefined, 5);
-    GAME_SCENARIO.gameFieldsFeets = new GAME_CORE.GameField('game-field-feet', undefined, 5);
-    GAME_SCENARIO.gameFields = [GAME_SCENARIO.gameFieldHead, GAME_SCENARIO.gameFieldArms, GAME_SCENARIO.gameFieldBody,
-        GAME_SCENARIO.gameFieldsLegs, GAME_SCENARIO.gameFieldsFeets];
-    GAME_SCENARIO.gameFieldsActivity = [false, false, false, false, false];
+    SCENARIO.gameFieldHead = new GAME_CORE.GameField('game-field-head', undefined, 5);
+    SCENARIO.gameFieldArms = new GAME_CORE.GameField('game-field-arms', undefined, 5);
+    SCENARIO.gameFieldBody = new GAME_CORE.GameField('game-field-body', undefined, 5);
+    SCENARIO.gameFieldsLegs = new GAME_CORE.GameField('game-field-legs', undefined, 5);
+    SCENARIO.gameFieldsFeets = new GAME_CORE.GameField('game-field-feet', undefined, 5);
+    SCENARIO.gameFields = [SCENARIO.gameFieldHead, SCENARIO.gameFieldArms, SCENARIO.gameFieldBody,
+        SCENARIO.gameFieldsLegs, SCENARIO.gameFieldsFeets];
+    SCENARIO.gameFieldsActivity = [false, false, false, false, false];
     /*** GAME_CHAT ***/
-    GAME_SCENARIO.gameChat = new GAME_CORE.LogChat('log-field', undefined, 6);
+    SCENARIO.gameChat = new GAME_CORE.LogChat('log-field', undefined, 9);
+    SCENARIO.infoColor = "yellow";
     /*** PLAYERS ***/
-    GAME_SCENARIO.player1 = new GAME_CORE.Player('pl1', 'Player1');
-    GAME_SCENARIO.player2 = new GAME_CORE.Player('pl2', 'Player2');
-    GAME_SCENARIO.player1.color = "rgb(255,165,0,1)";
-    GAME_SCENARIO.player2.color = "rgb(0,191,255,1)";
+    SCENARIO.player1 = new GAME_CORE.Player('pl1', 'Player1');
+    SCENARIO.player2 = new GAME_CORE.Player('pl2', 'Player2');
+    SCENARIO.player1.color = "rgb(255,165,0,1)";
+    SCENARIO.player2.color = "rgb(0,191,255,1)";
     /*** UNITS ***/
-    GAME_SCENARIO.unit1 = new GAME_CORE.Unit('u1', 'Unit1', undefined, GAME_SCENARIO.player1);
-    GAME_SCENARIO.unit1.setModification(GAME_SCENARIO.getStandardPunish());
-    GAME_SCENARIO.unit2 = new GAME_CORE.Unit('u2', 'Unit2', undefined, GAME_SCENARIO.player2);
-    GAME_SCENARIO.unit2.setModification(GAME_SCENARIO.getStandardPunish());
+    SCENARIO.unit1 = new GAME_CORE.Unit('u1', 'Unit1', undefined, SCENARIO.player1);
+    SCENARIO.unit1.setModification(SCENARIO.getStandardPunish());
+    SCENARIO.unit1.setModification(SCENARIO.getStandardScatter());
+    SCENARIO.unit2 = new GAME_CORE.Unit('u2', 'Unit2', undefined, SCENARIO.player2);
+    SCENARIO.unit2.setModification(SCENARIO.getStandardPunish());
+    SCENARIO.unit1.setModification(SCENARIO.getStandardScatter());
     /*** BATTLE ***/
-    GAME_SCENARIO.fighter1 = new GAME_CORE.BATTLE.Fighter(GAME_SCENARIO.unit1,
-        undefined, undefined, GAME_SCENARIO.player1.color);
-    GAME_SCENARIO.fighter2 = new GAME_CORE.BATTLE.Fighter(GAME_SCENARIO.unit2,
-        undefined, undefined, GAME_SCENARIO.player2.color);
-    GAME_SCENARIO.fighterPool = new GAME_CORE.BATTLE.DuelFightersPool(GAME_SCENARIO.fighter1, GAME_SCENARIO.fighter2);
-    GAME_SCENARIO.attackProcessor = new GAME_CORE.BATTLE.AttackProcessor();
-    GAME_SCENARIO.fightActions = new GAME_CORE.BATTLE.DuelFightActions(GAME_SCENARIO.fighterPool,
-        GAME_SCENARIO.attackProcessor);
-    GAME_SCENARIO.battleView = new GAME_CORE.BATTLE.LogChatViewActions(GAME_SCENARIO.gameChat,
-        undefined, undefined, undefined, GAME_SCENARIO.timeout);
-    GAME_SCENARIO.battle = new GAME_CORE.BATTLE.Battle(GAME_SCENARIO.fightActions, GAME_SCENARIO.battleView);
+    SCENARIO.fighter1 = new GAME_CORE.BATTLE.Fighter(SCENARIO.unit1,
+        undefined, undefined, SCENARIO.player1.color);
+    SCENARIO.fighter2 = new GAME_CORE.BATTLE.Fighter(SCENARIO.unit2,
+        undefined, undefined, SCENARIO.player2.color);
+    SCENARIO.fighterPool = new GAME_CORE.BATTLE.DuelFightersPool(SCENARIO.fighter1, SCENARIO.fighter2);
+    SCENARIO.attackProcessor = new GAME_CORE.BATTLE.AttackProcessor();
+    SCENARIO.fightActions = new GAME_CORE.BATTLE.DuelFightActions(SCENARIO.fighterPool,
+        SCENARIO.attackProcessor);
+    SCENARIO.battleView = new GAME_CORE.BATTLE.LogChatViewActions(SCENARIO.gameChat,
+        undefined, undefined, undefined, SCENARIO.timeout);
+    SCENARIO.battle = new GAME_CORE.BATTLE.Battle(SCENARIO.fightActions, SCENARIO.battleView);
     /*** UTILS ***/
-    GAME_SCENARIO.presetLetter = new UTIL_CORE.PresetLetter();
+    SCENARIO.presetLetter = new UTIL_CORE.PresetLetter();
 
 }
-GAME_SCENARIO.getStandardPunish = function () {
+SCENARIO.getStandardPunish = function () {
     const pun = GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.basePunish();
     pun.setMaxLevel();
     return pun;
 }
 
-GAME_SCENARIO.viewInit = function () {
+SCENARIO.getStandardScatter = function () {
+    return GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.scatter();
+}
+
+SCENARIO.viewInit = function () {
     for (let i = 0; i<5; i++) {
-        GAME_SCENARIO.gameFields[i].fill();
+        SCENARIO.gameFields[i].fill();
+        SCENARIO.gameFields[i].doIt(function() {this.setCardTypeByIndex(i);});
     }
-    GAME_SCENARIO.unit1.equipment.appendCards();
-    GAME_SCENARIO.unit1.equipment.openCards();
-    GAME_SCENARIO.unit2.equipment.appendCards();
-    GAME_SCENARIO.unit2.equipment.openCards();
+    SCENARIO.unit1.equipment.appendCards();
+    SCENARIO.unit1.equipment.openCards();
+    SCENARIO.unit2.equipment.appendCards();
+    SCENARIO.unit2.equipment.openCards();
 }
 
-GAME_SCENARIO.listenersInit  = function () {
-    GAME_SCENARIO.setStopGameListener();
-    GAME_SCENARIO.setRenamerListeners();
-    GAME_SCENARIO.initCardListeners();
+SCENARIO.listenersInit  = function () {
+    SCENARIO.setStopGameListener();
+    SCENARIO.setRenamerListeners();
+    SCENARIO.initCardListeners();
 }
 
-GAME_SCENARIO.setStopGameListener = function ()  {
+SCENARIO.setStopGameListener = function ()  {
     document.addEventListener('keyup', function (e) {
         if (e.code === "KeyQ")
-            GAME_SCENARIO.gameStop = true;
+            SCENARIO.gameStop = true;
     });
 }
 
-GAME_SCENARIO.setRenamerListeners = function () {
+SCENARIO.setRenamerListeners = function () {
     const rename = function (playerOrUnit) {
         const newName = prompt("Введите ваше имя", playerOrUnit.getName());
         playerOrUnit.setName(newName);
     }
-    GAME_SCENARIO.player1.name.getView().addEventListener('click', function() {
-        rename(GAME_SCENARIO.player1);
+    SCENARIO.player1.name.getView().addEventListener('click', function() {
+        rename(SCENARIO.player1);
     });
-    GAME_SCENARIO.player2.name.getView().addEventListener('click', function() {
-        rename(GAME_SCENARIO.player2);
+    SCENARIO.player2.name.getView().addEventListener('click', function() {
+        rename(SCENARIO.player2);
     });
-    GAME_SCENARIO.unit1.name.getView().addEventListener('click', function() {
-        rename(GAME_SCENARIO.unit1);
+    SCENARIO.unit1.name.getView().addEventListener('click', function() {
+        rename(SCENARIO.unit1);
     });
-    GAME_SCENARIO.unit2.name.getView().addEventListener('click', function() {
-        rename(GAME_SCENARIO.unit2);
+    SCENARIO.unit2.name.getView().addEventListener('click', function() {
+        rename(SCENARIO.unit2);
     });
 }
 
 
-GAME_SCENARIO.startGame = async function () {
-    GAME_SCENARIO.setActivePlayerUnit();
-    while (!GAME_SCENARIO.gameStop) {
-        for (let i = 0; i < GAME_SCENARIO.maxOpenChestRounds*2*GAME_SCENARIO.roundsBeforeBattleStart; i++) {
-            await GAME_SCENARIO.openChest();
+SCENARIO.startGame = async function () {
+    SCENARIO.setActivePlayerUnit();
+    while (!SCENARIO.gameStop) {
+        for (let i = 0; i < SCENARIO.maxOpenChestRounds*2*SCENARIO.roundsBeforeBattleStart; i++) {
+            await SCENARIO.openChest();
         }
-        GAME_SCENARIO.rarityPackDecrease();
-        GAME_SCENARIO.gameChat.clear();
-        await GAME_SCENARIO.battle.fight();
+        SCENARIO.rarityPackDecrease();
+        SCENARIO.gameChat.clear();
+        const result = await SCENARIO.battle.fight();
+        await SCENARIO.battleResultAction(result);
+        //todo добавить в действия при победе проверку на победу, переменную проверки на победу включить в проверку цикла,
+        // за пределами цикла добавить финальные победные действия и полный рестарт игры
     }
 };
 
-GAME_SCENARIO.openChest = async function () {
-    if (GAME_SCENARIO.openChestRounds <= 0 ) {
-        GAME_SCENARIO.setActivePlayerUnit();
-        GAME_SCENARIO.openChestRounds = GAME_SCENARIO.maxOpenChestRounds;
+SCENARIO.openChest = async function () {
+    if (SCENARIO.openChestRounds <= 0 ) {
+        SCENARIO.setActivePlayerUnit();
+        SCENARIO.openChestRounds = SCENARIO.maxOpenChestRounds;
     }
-    if (GAME_SCENARIO.openChestRounds === GAME_SCENARIO.maxOpenChestRounds) {
-        await GAME_SCENARIO.gameChat.writeLetters([GAME_SCENARIO.getActivePlayerNameLetter(),
-            GAME_SCENARIO.presetLetter.getNoColoredLetter(" получил "),
-            GAME_SCENARIO.presetLetter.getColoredLetter(GAME_SCENARIO.maxOpenChestRounds , GAME_SCENARIO.infoColor),
-            GAME_SCENARIO.presetLetter.getNoColoredLetter(" сундука.")], 0);
+    if (SCENARIO.openChestRounds === SCENARIO.maxOpenChestRounds) {
+        await SCENARIO.gameChat.writeLetters([SCENARIO.getActivePlayerNameLetter(),
+            SCENARIO.presetLetter.getNoColoredLetter(" получил "),
+            SCENARIO.presetLetter.getColoredLetter(SCENARIO.maxOpenChestRounds , SCENARIO.infoColor),
+            SCENARIO.presetLetter.getNoColoredLetter(" сундука.")], 0);
     }
-    await GAME_SCENARIO.gameChat.writeLetters([GAME_SCENARIO.getActivePlayerNameLetter(),
-        GAME_SCENARIO.presetLetter.getNoColoredLetter(" открывает  "),
-        GAME_SCENARIO.presetLetter.getColoredLetter(GAME_SCENARIO.openChestRounds , GAME_SCENARIO.infoColor),
-        GAME_SCENARIO.presetLetter.getNoColoredLetter(" сундук:")], 0);
-    await GAME_SCENARIO.lootAction();
-    while(!GAME_SCENARIO.gameStop) {
-        if (!GAME_SCENARIO.gameFieldsActivity[0] &&
-            !GAME_SCENARIO.gameFieldsActivity[1] &&
-            !GAME_SCENARIO.gameFieldsActivity[2] &&
-            !GAME_SCENARIO.gameFieldsActivity[3] &&
-            !GAME_SCENARIO.gameFieldsActivity[4])
+    await SCENARIO.gameChat.writeLetters([SCENARIO.getActivePlayerNameLetter(),
+        SCENARIO.presetLetter.getNoColoredLetter(" открывает  "),
+        SCENARIO.presetLetter.getColoredLetter(SCENARIO.openChestRounds , SCENARIO.infoColor),
+        SCENARIO.presetLetter.getNoColoredLetter(" сундук:")], 0);
+    await SCENARIO.lootAction();
+    while(true) {
+        if (!SCENARIO.gameFieldsActivity[0] &&
+            !SCENARIO.gameFieldsActivity[1] &&
+            !SCENARIO.gameFieldsActivity[2] &&
+            !SCENARIO.gameFieldsActivity[3] &&
+            !SCENARIO.gameFieldsActivity[4])
         {break;}
         await UTIL_CORE.sleep(500);
     }
-    await UTIL_CORE.sleep(GAME_SCENARIO.timeout);
-    GAME_SCENARIO.openChestRounds--;
+    await UTIL_CORE.sleep(SCENARIO.timeout);
+    SCENARIO.openChestRounds--;
 }
 
-GAME_SCENARIO.setActivePlayerUnit = function() {
-    if (GAME_SCENARIO.activePlayer === null) {
-        GAME_SCENARIO.activePlayer = GAME_SCENARIO.player1;
-        GAME_SCENARIO.activeUnit = GAME_SCENARIO.unit1;
-    } else if (GAME_SCENARIO.activePlayer === GAME_SCENARIO.player1) {
-        GAME_SCENARIO.activePlayer = GAME_SCENARIO.player2;
-        GAME_SCENARIO.activeUnit = GAME_SCENARIO.unit2;
-    } else if (GAME_SCENARIO.activePlayer === GAME_SCENARIO.player2) {
-        GAME_SCENARIO.activePlayer = GAME_SCENARIO.player1;
-        GAME_SCENARIO.activeUnit = GAME_SCENARIO.unit1;
+SCENARIO.setActivePlayerUnit = function() {
+    if (SCENARIO.activePlayer === null) {
+        SCENARIO.activePlayer = SCENARIO.player1;
+        SCENARIO.activeUnit = SCENARIO.unit1;
+    } else if (SCENARIO.activePlayer === SCENARIO.player1) {
+        SCENARIO.activePlayer = SCENARIO.player2;
+        SCENARIO.activeUnit = SCENARIO.unit2;
+    } else if (SCENARIO.activePlayer === SCENARIO.player2) {
+        SCENARIO.activePlayer = SCENARIO.player1;
+        SCENARIO.activeUnit = SCENARIO.unit1;
     }
 }
 
-GAME_SCENARIO.lootAction = function() {
+SCENARIO.lootAction = function() {
     for (let i = 0; i<5; i++) {
-        const eqCard = GAME_SCENARIO.activeUnit.getEquipment().getCardByIndex(i);
+        const eqCard = SCENARIO.activeUnit.getEquipment().getCardByIndex(i);
         let condition = false;
+
         if (!eqCard.isMaxRarityIndex()) {
-            GAME_SCENARIO.gameFields[i].setRandomRarity();
-            for (let j = 0; j<GAME_SCENARIO.gameFields[i].getCardsCount(); j++) {
-                condition = condition || GAME_SCENARIO.isMoreRare(GAME_SCENARIO.gameFields[i].getCardByIndex(j), eqCard);
+            SCENARIO.gameFields[i].setRandomRarity();
+            for (let j = 0; j<SCENARIO.gameFields[i].getCardsCount(); j++) {
+                condition = condition || SCENARIO.isMoreRare(SCENARIO.gameFields[i].getCardByIndex(j), eqCard);
             }
+        } else {
+            SCENARIO.gameFields[i].closeCards();
         }
         if (condition) {
-            GAME_SCENARIO.gameFieldsActivity[i] = true;
-            GAME_SCENARIO.setGameFieldCardListeners(i);
-            GAME_SCENARIO.gameFields[i].setActive();
+            SCENARIO.gameFieldsActivity[i] = true;
+            SCENARIO.setGameFieldCardListeners(i);
+            SCENARIO.gameFields[i].setActive();
         } else {
-            GAME_SCENARIO.gameFields[i].setInactive();
-            GAME_SCENARIO.gameFieldsActivity[i] = false;
+            SCENARIO.gameFields[i].setInactive();
+            SCENARIO.gameFieldsActivity[i] = false;
         }
     }
 }
 
-GAME_SCENARIO.isMoreRare = function (card, eqCard) {
+SCENARIO.isMoreRare = function (card, eqCard) {
     return card.getRarityIndex() > eqCard.getRarityIndex();
 }
 
-GAME_SCENARIO.setGameFieldCardListeners  =  function (gameFieldIndex)  {
-    GAME_SCENARIO.gameFields[gameFieldIndex].addListeners('click', GAME_SCENARIO.cardListeners[gameFieldIndex]);
+SCENARIO.setGameFieldCardListeners  =  function (gameFieldIndex)  {
+    SCENARIO.gameFields[gameFieldIndex].addListeners('click', SCENARIO.cardListeners[gameFieldIndex]);
 }
 
-GAME_SCENARIO.initCardListeners  = function () {
-    GAME_SCENARIO.cardListeners[0] =  function (card) {
-        GAME_SCENARIO.gameFieldAction(0);
-        GAME_SCENARIO.cardListener(card, 0);
+SCENARIO.initCardListeners  = function () {
+    SCENARIO.cardListeners[0] =  function (card) {
+        SCENARIO.gameFieldAction(0);
+        SCENARIO.cardListener(card, 0);
     }
-    GAME_SCENARIO.cardListeners[1] = function (card) {
-        GAME_SCENARIO.gameFieldAction(1);
-        GAME_SCENARIO.cardListener(card, 1);
+    SCENARIO.cardListeners[1] = function (card) {
+        SCENARIO.gameFieldAction(1);
+        SCENARIO.cardListener(card, 1);
     }
-    GAME_SCENARIO.cardListeners[2] = function (card) {
-        GAME_SCENARIO.gameFieldAction(2);
-        GAME_SCENARIO.cardListener(card, 2);
+    SCENARIO.cardListeners[2] = function (card) {
+        SCENARIO.gameFieldAction(2);
+        SCENARIO.cardListener(card, 2);
     }
-    GAME_SCENARIO.cardListeners[3] = function (card) {
-        GAME_SCENARIO.gameFieldAction(3);
-        GAME_SCENARIO.cardListener(card, 3);
+    SCENARIO.cardListeners[3] = function (card) {
+        SCENARIO.gameFieldAction(3);
+        SCENARIO.cardListener(card, 3);
     }
-    GAME_SCENARIO.cardListeners[4] = function (card) {
-        GAME_SCENARIO.gameFieldAction(4);
-        GAME_SCENARIO.cardListener(card, 4);
+    SCENARIO.cardListeners[4] = function (card) {
+        SCENARIO.gameFieldAction(4);
+        SCENARIO.cardListener(card, 4);
     }
 }
 
-GAME_SCENARIO.cardListener  =  function (card, gameFieldIndex) {
+SCENARIO.cardListener  =  function (card, gameFieldIndex) {
     card.openCard();
     card.setActive();
     const cardRarity = card.getRarityIndex();
     if (cardRarity === 0) {
-        GAME_SCENARIO.cardIsEmptyMessage();
+        SCENARIO.cardIsEmptyMessage();
         return;
     }
-    GAME_SCENARIO.openCardMessage(card, gameFieldIndex);
-    const equipCard = GAME_SCENARIO.activeUnit.getEquipment().getCardByIndex(gameFieldIndex);
+    SCENARIO.openCardMessage(card, gameFieldIndex);
+    const equipCard = SCENARIO.activeUnit.getEquipment().getCardByIndex(gameFieldIndex);
     const compareResult = cardRarity - equipCard.getRarityIndex();
     if (compareResult > 0) {
-        GAME_SCENARIO.activeUnit.beFullHealed();
-        GAME_SCENARIO.successUpgradeEquipMessage();
-        GAME_SCENARIO.sellCard(equipCard);
+        SCENARIO.successUpgradeEquipMessage();
+        SCENARIO.sellCard(equipCard);
         equipCard.setRarityByIndex(cardRarity);
+        SCENARIO.activeUnit.updateAllParam();
+        SCENARIO.activeUnit.beFullHealed();
         return;
     }
     if  (compareResult === 0) {
-        GAME_SCENARIO.equalEquipMessage();
+        SCENARIO.equalEquipMessage();
     } else {
-        GAME_SCENARIO.lowerEquipMessage();
+        SCENARIO.lowerEquipMessage();
     }
-    GAME_SCENARIO.sellCard(card);
+    SCENARIO.sellCard(card);
 }
 
-GAME_SCENARIO.gameFieldAction  = function (gameFieldIndex) {
-    GAME_SCENARIO.gameFields[gameFieldIndex].resetCardView();
-    GAME_SCENARIO.gameFields[gameFieldIndex].setInactive();
-    GAME_SCENARIO.gameFieldsActivity[gameFieldIndex] = false;
+SCENARIO.gameFieldAction  = function (gameFieldIndex) {
+    SCENARIO.gameFields[gameFieldIndex].resetCardView();
+    SCENARIO.gameFields[gameFieldIndex].setInactive();
+    SCENARIO.gameFields[gameFieldIndex].openCards();
+    SCENARIO.gameFieldsActivity[gameFieldIndex] = false;
 }
 
-GAME_SCENARIO.cardIsEmptyMessage = function () {
+SCENARIO.cardIsEmptyMessage = function () {
     const letters = [];
-    letters.push(GAME_SCENARIO.presetLetter.getNoColoredLetter("Пусто!"));
-    GAME_SCENARIO.gameChat.writeLetters(letters, 0);
+    letters.push(SCENARIO.presetLetter.getNoColoredLetter("Пусто!"));
+    SCENARIO.gameChat.writeLetters(letters, 0);
 };
-GAME_SCENARIO.openCardMessage = function (card, i) {
+SCENARIO.openCardMessage = function (card, i) {
     const letters = [];
     letters.push(card.getColoredAdjective());
-    letters.push(GAME_SCENARIO.presetLetter.getNoColoredLetter(" "));
-    letters.push(GAME_SCENARIO.presetLetter.getColoredLetter(GAME_SCENARIO.typesArray[i], card.getRarityColor()));
-    GAME_SCENARIO.gameChat.writeLetters(letters, 0);
+    letters.push(SCENARIO.presetLetter.getNoColoredLetter(" "));
+    letters.push(SCENARIO.presetLetter.getColoredLetter(SCENARIO.typesArray[i], card.getRarityColor()));
+    SCENARIO.gameChat.writeLetters(letters, 0);
 };
 
-GAME_SCENARIO.successUpgradeEquipMessage = function() {
+SCENARIO.successUpgradeEquipMessage = function() {
     const letters = [];
-    letters.push(GAME_SCENARIO.getActivePlayerNameLetter());
-    letters.push(GAME_SCENARIO.presetLetter.getNoColoredLetter(' обновил своё  снаряжение'));
-    GAME_SCENARIO.gameChat.writeLetters(letters, 0);
+    letters.push(SCENARIO.getActivePlayerNameLetter());
+    letters.push(SCENARIO.presetLetter.getNoColoredLetter(' обновил своё  снаряжение'));
+    SCENARIO.gameChat.writeLetters(letters, 0);
 };
 
-GAME_SCENARIO.equalEquipMessage = function() {
+SCENARIO.equalEquipMessage = function() {
     const letters = [];
-    letters.push(GAME_SCENARIO.getActivePlayerNameLetter());
-    letters.push(GAME_SCENARIO.presetLetter.getNoColoredLetter(' получил равное своему снаряжение'));
-    GAME_SCENARIO.gameChat.writeLetters(letters, 0);
+    letters.push(SCENARIO.getActivePlayerNameLetter());
+    letters.push(SCENARIO.presetLetter.getNoColoredLetter(' получил равное своему снаряжение'));
+    SCENARIO.gameChat.writeLetters(letters, 0);
 };
 
-GAME_SCENARIO.lowerEquipMessage = function() {
+SCENARIO.lowerEquipMessage = function() {
     const letters = [];
-    letters.push(GAME_SCENARIO.getActivePlayerNameLetter());
-    letters.push(GAME_SCENARIO.presetLetter.getNoColoredLetter(' не повезло, эта вещь явно хуже'));
-    GAME_SCENARIO.gameChat.writeLetters(letters, 0);
+    letters.push(SCENARIO.getActivePlayerNameLetter());
+    letters.push(SCENARIO.presetLetter.getNoColoredLetter(' не повезло, эта вещь явно хуже'));
+    SCENARIO.gameChat.writeLetters(letters, 0);
 };
 
-GAME_SCENARIO.sellCard = function (card){
+SCENARIO.sellCard = function (card){
     const letters = [];
-    GAME_SCENARIO.activePlayer.sell(card.getPrice());
-    letters.push(GAME_SCENARIO.getActivePlayerNameLetter());
-    letters.push(GAME_SCENARIO.presetLetter.getNoColoredLetter("  выручил - " + card.getSellPrice() + ' монет'));
-    GAME_SCENARIO.gameChat.writeLetters(letters, 0);
+    SCENARIO.activePlayer.sell(card.getPrice());
+    letters.push(SCENARIO.getActivePlayerNameLetter());
+    letters.push(SCENARIO.presetLetter.getNoColoredLetter("  выручил - " + card.getSellPrice() + ' монет'));
+    SCENARIO.gameChat.writeLetters(letters, 0);
 };
 
-GAME_SCENARIO.getActivePlayerNameLetter = function() {
-    return GAME_SCENARIO.presetLetter.getColoredLetter(GAME_SCENARIO.activePlayer.getName(),
-        GAME_SCENARIO.activePlayer.color);
+SCENARIO.getActivePlayerNameLetter = function() {
+    return SCENARIO.presetLetter.getColoredLetter(SCENARIO.activePlayer.getName(),
+        SCENARIO.activePlayer.color);
 }
 
-GAME_SCENARIO.rarityPackDecrease = function () {
-    GAME_CORE.DEFAULT_PROPS.rarityPack.doThisToEveryElement(GAME_SCENARIO.difficultDecreaseFunction);
+SCENARIO.rarityPackDecrease = function () {
+    GAME_CORE.DEFAULT_PROPS.rarityPack.doThisToEveryElement(SCENARIO.difficultDecreaseFunction);
 }
-GAME_SCENARIO.difficultDecreaseFunction = function (rarityOption) {
-    if (rarityOption.getDifficult() > GAME_SCENARIO.minRarityArray[GAME_SCENARIO.currentIndex]) {
-        rarityOption.setDifficult(Math.max(rarityOption.getDifficult() - GAME_SCENARIO.difficultDecreaseValue(), 0));
+SCENARIO.difficultDecreaseFunction = function (rarityOption) {
+    if (rarityOption.getDifficult() > SCENARIO.minRarityArray[SCENARIO.currentIndex]) {
+        rarityOption.setDifficult(Math.max(rarityOption.getDifficult() - SCENARIO.difficultDecreaseValue(), 0));
     }
-    GAME_SCENARIO.increaseCurrentIndex();
+    SCENARIO.increaseCurrentIndex();
 };
-GAME_SCENARIO.difficultDecreaseValue = function () {
-    return GAME_SCENARIO.decreaseRarityArray[GAME_SCENARIO.currentIndex];
+SCENARIO.difficultDecreaseValue = function () {
+    return SCENARIO.decreaseRarityArray[SCENARIO.currentIndex];
 };
-GAME_SCENARIO.increaseCurrentIndex = function () {
-    if (GAME_SCENARIO.currentIndex < GAME_SCENARIO.maxRarityIndex) {
-        GAME_SCENARIO.currentIndex++;
+SCENARIO.increaseCurrentIndex = function () {
+    if (SCENARIO.currentIndex < SCENARIO.maxRarityIndex) {
+        SCENARIO.currentIndex++;
     } else {
-        GAME_SCENARIO.currentIndex = 0;
+        SCENARIO.currentIndex = 0;
     }
 };
 
-GAME_SCENARIO.initialization();
+SCENARIO.battleResultAction = async function (battleResult) {
+    const fighter = battleResult.getWinner();
+    const unit =  fighter.getUnit();
+    const player = unit.getOwner();
+    await SCENARIO.gameChat.writeLetters([
+        SCENARIO.presetLetter.getLetter(unit.getName(), fighter.color),
+        SCENARIO.presetLetter.getNoColoredLetter(' победил!')
+    ], SCENARIO.timeout);
+    if (player !== undefined) {
+        const score = unit.getWins()*10;
+        player.increaseScore(score);
+        await SCENARIO.gameChat.writeLetters([
+            SCENARIO.presetLetter.getNoColoredLetter('Игрок получает '),
+            SCENARIO.presetLetter.getLetter(player.getName(), fighter.color),
+            SCENARIO.presetLetter.getNoColoredLetter(' получает '),
+            SCENARIO.presetLetter.getLetter(score, SCENARIO.infoColor),
+            SCENARIO.presetLetter.getNoColoredLetter('  победных очков!'),
+        ], SCENARIO.timeout);
+    }
+    await UTIL_CORE.sleep(1000);
+}
+SCENARIO.initialization();
 

@@ -150,7 +150,6 @@ GAME_CORE.GameField = class GameField extends UTIL_CORE.ViewEntity{
         }
         return true;
     }
-    //todo add tests
     addListeners(type, action) {
         for (const card of this.cardArray) {
             const wrap = function() {

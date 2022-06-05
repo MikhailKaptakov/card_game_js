@@ -1,4 +1,3 @@
-//todo create test
 GAME_CORE.LogChat = class LogChat extends UTIL_CORE.ViewEntity{
 	constructor(id,  viewParent = undefined,maxMessage) {
 		super(id, viewParent);
@@ -8,12 +7,10 @@ GAME_CORE.LogChat = class LogChat extends UTIL_CORE.ViewEntity{
 		this._log('created', 'constructor');
 	}
 	//асинхронность только из-за функции UTIL_CORE.sleep(milliseconds), добавлять await при вызове
-	//todo encapsulate async
 	async writeText(innerText, sleepTime = 200) {
 		const st = Math.floor(sleepTime/2);
 		await UTIL_CORE.sleep(st);
 		this._clearIfNecessary();
-		//todo выделить общий код в отдельный private метод
 		const p = document.createElement('p');
 		p.textContent = innerText;
 		this.view.appendChild(p);

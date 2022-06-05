@@ -59,7 +59,7 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
         this._setCardTypeIndex(this.getCardTypePack().getCardTypeIndexByName(name));
     }
     setCardTypeByIndex(index) {
-        if (index >= this.cardTypeMaxIndex || index < 0) {return false;}
+        if (index > this.cardTypeMaxIndex || index < 0) {return false;}
         this._setCardTypeIndex(index);
         this._log('set cardType: ' + this.cardType.getName());
     }
@@ -80,7 +80,7 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
     incrementRarity() {this.setRarityByIndex(this.currentRarityIndex + 1);}
     decrementRarity() {this.setRarityByIndex(this.currentRarityIndex - 1);}
     setRarityByIndex(index) {
-        if (index >= this.getMaxRarityIndex()) {return false;}
+        if (index > this.getMaxRarityIndex()) {return false;}
         if (index < 0) {this._setRarityIndex(0); return false;}
         this._setRarityIndex(index);
         this._log('set rarity ' + this.rarityOption.getName());
@@ -93,8 +93,6 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
 
 
     /******Listener******/
-    //todo listeners test
-    //todo add actions map, and class - action, action fields: type, action, name - name - it's map key
     setEventListener(eventType, action) {
         this.getView().addEventListener(eventType, action, false);
         this.action = action;
@@ -186,8 +184,11 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
         }
     }
 
-    setDescription(description) {
-        this.description = description;
+    setDescription(description=undefined) {
+        if(description !== undefined) {
+            this.overrideDescription = description;
+            this.description = description;
+        }
         this._setDescription();
     }
 
@@ -202,7 +203,8 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
             '', '');
     }
     _initDescription() {
-        this.description = this.rarityOption.getDescription();
+        this.overrideDescription = undefined;
+        this.description = this.getRarityOption().getDescription();
         if (this.isOpen() && this.isActive()) {
             this.setTitle(this.description);
         }
@@ -210,6 +212,9 @@ GAME_CORE.Card = class Card extends UTIL_CORE.ViewEntity {
     }
 
     _setDescription() {
+        if (this.overrideDescription === undefined) {
+            this.description = this.getRarityOption().getDescription();
+        }
         if (this.isOpen() && this.isActive()) {
             this.setTitle(this.description);
         } else {this.setTitle('');}

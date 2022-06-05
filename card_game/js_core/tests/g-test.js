@@ -471,8 +471,6 @@ GAME_CORE.TEST.GameField.cardManipulationTests = function () {
     }
     UTIL_CORE.TEST.assert(res, true);
 };
-//todo добавить разделение тестов в отдельные методы, более частое разделение, чтобы уменьшить количество зависимостей
-//todo добавить тесты на граничные условия (для всех классов пересмотреть все имеющиеся тесты)
 GAME_CORE.TEST.LogChat = {};
 GAME_CORE.TEST.LogChat.create = function() {
     return new GAME_CORE.LogChat('test', undefined, 3);
@@ -500,7 +498,6 @@ GAME_CORE.TEST.LogChat.run = async function () {
 };
 GAME_CORE.TEST.LogChat.writeText = async function () {
     console.log('writeText');
-    //todo переименовать константы созданных объектов в подобных тестах по названию класса
     const logChat = GAME_CORE.TEST.LogChat.create();
     await logChat.writeText('innerText');
     UTIL_CORE.TEST.assert(logChat.getView().firstChild.textContent, 'innerText');
@@ -937,7 +934,6 @@ GAME_CORE.TEST.ModificationMaps.run = function () {
     UTIL_CORE.TEST.assert(maps.getModificationMap('notExist'),
         undefined);
 };
-//todo create tests to all default modifications после написание тестов всех классов
 
 GAME_CORE.TEST.Unit = {};
 GAME_CORE.TEST.Unit.create = function() {
@@ -979,7 +975,6 @@ GAME_CORE.TEST.Unit.tests = function () {
     equip.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.body).getCard().setRarityByIndex(3);
     equip.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.legs).getCard().setRarityByIndex(3);
     equip.getCellByName(GAME_CORE.DEFAULT_PROPS.EquipTypes.feet).getCard().setRarityByIndex(3);
-    //todo новые методы обновления редкости карты напрямую из юнита, с параллельным обновлением всех параметров;
     console.log('updateMaxHealth');
     unit.updateMaxHealth();
     UTIL_CORE.TEST.assert(unit.getMaxHealth(),525);

@@ -1,5 +1,4 @@
 GAME_CORE.BATTLE = {}
-//todo create test
 GAME_CORE.BATTLE.Battle = class Battle {
     constructor(fightActions,viewActions) {
         this.fightActions = fightActions;
@@ -41,7 +40,6 @@ GAME_CORE.BATTLE.AbstractFightActions = class AbstractFightActions {
     getBattleResult() {throw Error('not override abstract method');}
     resetBattle() {throw Error('not override abstract method');}
 }
-//todo create test
 GAME_CORE.BATTLE.LogChatViewActions = class LogChatViewActions extends  GAME_CORE.BATTLE.AbstractViewActions{
     constructor(logChat, attackerColor="orange", defenderColor="blue", chatColor ='red', sleepTime =500) {
         super();
@@ -88,7 +86,6 @@ GAME_CORE.BATTLE.LogChatViewActions = class LogChatViewActions extends  GAME_COR
         this.defenderPresetLetter.setColor(color);
     }
 }
-//todo create test
 GAME_CORE.BATTLE.DuelFightActions = class DuelFightActions extends GAME_CORE.BATTLE.AbstractFightActions {
     constructor(fighterPool, attackProcessor, battleType =undefined) {
         super(fighterPool, attackProcessor);
@@ -277,7 +274,6 @@ GAME_CORE.BATTLE.AttackProcessor = class AttackProcessor {
     }
 };
 
-//todo create test
 GAME_CORE.BATTLE.AttackResult = class AttackResult {
     constructor(fightingFighters, type, dealingDamage =0) {
         //todo добавить проверку на совпадение класса

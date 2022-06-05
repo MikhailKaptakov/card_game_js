@@ -28,7 +28,7 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 	getHealth() {return this.currentHealth.getValue();}
 	getDamage() {return this.damage.getValue();}
 	getLuck() {return this.luck.getValue();}
-	getDodge() {return this.dodge.getValue();}
+	getDodge() {return Math.min(this.dodge.getValue(), GAME_CORE.DEFAULT_PROPS.MAX_DODGE);} //limited dodge
 	getOwner() {return this.owner;}
 	getWins() {return this.wins.getValue();}
 	getEquipment() {return this.equipment;}
@@ -73,7 +73,6 @@ GAME_CORE.Unit = class Unit extends UTIL_CORE.ViewEntity {
 	}
 
 	beFullHealed() {
-		this.updateMaxHealth();
 		this.currentHealth.updateValue(this.getMaxHealth());
 		this._log(this.getHealth());
 	}

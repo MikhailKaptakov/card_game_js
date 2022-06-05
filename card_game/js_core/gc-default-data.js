@@ -10,7 +10,7 @@ GAME_CORE.DEFAULT_PROPS.EquipTypes.arms = 'arms';
 GAME_CORE.DEFAULT_PROPS.EquipTypes.body = 'body';
 GAME_CORE.DEFAULT_PROPS.EquipTypes.legs = 'legs';
 GAME_CORE.DEFAULT_PROPS.EquipTypes.feet = 'feet';
-
+GAME_CORE.DEFAULT_PROPS.MAX_DODGE = 75;
 GAME_CORE.DEFAULT_PROPS.rarityOptions = [
     // args: index, difficult, viewClassName, cardText, coloredAdjective (letter, color), price (buy,sell), statMap (health,damage,luck,dodge)
     new GAME_CORE.RarityOption('empty', 0, 'emptyCard', ' ', 'ничего', undefined,
@@ -111,7 +111,9 @@ GAME_CORE.LOGGERS.loggerInfo.addChildLogger(GAME_CORE.LOGGERS.InfoLogChatLogger)
 GAME_CORE.LOGGERS.loggerInfo.addChildLogger(GAME_CORE.LOGGERS.InfoAppenderLogger);
 
 
-
+//todo переделать текстовые константы в объекты нового класса утил кора
+// - константы, и обращаться к значению константы через getName. Чтобы константы можно было переопределять
+// т.е. передавались по значению ссылки
 
 GAME_CORE.DEFAULT_PROPS.MODIFICATIONS = {};
 GAME_CORE.DEFAULT_PROPS.MODIFICATIONS.TYPES = {};

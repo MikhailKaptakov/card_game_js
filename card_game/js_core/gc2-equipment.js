@@ -119,6 +119,9 @@ GAME_CORE.EquipmentCell = class EquipmentCell {
 		this.multipleMod = multipleMod;
 		this.additionalMod = additionalMod;
 	}
+	//todo добавить методы изменения рарности карты ячейки, и всех основных допустимых манипуляций открытие и прочее,
+	// не давать прямого доступа к карте, убрать метод getCard.
+	// Методы изменения рарности должны изменять описание карты в соответствии с мультипл и аддитионал модами
 
 	getStat(statName) {
 		const cardStat = this.card.getStatMap().getStat(statName);
